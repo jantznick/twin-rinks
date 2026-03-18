@@ -1,0 +1,396 @@
+export function normalizeGames(gamesResponse) {
+  if (!gamesResponse || !gamesResponse.games) {
+    return [];
+  }
+  if (Array.isArray(gamesResponse.games)) {
+    return gamesResponse.games;
+  }
+  if (typeof gamesResponse.games === "object") {
+    return Object.values(gamesResponse.games);
+  }
+  return [];
+}
+
+export function getOptionValues(game) {
+  return new Set((game?.options || []).map((option) => option.value));
+}
+
+export function buildDraftSelections(games) {
+  const draft = {};
+  for (const game of games) {
+    const subChecked = (game.options || []).some(
+      (option) => option.value === "SUB" && option.checked
+    );
+    const radioChecked = (game.options || []).find(
+      (option) => option.type === "radio" && option.checked
+    );
+    draft[game.gameId] = {
+      sub: subChecked || game.selected === "SUB",
+      attendance:
+        radioChecked?.value ||
+        (game.selected === "IN" || game.selected === "OUT" ? game.selected : "")
+    };
+  }
+  return draft;
+}
+
+export function countSelected(games, draftSelections) {
+  let subCount = 0;
+  let inCount = 0;
+  let outCount = 0;
+  for (const game of games) {
+    const selection = draftSelections[game.gameId];
+    if (selection?.sub) {
+      subCount += 1;
+    }
+    if (selection?.attendance === "IN") {
+      inCount += 1;
+    }
+    if (selection?.attendance === "OUT") {
+      outCount += 1;
+    }
+  }
+  return { subCount, inCount, outCount };
+}
+
+export function hasDraftChanges(games, initialDraft, draftSelections, hiddenGames) {
+  for (const game of games) {
+    const base = initialDraft[game.gameId] || { sub: false, attendance: "" };
+    const draft = draftSelections[game.gameId] || { sub: false, attendance: "" };
+    if (
+      Boolean(base.sub) !== Boolean(draft.sub) ||
+      (base.attendance || "") !== (draft.attendance || "")
+    ) {
+      return true;
+    }
+    if (hiddenGames[game.gameId]) {
+      return true;
+    }
+  }
+  return false;
+}
+
+export function getScheduleText(game) {
+  const schedule = game?.schedule || {};
+  if (schedule.date && schedule.day && schedule.time) {
+    return `${schedule.date} ${schedule.day} ${schedule.time}`;
+  }
+  return game?.dateTimeRink || "Schedule unavailable";
+}
+
+export function getTimeText(game) {
+  return game?.schedule?.time || "";
+}
+
+export function getRink(game) {
+  return game?.schedule?.rink ? game.schedule.rink.toUpperCase() : "";
+}
+
+export function getGameHeadline(game) {
+  if (game?.details?.kind === "matchup") {
+    return `${game.details.league}: ${game.details.teamA} vs ${game.details.teamB}`;
+  }
+  if (game?.details?.summary) {
+    return game.details.summary;
+  }
+  return game?.infoText || "Game";
+}
+
+export function getLeagueLabel(game) {
+  if (game?.details?.kind === "matchup" && game?.details?.league) {
+    return game.details.league;
+  }
+  if (game?.details?.kind === "playing") {
+    return "Playing";
+  }
+  return "Game";
+}
+
+export function getGameNote(game) {
+  if (game?.details?.kind === "matchup" && game?.details?.note) {
+    return game.details.note;
+  }
+  if (game?.details?.kind === "playing") {
+    return "You are currently selected for this game.";
+  }
+  return "";
+}
+
+export function getSubSpotState(game) {
+  const note = String(game?.details?.note || "").toLowerCase();
+  if (note.includes("sub needed")) {
+    return "needed";
+  }
+  if (note.includes("sub spot filled")) {
+    return "filled";
+  }
+  return null;
+}
+
+export function getStatusLabel(game, selection) {
+  if (selection?.attendance === "IN") {
+    return "IN - playing";
+  }
+  if (selection?.attendance === "OUT") {
+    return "OUT - not attending";
+  }
+  if (selection?.sub) {
+    return "Sub request selected";
+  }
+  switch (game?.stage) {
+    case "confirmed-in":
+      return "IN - playing";
+    case "out":
+      return "OUT - not attending";
+    case "sub-requested":
+      return "Sub request selected";
+    case "selected":
+      return "Selected";
+    case "available":
+      return "Available";
+    default:
+      return "No selection";
+  }
+}
+
+export function getStatusPillClasses(statusLabel) {
+  if (statusLabel.startsWith("IN")) {
+    return "bg-emerald-100 text-emerald-800 ring-emerald-200";
+  }
+  if (statusLabel.startsWith("OUT")) {
+    return "bg-amber-100 text-amber-800 ring-amber-200";
+  }
+  if (statusLabel.toLowerCase().includes("sub")) {
+    return "bg-sky-100 text-sky-800 ring-sky-200";
+  }
+  return "bg-slate-100 text-slate-700 ring-slate-200";
+}
+
+export function getCountdownText(game) {
+  const gameDate = parseGameDate(game);
+  if (!gameDate) {
+    return "";
+  }
+
+  const now = new Date();
+  const diffMs = gameDate.getTime() - now.getTime();
+  const absMs = Math.abs(diffMs);
+  const mins = Math.floor(absMs / 60000);
+  const days = Math.floor(mins / (60 * 24));
+  const hours = Math.floor((mins % (60 * 24)) / 60);
+  const minutes = mins % 60;
+
+  let unitText = "";
+  if (days > 0) {
+    unitText = `${days}d ${hours}h`;
+  } else if (hours > 0) {
+    unitText = `${hours}h ${minutes}m`;
+  } else {
+    unitText = `${minutes}m`;
+  }
+
+  return diffMs >= 0 ? `in ${unitText}` : `${unitText} ago`;
+}
+
+export function groupGamesByDate(games) {
+  const buckets = new Map();
+
+  for (const game of games) {
+    const key = getGameDateKey(game);
+    if (!buckets.has(key)) {
+      buckets.set(key, []);
+    }
+    buckets.get(key).push(game);
+  }
+
+  return [...buckets.entries()]
+    .sort((a, b) => {
+      const aTs = getGameTimestamp(a[1][0]);
+      const bTs = getGameTimestamp(b[1][0]);
+      if (aTs === null && bTs === null) {
+        return a[0].localeCompare(b[0]);
+      }
+      if (aTs === null) {
+        return 1;
+      }
+      if (bTs === null) {
+        return -1;
+      }
+      return aTs - bTs;
+    })
+    .map(([key, groupedGames]) => ({
+      key,
+      label: formatDateLabel(groupedGames[0]),
+      games: groupedGames
+    }));
+}
+
+export function buildUpcomingWeekBuckets(games, totalDays = 14) {
+  const start = startOfDay(new Date());
+  const end = addDays(start, Math.max(0, totalDays - 1));
+  const days = [];
+
+  let cursor = new Date(start);
+  while (cursor <= end) {
+    days.push({
+      key: formatDateKey(cursor),
+      label: formatPlannerLabel(cursor),
+      date: new Date(cursor),
+      games: []
+    });
+    cursor = addDays(cursor, 1);
+  }
+
+  const byKey = new Map(days.map((day) => [day.key, day]));
+  for (const game of games) {
+    const key = getGameDateKey(game);
+    const bucket = byKey.get(key);
+    if (bucket) {
+      bucket.games.push(game);
+    }
+  }
+
+  for (const day of days) {
+    day.games.sort((a, b) => {
+      const aTs = getGameTimestamp(a) || 0;
+      const bTs = getGameTimestamp(b) || 0;
+      return aTs - bTs;
+    });
+  }
+
+  return days;
+}
+
+export function buildPlannerBuckets(games, maxDays = 14) {
+  const sorted = [...games]
+    .map((game) => ({ game, ts: getGameTimestamp(game) }))
+    .filter((entry) => entry.ts !== null)
+    .sort((a, b) => a.ts - b.ts);
+
+  const today = startOfDay(new Date());
+  let start = today;
+  let end = addDays(today, Math.max(0, maxDays - 1));
+
+  if (sorted.length > 0) {
+    const earliest = startOfDay(new Date(sorted[0].ts));
+    const latest = startOfDay(new Date(sorted[sorted.length - 1].ts));
+    start = earliest < today ? earliest : today;
+    end = latest > end ? latest : end;
+  }
+
+  const days = [];
+  let cursor = new Date(start);
+  while (cursor <= end) {
+    days.push({
+      key: formatDateKey(cursor),
+      label: formatPlannerLabel(cursor),
+      date: new Date(cursor),
+      games: []
+    });
+    cursor = addDays(cursor, 1);
+  }
+
+  const byKey = new Map(days.map((day) => [day.key, day]));
+  for (const game of games) {
+    const key = getGameDateKey(game);
+    const bucket = byKey.get(key);
+    if (bucket) {
+      bucket.games.push(game);
+    }
+  }
+
+  for (const day of days) {
+    day.games.sort((a, b) => {
+      const aTs = getGameTimestamp(a) || 0;
+      const bTs = getGameTimestamp(b) || 0;
+      return aTs - bTs;
+    });
+  }
+
+  return days;
+}
+
+function getGameDateKey(game) {
+  return game?.schedule?.date || "unknown-date";
+}
+
+function formatDateLabel(game) {
+  const date = game?.schedule?.date;
+  const day = game?.schedule?.day;
+  if (date && day) {
+    return `${day} ${date}`;
+  }
+  if (date) {
+    return date;
+  }
+  return "Unknown date";
+}
+
+function getGameTimestamp(game) {
+  const parsed = parseGameDate(game);
+  return parsed ? parsed.getTime() : null;
+}
+
+function startOfDay(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+}
+
+function addDays(date, days) {
+  return new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate() + days,
+    0,
+    0,
+    0,
+    0
+  );
+}
+
+function formatDateKey(date) {
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  const yyyy = String(date.getFullYear());
+  return `${mm}/${dd}/${yyyy}`;
+}
+
+function formatPlannerLabel(date) {
+  const dayName = date.toLocaleDateString(undefined, { weekday: "short" });
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${dayName} ${month}/${day}`;
+}
+
+function parseGameDate(game) {
+  const schedule = game?.schedule || {};
+  const datePart = schedule.date;
+  const timePart = schedule.time;
+  if (!datePart || !timePart) {
+    return null;
+  }
+
+  const dateMatch = String(datePart).match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  const timeMatch = String(timePart).match(/^(\d{1,2}):(\d{2})([AP])$/i);
+  if (!dateMatch || !timeMatch) {
+    return null;
+  }
+
+  const month = Number(dateMatch[1]) - 1;
+  const day = Number(dateMatch[2]);
+  const year = Number(dateMatch[3]);
+  let hour = Number(timeMatch[1]);
+  const minute = Number(timeMatch[2]);
+  const meridiem = timeMatch[3].toUpperCase();
+
+  if (meridiem === "A" && hour === 12) {
+    hour = 0;
+  } else if (meridiem === "P" && hour < 12) {
+    hour += 12;
+  }
+
+  const parsed = new Date(year, month, day, hour, minute, 0, 0);
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+  return parsed;
+}
