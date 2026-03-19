@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import AppShellHeader from "../components/AppShellHeader";
 import seasonCalendar from "../data/seasonCalendar.json";
 
 const RAW_GAMES = Array.isArray(seasonCalendar)
@@ -140,14 +139,15 @@ export default function SchedulePage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-sky-50 p-4 text-slate-900 md:p-6">
-      <div className="mx-auto w-full max-w-6xl space-y-4">
-        <AppShellHeader
-          title="Season Schedule"
-          subtitle="Full season calendar with multi-select league and team filters."
-        />
+    <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Season Schedule</h1>
+        <p className="mt-1 text-sm text-slate-500">
+          Full season calendar with multi-select league and team filters.
+        </p>
+      </div>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-md shadow-slate-200/40">
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="grid gap-3 md:grid-cols-2">
             <FilterDropdown
               label="Leagues"
@@ -196,16 +196,19 @@ export default function SchedulePage() {
 
             {selectedMonthKey ? (
               <div className="mt-4">
-                <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500 sm:text-[11px]">
                   {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-                    <div key={day}>{day}</div>
+                    <div key={day} className="hidden sm:block">{day}</div>
+                  ))}
+                  {["S", "M", "T", "W", "T", "F", "S"].map((day, i) => (
+                    <div key={`short-${i}`} className="sm:hidden">{day}</div>
                   ))}
                 </div>
 
-                <div className="mt-2 grid grid-cols-7 gap-1.5">
+                <div className="mt-2 grid grid-cols-7 gap-1 sm:gap-1.5">
                   {dayCells.map((day, index) =>
                     day === null ? (
-                      <div key={`blank-${index}`} className="h-20 rounded-lg bg-white/80" />
+                      <div key={`blank-${index}`} className="h-12 rounded-lg bg-white/80 sm:h-20" />
                     ) : (
                       <button
                         key={`day-${day}`}
@@ -214,7 +217,7 @@ export default function SchedulePage() {
                           setSelectedDay(day);
                           setDayModalOpen(true);
                         }}
-                        className={`h-20 rounded-lg border p-1 text-left transition ${
+                        className={`h-12 rounded-lg border p-1 text-left transition sm:h-20 sm:p-1.5 ${
                           selectedDay === day
                             ? "border-indigo-400 bg-indigo-50"
                             : "border-slate-200 bg-white hover:bg-slate-50"
@@ -222,7 +225,7 @@ export default function SchedulePage() {
                       >
                         <div className="flex items-start justify-between">
                           <span className="text-xs font-semibold text-slate-800">{day}</span>
-                          <span className="text-[11px] text-slate-500">
+                          <span className="text-[10px] text-slate-500 sm:text-[11px]">
                             {(dayMap.get(day)?.length || 0) +
                               countEventsForDay(
                                 OTHER_DATES,
@@ -232,7 +235,7 @@ export default function SchedulePage() {
                               )}
                           </span>
                         </div>
-                        <p className="mt-2 line-clamp-2 text-[11px] text-slate-500">
+                        <p className="mt-1 hidden line-clamp-2 text-[10px] text-slate-500 sm:block sm:mt-2 sm:text-[11px]">
                           {renderDayPreview(dayMap.get(day) || [])}
                         </p>
                       </button>
@@ -246,8 +249,7 @@ export default function SchedulePage() {
               </p>
             )}
           </div>
-        </section>
-      </div>
+      </section>
 
       <ScheduleDayModal
         open={dayModalOpen}
@@ -256,7 +258,7 @@ export default function SchedulePage() {
         events={selectedDayEvents}
         onClose={() => setDayModalOpen(false)}
       />
-    </main>
+    </div>
   );
 }
 

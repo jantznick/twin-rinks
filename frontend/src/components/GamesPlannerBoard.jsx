@@ -21,11 +21,8 @@ export default function GamesPlannerBoard({
   return (
     <div className="space-y-3">
       {buckets.map((bucket) => (
-        <section
-          key={bucket.key}
-          className="rounded-2xl border border-white/80 bg-white/85 p-3 shadow-md shadow-slate-200/40"
-        >
-          <div className="mb-2 flex items-center justify-between border-b border-slate-200 pb-2">
+        <section key={bucket.key} className="pt-2">
+          <div className="mb-3 flex items-center justify-between border-b border-slate-200 pb-2">
             {bucket.games.length === 0 ? (
               <p className="text-sm font-semibold text-slate-800">{bucket.label}</p>
             ) : (
@@ -38,7 +35,7 @@ export default function GamesPlannerBoard({
                 <span>{bucket.label}</span>
               </button>
             )}
-            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+            <span className="rounded-full bg-white px-2 py-0.5 text-xs font-medium text-slate-600 shadow-sm ring-1 ring-slate-200">
               {bucket.games.length === 0
                 ? "No games available"
                 : `${bucket.games.length} games`}

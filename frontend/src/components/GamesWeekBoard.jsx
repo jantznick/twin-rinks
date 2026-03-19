@@ -13,7 +13,7 @@ export default function GamesWeekBoard({ games, onSelectGame }) {
 
   return (
     <div className="space-y-3">
-      <div className="overflow-x-auto rounded-2xl border border-white/80 bg-white/85 p-3 shadow-md shadow-slate-200/40">
+      <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
           {firstRangeLabel}
         </p>
@@ -23,7 +23,7 @@ export default function GamesWeekBoard({ games, onSelectGame }) {
           ))}
         </div>
       </div>
-      <div className="overflow-x-auto rounded-2xl border border-white/80 bg-white/85 p-3 shadow-md shadow-slate-200/40">
+      <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
           {secondRangeLabel}
         </p>

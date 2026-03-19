@@ -1,0 +1,582 @@
+import { useEffect, useMemo, useState } from "react";
+import GamesCalendarView from "../components/GamesCalendarView";
+import GamesGrid from "../components/GamesGrid";
+import GamesListView from "../components/GamesListView";
+import JerseyGuideModal from "../components/JerseyGuideModal";
+import PendingChangesBar from "../components/PendingChangesBar";
+import {
+  buildDraftSelections,
+  getJerseyChart,
+  getGameStartDate,
+  getGameHeadline,
+  isPlayerPlaying,
+  getPlayingTeamColor,
+  getScheduleText,
+  normalizeGames
+} from "../lib/gameUtils";
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+const DENSE_MODE_KEY = "subs-dense-mode";
+const VIEW_MODE_KEY = "subs-view-mode";
+
+function getSavedDenseMode() {
+  try {
+    return localStorage.getItem(DENSE_MODE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function getSavedViewMode() {
+  try {
+    const value = localStorage.getItem(VIEW_MODE_KEY);
+    return value === "calendar" || value === "list" ? value : "cards";
+  } catch {
+    return "cards";
+  }
+}
+
+function isMyGameSelection(selection) {
+  if (!selection) {
+    return false;
+  }
+  return Boolean(selection.sub) || selection.attendance === "IN";
+}
+
+function normalizeSelection(selection) {
+  const attendance =
+    selection?.attendance === "IN" || selection?.attendance === "OUT"
+      ? selection.attendance
+      : "";
+  return {
+    sub: Boolean(selection?.sub),
+    attendance
+  };
+}
+
+function areSelectionsEqual(a, b) {
+  return (
+    Boolean(a?.sub) === Boolean(b?.sub) &&
+    (a?.attendance || "") === (b?.attendance || "")
+  );
+}
+
+function cloneSelections(map) {
+  const clone = {};
+  for (const [gameId, selection] of Object.entries(map || {})) {
+    clone[gameId] = normalizeSelection(selection);
+  }
+  return clone;
+}
+
+function selectionLabel(selection) {
+  const normalized = normalizeSelection(selection);
+  if (normalized.sub) {
+    return "SUB";
+  }
+  if (normalized.attendance === "IN") {
+    return "IN";
+  }
+  if (normalized.attendance === "OUT") {
+    return "OUT";
+  }
+  return "No response";
+}
+
+function getChangeSummary(before, after) {
+  const fromLabel = selectionLabel(before);
+  const toLabel = selectionLabel(after);
+  if (fromLabel === "No response") {
+    return `Set to ${toLabel}`;
+  }
+  if (toLabel === "No response") {
+    return `Cleared ${fromLabel}`;
+  }
+  return `${fromLabel} → ${toLabel}`;
+}
+
+export default function SubsPage({ phpsessid }) {
+  const [gamesResponse, setGamesResponse] = useState(null);
+  const [draftSelections, setDraftSelections] = useState({});
+  const [denseMode, setDenseMode] = useState(getSavedDenseMode);
+  const [viewMode, setViewMode] = useState(getSavedViewMode);
+  const [calendarLayoutMode, setCalendarLayoutMode] = useState("planner");
+  const [activeTab, setActiveTab] = useState("subs");
+  const [submittedSelections, setSubmittedSelections] = useState({});
+  const [pendingExpanded, setPendingExpanded] = useState(false);
+  const [jerseyGuideOpen, setJerseyGuideOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const fetchGames = async (sessionId) => {
+    setError("");
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE}/get-games`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phpsessid: sessionId })
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || "Unable to load games");
+      }
+      setGamesResponse(data);
+    } catch (requestError) {
+      setGamesResponse(null);
+      setError(requestError.message || "Unable to load games");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (phpsessid) {
+      fetchGames(phpsessid);
+    }
+  }, [phpsessid]);
+
+  const games = useMemo(() => normalizeGames(gamesResponse), [gamesResponse]);
+  const initialDraft = useMemo(() => buildDraftSelections(games), [games]);
+
+  const submittedGameIds = useMemo(() => {
+    const ids = new Set();
+    for (const game of games) {
+      const stage = String(game?.stage || "").toLowerCase();
+      if (stage === "selected" || stage === "confirmed-in") {
+        ids.add(game.gameId);
+      }
+    }
+    for (const [gameId, selection] of Object.entries(submittedSelections)) {
+      if (isMyGameSelection(selection)) {
+        ids.add(gameId);
+      }
+    }
+    return ids;
+  }, [games, submittedSelections]);
+
+  const outGameIds = useMemo(() => {
+    const ids = new Set();
+    for (const game of games) {
+      const stage = String(game?.stage || "").toLowerCase();
+      if (stage === "out") {
+        ids.add(game.gameId);
+      }
+    }
+    for (const [gameId, selection] of Object.entries(submittedSelections)) {
+      if (selection?.attendance === "OUT") {
+        ids.add(gameId);
+      } else if (ids.has(gameId)) {
+        ids.delete(gameId);
+      }
+    }
+    return ids;
+  }, [games, submittedSelections]);
+
+  const subsGames = useMemo(
+    () =>
+      games.filter(
+        (game) => !submittedGameIds.has(game.gameId) && !outGameIds.has(game.gameId)
+      ),
+    [games, submittedGameIds, outGameIds]
+  );
+
+  const myGames = useMemo(
+    () =>
+      games.filter(
+        (game) => submittedGameIds.has(game.gameId) && !outGameIds.has(game.gameId)
+      ),
+    [games, submittedGameIds, outGameIds]
+  );
+
+  const hiddenTabGames = useMemo(
+    () => games.filter((game) => outGameIds.has(game.gameId)),
+    [games, outGameIds]
+  );
+
+  const nextGameText = useMemo(() => {
+    const now = Date.now();
+    let nextGame = null;
+    for (const game of myGames) {
+      const date = getGameStartDate(game);
+      if (!date) {
+        continue;
+      }
+      const timestamp = date.getTime();
+      if (timestamp < now) {
+        continue;
+      }
+      if (!nextGame || timestamp < nextGame.timestamp) {
+        nextGame = { timestamp, game };
+      }
+    }
+    return nextGame ? getScheduleText(nextGame.game) : "";
+  }, [myGames]);
+
+  const activeTabGames = useMemo(
+    () =>
+      activeTab === "my-games"
+        ? myGames
+        : activeTab === "hidden"
+        ? hiddenTabGames
+        : subsGames,
+    [activeTab, myGames, hiddenTabGames, subsGames]
+  );
+
+  const visibleGames = useMemo(() => {
+    return activeTabGames;
+  }, [activeTabGames]);
+
+  const pendingSelectionChanges = useMemo(() => {
+    const changes = [];
+    for (const game of games) {
+      const baseline = normalizeSelection(submittedSelections[game.gameId]);
+      const draft = normalizeSelection(draftSelections[game.gameId]);
+      if (!areSelectionsEqual(baseline, draft)) {
+        changes.push({
+          gameId: game.gameId,
+          headline: getGameHeadline(game),
+          schedule: getScheduleText(game),
+          summary: getChangeSummary(baseline, draft)
+        });
+      }
+    }
+    return changes;
+  }, [games, submittedSelections, draftSelections]);
+
+  const hasPendingSelectionChanges = pendingSelectionChanges.length > 0;
+  const pendingGameIds = useMemo(
+    () => new Set(pendingSelectionChanges.map((change) => change.gameId)),
+    [pendingSelectionChanges]
+  );
+
+  const jerseyChart = useMemo(() => getJerseyChart(), []);
+
+  useEffect(() => {
+    setDraftSelections(cloneSelections(initialDraft));
+    setSubmittedSelections(cloneSelections(initialDraft));
+  }, [initialDraft]);
+
+  useEffect(() => {
+    if (!hasPendingSelectionChanges) {
+      setPendingExpanded(false);
+    }
+  }, [hasPendingSelectionChanges]);
+
+  const handleSetDenseMode = (nextDenseMode) => {
+    setDenseMode(nextDenseMode);
+    try {
+      localStorage.setItem(DENSE_MODE_KEY, nextDenseMode ? "1" : "0");
+    } catch {
+      // Ignore localStorage failures.
+    }
+  };
+
+  const handleChangeViewMode = (nextMode) => {
+    setViewMode(nextMode);
+    try {
+      localStorage.setItem(VIEW_MODE_KEY, nextMode);
+    } catch {
+      // Ignore localStorage failures.
+    }
+  };
+
+  const handleToggleSub = (gameId) => {
+    setDraftSelections((previous) => {
+      const wasSelected = Boolean(previous[gameId]?.sub);
+      return {
+        ...previous,
+        [gameId]: {
+          ...previous[gameId],
+          sub: !wasSelected,
+          attendance: ""
+        }
+      };
+    });
+  };
+
+  const handleToggleAttendance = (gameId, value) => {
+    setDraftSelections((previous) => {
+      const current = previous[gameId]?.attendance || "";
+      const nextValue = current === value ? "" : value;
+      return {
+        ...previous,
+        [gameId]: {
+          ...previous[gameId],
+          attendance: nextValue,
+          sub: false
+        }
+      };
+    });
+  };
+
+  const handleSubmitPendingChanges = () => {
+    setSubmittedSelections(cloneSelections(draftSelections));
+    setPendingExpanded(false);
+  };
+
+  const handleCancelPendingChanges = () => {
+    setDraftSelections(cloneSelections(submittedSelections));
+    setPendingExpanded(false);
+  };
+
+  const handleRemovePendingChange = (gameId) => {
+    const baseline = normalizeSelection(submittedSelections[gameId]);
+    setDraftSelections((previous) => ({
+      ...previous,
+      [gameId]: baseline
+    }));
+  };
+
+  return (
+    <div className={`mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 ${hasPendingSelectionChanges ? "pb-36 md:pb-44" : ""}`}>
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+            My Games & Subs
+          </h1>
+          <p className="mt-1 text-sm text-slate-500">
+            {nextGameText
+              ? `Your next game is ${nextGameText}`
+              : "Your next game is not scheduled yet."}
+          </p>
+        </div>
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+          <div className="flex w-full items-center gap-1 overflow-x-auto rounded-xl border border-slate-200 bg-white p-1 shadow-sm sm:w-auto sm:inline-flex sm:overflow-visible">
+            <button
+              type="button"
+              onClick={() => setActiveTab("subs")}
+              className={`flex-1 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition sm:flex-none ${
+                activeTab === "subs"
+                  ? "bg-indigo-600 text-white"
+                  : "text-slate-700 hover:bg-slate-50"
+              }`}
+            >
+              Subs ({subsGames.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("my-games")}
+              className={`flex-1 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition sm:flex-none ${
+                activeTab === "my-games"
+                  ? "bg-indigo-600 text-white"
+                  : "text-slate-700 hover:bg-slate-50"
+              }`}
+            >
+              My Games ({myGames.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("hidden")}
+              className={`flex-1 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition sm:flex-none ${
+                activeTab === "hidden"
+                  ? "bg-indigo-600 text-white"
+                  : "text-slate-700 hover:bg-slate-50"
+              }`}
+            >
+              Hidden ({hiddenTabGames.length})
+            </button>
+          </div>
+          <div className="flex w-full items-center gap-2 sm:w-auto">
+            <button
+              type="button"
+              onClick={() => fetchGames(phpsessid)}
+              disabled={loading}
+              aria-label="Refresh games"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" aria-hidden="true">
+                <path
+                  d="M20 12a8 8 0 1 1-2.34-5.66M20 4v6h-6"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={() => setJerseyGuideOpen(true)}
+              className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-indigo-700 shadow-sm transition hover:bg-slate-50 hover:text-indigo-900 sm:flex-none"
+            >
+              Jersey guide
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {error ? (
+        <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+          {error}
+        </div>
+      ) : null}
+
+      <section className="space-y-4">
+        <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex w-full items-center rounded-lg border border-slate-200 bg-slate-50 p-0.5 sm:w-auto sm:inline-flex">
+                <button
+                  type="button"
+                  onClick={() => handleChangeViewMode("cards")}
+                  className={`flex-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition sm:flex-none ${
+                    viewMode === "cards"
+                      ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  Cards
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleChangeViewMode("calendar")}
+                  className={`flex-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition sm:flex-none ${
+                    viewMode === "calendar"
+                      ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  Calendar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleChangeViewMode("list")}
+                  className={`flex-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition sm:flex-none ${
+                    viewMode === "list"
+                      ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  List
+                </button>
+              </div>
+              {viewMode === "calendar" ? (
+                <div className="flex w-full items-center justify-center gap-3 px-2 py-1 text-sm sm:w-auto sm:justify-start sm:py-0">
+                  <button
+                    type="button"
+                    onClick={() => setCalendarLayoutMode("planner")}
+                    className={`transition ${
+                      calendarLayoutMode === "planner"
+                        ? "font-semibold text-slate-900"
+                        : "text-slate-500 hover:text-slate-700"
+                    }`}
+                  >
+                    Planner
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCalendarLayoutMode("week")}
+                    className={`transition ${
+                      calendarLayoutMode === "week"
+                        ? "font-semibold text-slate-900"
+                        : "text-slate-500 hover:text-slate-700"
+                    }`}
+                  >
+                    Week
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCalendarLayoutMode("grouped")}
+                    className={`transition ${
+                      calendarLayoutMode === "grouped"
+                        ? "font-semibold text-slate-900"
+                        : "text-slate-500 hover:text-slate-700"
+                    }`}
+                  >
+                    Grouped
+                  </button>
+                </div>
+              ) : null}
+            </div>
+            
+            <div className="flex w-full items-center rounded-lg border border-slate-200 bg-slate-50 p-0.5 sm:w-auto sm:inline-flex">
+              <button
+                type="button"
+                onClick={() => handleSetDenseMode(false)}
+                className={`flex-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition sm:flex-none ${
+                  !denseMode
+                    ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                Big
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSetDenseMode(true)}
+                className={`flex-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition sm:flex-none ${
+                  denseMode
+                    ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                Small
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {viewMode === "calendar" ? (
+          <GamesCalendarView
+            games={visibleGames}
+            draftSelections={draftSelections}
+            pendingGameIds={pendingGameIds}
+            denseMode={denseMode}
+            layoutMode={calendarLayoutMode}
+            onToggleSub={handleToggleSub}
+            onToggleAttendance={handleToggleAttendance}
+          />
+        ) : viewMode === "list" ? (
+          <GamesListView
+            games={visibleGames}
+            draftSelections={draftSelections}
+            pendingGameIds={pendingGameIds}
+            onToggleSub={handleToggleSub}
+            onToggleAttendance={handleToggleAttendance}
+          />
+        ) : (
+          <GamesGrid
+            games={visibleGames}
+            draftSelections={draftSelections}
+            pendingGameIds={pendingGameIds}
+            denseMode={denseMode}
+            onToggleSub={handleToggleSub}
+            onToggleAttendance={handleToggleAttendance}
+          />
+        )}
+
+        {visibleGames.length === 0 && !loading && !error ? (
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
+            <p className="text-sm font-medium text-slate-900">
+              {activeTab === "hidden"
+                ? "No hidden games right now."
+                : "No games in this tab right now."}
+            </p>
+          </div>
+        ) : null}
+
+        <div className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+          <strong>Demo mode:</strong> selections are local only. Submit to `bnbform.cgi` is not wired yet.
+        </div>
+      </section>
+
+      <PendingChangesBar
+        isExpanded={pendingExpanded}
+        changeCount={pendingSelectionChanges.length}
+        changes={pendingSelectionChanges}
+        loading={false}
+        onToggleExpanded={() => setPendingExpanded((previous) => !previous)}
+        onSubmit={handleSubmitPendingChanges}
+        onCancel={handleCancelPendingChanges}
+        onRemoveChange={handleRemovePendingChange}
+      />
+
+      <JerseyGuideModal
+        open={jerseyGuideOpen}
+        onClose={() => setJerseyGuideOpen(false)}
+        chart={jerseyChart}
+      />
+    </div>
+  );
+}

@@ -14,7 +14,7 @@ export default function GamesListView({
   onToggleAttendance
 }) {
   return (
-    <div className="rounded-2xl border border-white/80 bg-white/90 p-2 shadow-md shadow-slate-200/40">
+    <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
       <ul className="divide-y divide-slate-200">
         {games.map((game, index) => {
           const selection = draftSelections[game.gameId] || {};
