@@ -76,7 +76,6 @@ export default function GameCard({
       {subSpotState === null && getGameNote(game) ? (
         <p className="mt-1 text-xs text-slate-600">{getGameNote(game)}</p>
       ) : null}
-
       <div className={`mt-3 flex flex-wrap items-center gap-1.5 ${denseMode ? "text-[11px]" : ""}`}>
         {optionValues.has("SUB") ? (
           <button

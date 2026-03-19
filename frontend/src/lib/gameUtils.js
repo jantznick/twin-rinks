@@ -116,6 +116,128 @@ export function getGameNote(game) {
   return "";
 }
 
+const JERSEY_CHART = [
+  { name: "WHITE", bg: "#ffffff", fg: "#000000" },
+  { name: "YELLOW", bg: "#ffff00", fg: "#000000" },
+  { name: "GREY", bg: "#b2babb", fg: "#000000" },
+  { name: "TAN", bg: "#ffe885", fg: "#000000" },
+  { name: "LIME", bg: "#59e800", fg: "#000000" },
+  { name: "CORAL", bg: "#fa7dd9", fg: "#000000" },
+  { name: "GOLD", bg: "#ffd105", fg: "#000000" },
+  { name: "BLUE", bg: "#9cdeff", fg: "#000000" },
+  { name: "VIOLET", bg: "#9e9eff", fg: "#000000" },
+  { name: "BRASS", bg: "#917c0d", fg: "#ffffff" },
+  { name: "COPPER", bg: "#bf5800", fg: "#ffffff" },
+  { name: "ORANGE", bg: "#f15a29", fg: "#000000" },
+  { name: "KELLY", bg: "#32ac00", fg: "#000000" },
+  { name: "TEAL", bg: "#048c7f", fg: "#000000" },
+  { name: "RED", bg: "#be1e2d", fg: "#ffffff" },
+  { name: "ROYAL", bg: "#001c95", fg: "#ffffff" },
+  { name: "PURPLE", bg: "#6305ff", fg: "#ffffff" },
+  { name: "BROWN", bg: "#603913", fg: "#ffffff" },
+  { name: "BLACK", bg: "#000000", fg: "#ffffff" }
+];
+const JERSEY_CHART_ORDER = JERSEY_CHART.map((entry) => entry.name);
+
+const JERSEY_CHART_INDEX = new Map(
+  JERSEY_CHART_ORDER.map((name, index) => [name, index])
+);
+
+export function getJerseyChartOrder() {
+  return [...JERSEY_CHART_ORDER];
+}
+
+export function getJerseyChart() {
+  return JERSEY_CHART.map((entry) => ({ ...entry }));
+}
+
+export function normalizeTeamColorName(value) {
+  if (!value) {
+    return "";
+  }
+  const normalized = String(value).trim().toUpperCase();
+  return JERSEY_CHART_INDEX.has(normalized) ? normalized : "";
+}
+
+export function getJerseyColorForTeamMatchup(teamColor, opponentColor) {
+  const team = normalizeTeamColorName(teamColor);
+  const opponent = normalizeTeamColorName(opponentColor);
+  if (!team || !opponent || team === opponent) {
+    return "";
+  }
+
+  const teamIndex = JERSEY_CHART_INDEX.get(team);
+  const opponentIndex = JERSEY_CHART_INDEX.get(opponent);
+  if (teamIndex < opponentIndex) {
+    return "WHITE";
+  }
+  if (teamIndex > opponentIndex) {
+    return "BLACK";
+  }
+  return "";
+}
+
+export function getSubJerseyGuide(game) {
+  if (game?.details?.kind !== "matchup") {
+    return null;
+  }
+
+  const teamA = normalizeTeamColorName(game?.details?.teamA);
+  const teamB = normalizeTeamColorName(game?.details?.teamB);
+  if (!teamA || !teamB) {
+    return null;
+  }
+
+  const jersey = getJerseyColorForTeamMatchup(teamA, teamB);
+  if (!jersey) {
+    return null;
+  }
+
+  return {
+    team: teamA,
+    jersey,
+    text: `Subs wear a ${jersey.toLowerCase()} jersey`
+  };
+}
+
+export function getPlayingTeamColor(game) {
+  const source = String(game?.details?.summary || game?.infoText || "").toUpperCase();
+  const compact = source.replace(/\s+/g, " ").trim();
+
+  const teamFromLeagueCode = compact.match(/\b[A-Z]{3,6}-([A-Z]+)\b/);
+  if (teamFromLeagueCode?.[1]) {
+    const normalized = normalizeTeamColorName(teamFromLeagueCode[1]);
+    if (normalized) {
+      return normalized;
+    }
+  }
+
+  const teamFromGoalieText = compact.match(/\bGOALIE\s+FOR\s+([A-Z]+)\b/);
+  if (teamFromGoalieText?.[1]) {
+    const normalized = normalizeTeamColorName(teamFromGoalieText[1]);
+    if (normalized) {
+      return normalized;
+    }
+  }
+
+  let detected = "";
+  for (const color of JERSEY_CHART_ORDER) {
+    const regex = new RegExp(`\\b${color}\\b`, "i");
+    if (regex.test(compact)) {
+      detected = color;
+    }
+  }
+  return detected;
+}
+
+export function isPlayerPlaying(game, selection) {
+  if (selection?.attendance === "IN") {
+    return true;
+  }
+  const stage = String(game?.stage || "").toLowerCase();
+  return stage === "selected" || stage === "confirmed-in";
+}
+
 export function getSubSpotState(game) {
   const note = String(game?.details?.note || "").toLowerCase();
   if (note.includes("sub needed")) {
@@ -393,4 +515,8 @@ function parseGameDate(game) {
     return null;
   }
   return parsed;
+}
+
+export function getGameStartDate(game) {
+  return parseGameDate(game);
 }

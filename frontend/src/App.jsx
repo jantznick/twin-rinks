@@ -2,11 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import GamesCalendarView from "./components/GamesCalendarView";
 import GamesGrid from "./components/GamesGrid";
 import GamesListView from "./components/GamesListView";
+import JerseyGuideModal from "./components/JerseyGuideModal";
 import LoginPanel from "./components/LoginPanel";
 import PendingChangesBar from "./components/PendingChangesBar";
 import {
   buildDraftSelections,
-  getGameHeadline,
+  getJerseyChart,
+  getGameStartDate,
   getScheduleText,
   normalizeGames
 } from "./lib/gameUtils";
@@ -118,6 +120,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("subs");
   const [submittedSelections, setSubmittedSelections] = useState({});
   const [pendingExpanded, setPendingExpanded] = useState(false);
+  const [jerseyGuideOpen, setJerseyGuideOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -171,6 +174,24 @@ export default function App() {
     () => games.filter((game) => outGameIds.has(game.gameId)),
     [games, outGameIds]
   );
+  const nextGameText = useMemo(() => {
+    const now = Date.now();
+    let nextGame = null;
+    for (const game of myGames) {
+      const date = getGameStartDate(game);
+      if (!date) {
+        continue;
+      }
+      const timestamp = date.getTime();
+      if (timestamp < now) {
+        continue;
+      }
+      if (!nextGame || timestamp < nextGame.timestamp) {
+        nextGame = { timestamp, game };
+      }
+    }
+    return nextGame ? getScheduleText(nextGame.game) : "";
+  }, [myGames]);
   const activeTabGames = useMemo(
     () =>
       activeTab === "my-games"
@@ -204,6 +225,7 @@ export default function App() {
     () => new Set(pendingSelectionChanges.map((change) => change.gameId)),
     [pendingSelectionChanges]
   );
+  const jerseyChart = useMemo(() => getJerseyChart(), []);
 
   useEffect(() => {
     setDraftSelections(cloneSelections(initialDraft));
@@ -396,17 +418,24 @@ export default function App() {
               </p>
             </div>
             {isLoggedIn ? (
-              <div className="flex items-center gap-2">
-                <p className="rounded-xl border border-indigo-100 bg-indigo-50 px-3 py-2 text-sm font-medium text-indigo-900">
-                  Hi {userEmail || "there"}
+              <div className="flex flex-col items-start gap-2">
+                <div className="flex items-center gap-2">
+                  <p className="rounded-xl border border-indigo-100 bg-indigo-50 px-3 py-2 text-sm font-medium text-indigo-900">
+                    Hi {userEmail || "there"}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                  >
+                    Log out
+                  </button>
+                </div>
+                <p className="text-xs font-medium text-slate-600">
+                  {nextGameText
+                    ? `Your next game is ${nextGameText}`
+                    : "Your next game is not scheduled yet."}
                 </p>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-                >
-                  Log out
-                </button>
               </div>
             ) : null}
           </div>
@@ -463,6 +492,13 @@ export default function App() {
                     strokeLinejoin="round"
                   />
                 </svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => setJerseyGuideOpen(true)}
+                className="text-sm font-medium text-indigo-700 transition hover:text-indigo-900"
+              >
+                View jersey guide
               </button>
             </div>
           ) : null}
@@ -642,6 +678,13 @@ export default function App() {
           onSubmit={handleSubmitPendingChanges}
           onCancel={handleCancelPendingChanges}
           onRemoveChange={handleRemovePendingChange}
+        />
+      ) : null}
+      {isLoggedIn ? (
+        <JerseyGuideModal
+          open={jerseyGuideOpen}
+          onClose={() => setJerseyGuideOpen(false)}
+          chart={jerseyChart}
         />
       ) : null}
     </main>
