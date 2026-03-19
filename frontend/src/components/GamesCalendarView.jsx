@@ -17,15 +17,14 @@ import {
 export default function GamesCalendarView({
   games,
   draftSelections,
-  hiddenGames,
+  pendingGameIds,
   denseMode,
+  layoutMode,
   onToggleSub,
-  onToggleAttendance,
-  onToggleHidden
+  onToggleAttendance
 }) {
   const groups = groupGamesByDate(games);
   const plannerBuckets = useMemo(() => buildPlannerBuckets(games, 14), [games]);
-  const [layoutMode, setLayoutMode] = useState("planner");
   const [collapsedGroups, setCollapsedGroups] = useState({});
   const [selectedGame, setSelectedGame] = useState(null);
 
@@ -38,51 +37,14 @@ export default function GamesCalendarView({
 
   return (
     <div className="space-y-3">
-      <div className="inline-flex rounded-lg border border-slate-300 bg-white p-0.5">
-        <button
-          type="button"
-          onClick={() => setLayoutMode("planner")}
-          className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition ${
-            layoutMode === "planner"
-              ? "bg-indigo-600 text-white"
-              : "text-slate-700 hover:bg-slate-50"
-          }`}
-        >
-          Planner
-        </button>
-        <button
-          type="button"
-          onClick={() => setLayoutMode("week")}
-          className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition ${
-            layoutMode === "week"
-              ? "bg-indigo-600 text-white"
-              : "text-slate-700 hover:bg-slate-50"
-          }`}
-        >
-          Week
-        </button>
-        <button
-          type="button"
-          onClick={() => setLayoutMode("grouped")}
-          className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition ${
-            layoutMode === "grouped"
-              ? "bg-indigo-600 text-white"
-              : "text-slate-700 hover:bg-slate-50"
-          }`}
-        >
-          Grouped
-        </button>
-      </div>
-
       {layoutMode === "planner" ? (
         <GamesPlannerBoard
           buckets={plannerBuckets}
           draftSelections={draftSelections}
-          hiddenGames={hiddenGames}
+          pendingGameIds={pendingGameIds}
           denseMode={denseMode}
           onToggleSub={onToggleSub}
           onToggleAttendance={onToggleAttendance}
-          onToggleHidden={onToggleHidden}
         />
       ) : layoutMode === "week" ? (
         <GamesWeekBoard games={games} onSelectGame={setSelectedGame} />
@@ -125,14 +87,11 @@ export default function GamesCalendarView({
                     key={game.gameId || `${group.key}-${index}`}
                     game={game}
                     selection={draftSelections[game.gameId] || {}}
-                    hidden={Boolean(hiddenGames[game.gameId])}
+                    pending={pendingGameIds?.has(game.gameId)}
                     denseMode={denseMode}
                     timeOnly
                     onToggleSub={() => onToggleSub(game.gameId)}
-                    onToggleAttendance={(value) =>
-                      onToggleAttendance(game.gameId, value)
-                    }
-                    onToggleHidden={() => onToggleHidden(game.gameId)}
+                    onToggleAttendance={(value) => onToggleAttendance(game.gameId, value)}
                   />
                 ))}
               </div>
@@ -144,13 +103,9 @@ export default function GamesCalendarView({
       {selectedGame ? (
         <GameDetailsModal
           game={selectedGame}
-          hidden={Boolean(hiddenGames[selectedGame.gameId])}
           selection={draftSelections[selectedGame.gameId] || {}}
           onToggleSub={() => onToggleSub(selectedGame.gameId)}
-          onToggleAttendance={(value) =>
-            onToggleAttendance(selectedGame.gameId, value)
-          }
-          onToggleHidden={() => onToggleHidden(selectedGame.gameId)}
+          onToggleAttendance={(value) => onToggleAttendance(selectedGame.gameId, value)}
           onClose={() => setSelectedGame(null)}
         />
       ) : null}
@@ -160,11 +115,9 @@ export default function GamesCalendarView({
 
 function GameDetailsModal({
   game,
-  hidden,
   selection,
   onToggleSub,
   onToggleAttendance,
-  onToggleHidden,
   onClose
 }) {
   const status = getStatusLabel(game, selection);
@@ -249,13 +202,6 @@ function GameDetailsModal({
                 OUT
               </button>
             ) : null}
-            <button
-              type="button"
-              onClick={onToggleHidden}
-              className="ml-auto rounded-lg border border-slate-300 px-2.5 py-1 text-xs text-slate-700"
-            >
-              {hidden ? "Unhide" : "Hide"}
-            </button>
           </div>
         </div>
       </div>

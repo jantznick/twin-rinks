@@ -23,83 +23,7 @@ function stripTags(html) {
     .trim();
 }
 
-function escapeRegex(value) {
-  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function splitGameRows(html) {
-  return html
-    .split(/<br\s*\/?>/gi)
-    .map((row) => row.trim())
-    .filter(Boolean)
-    .filter((row) => /name=["']g\d+["']/i.test(row));
-}
-
-function parseGameRow(rowHtml) {
-  const inputRegex = /<input\b[^>]*>/gi;
-  const inputs = [];
-  let inputMatch = inputRegex.exec(rowHtml);
-
-  while (inputMatch) {
-    inputs.push(parseInputAttributes(inputMatch[0]));
-    inputMatch = inputRegex.exec(rowHtml);
-  }
-
-  const detailsInput = inputs.find((input) =>
-    /^g\d+$/i.test(input.name || "")
-  );
-  if (!detailsInput) {
-    return null;
-  }
-
-  const gameId = (detailsInput.name || "").toLowerCase();
-  const options = inputs.filter(
-    (input) => (input.name || "").toLowerCase() === `${gameId}i`
-  );
-
-  const optionValues = options.map((option) => ({
-    type: (option.type || "").toLowerCase(),
-    value: option.value || "",
-    checked: Object.prototype.hasOwnProperty.call(option, "checked")
-  }));
-
-  const selected =
-    optionValues.find((option) => option.checked)?.value || "UNSET";
-
-  const infoText = extractInfoTextAfterGameInput(rowHtml, detailsInput);
-
-  const schedule = parseDateTimeRink(detailsInput.value || "");
-  const details = parseInfoText(infoText);
-  const stage = deriveStage({
-    selected,
-    infoText,
-    options: optionValues
-  });
-
-  return {
-    gameId,
-    dateTimeRink: detailsInput.value || "",
-    infoText,
-    selected,
-    options: optionValues,
-    schedule,
-    details,
-    stage
-  };
-}
-
-function extractInfoTextAfterGameInput(rowHtml, detailsInput) {
-  const gameName = escapeRegex(detailsInput.name || "");
-  const inputRegex = new RegExp(
-    `<input\\b[^>]*\\bname\\s*=\\s*(?:"${gameName}"|'${gameName}'|${gameName})[^>]*>`,
-    "i"
-  );
-  const inputMatch = inputRegex.exec(rowHtml);
-
-  const segment = inputMatch
-    ? rowHtml.slice(inputMatch.index + inputMatch[0].length)
-    : rowHtml;
-
+function extractInfoTextFromSegment(segment) {
   return stripTags(segment)
     .replace(/\bIn\s+Out\b/gi, "")
     .replace(/\bOUT\b/g, "")
@@ -107,9 +31,84 @@ function extractInfoTextAfterGameInput(rowHtml, detailsInput) {
     .trim();
 }
 
+function looksLikeScheduleValue(value) {
+  return /^\d{2}\/\d{2}\/\d{4}\s+[A-Z]{3}\s+\d{1,2}:\d{2}[AP]/i.test(
+    String(value || "").trim()
+  );
+}
+
 function parseSubsHtml(html) {
-  const rows = splitGameRows(html);
-  const games = rows.map(parseGameRow).filter(Boolean);
+  const rows = String(html || "")
+    .split(/<br\s*\/?>/gi)
+    .map((row) => row.trim())
+    .filter(Boolean);
+  const games = [];
+  let syntheticId = 1;
+
+  for (const rowHtml of rows) {
+    const inputRegex = /<input\b[^>]*>/gi;
+    const rowInputs = [];
+    let match = inputRegex.exec(rowHtml);
+    while (match) {
+      rowInputs.push({
+        tag: match[0],
+        start: match.index,
+        end: match.index + match[0].length,
+        attrs: parseInputAttributes(match[0])
+      });
+      match = inputRegex.exec(rowHtml);
+    }
+
+    const detailInput = rowInputs.find((input) => {
+      const type = String(input.attrs.type || "").toLowerCase();
+      return type === "text" && looksLikeScheduleValue(input.attrs.value || "");
+    });
+
+    if (!detailInput) {
+      continue;
+    }
+
+    const explicitGameId = (detailInput.attrs.name || "").toLowerCase();
+    const gameId = /^g\d+$/i.test(explicitGameId)
+      ? explicitGameId
+      : `synthetic-${syntheticId++}`;
+
+    const infoText = extractInfoTextFromSegment(rowHtml.slice(detailInput.end));
+    const optionName = /^g\d+$/i.test(explicitGameId) ? `${explicitGameId}i` : null;
+    const options = rowInputs
+      .filter((input) => {
+        if (!optionName) {
+          return false;
+        }
+        return (input.attrs.name || "").toLowerCase() === optionName;
+      })
+      .map((input) => ({
+        type: (input.attrs.type || "").toLowerCase(),
+        value: input.attrs.value || "",
+        checked: Object.prototype.hasOwnProperty.call(input.attrs, "checked")
+      }));
+
+    const selected = options.find((option) => option.checked)?.value || "UNSET";
+    const schedule = parseDateTimeRink(detailInput.attrs.value || "");
+    const details = parseInfoText(infoText);
+    const stage = deriveStage({
+      selected,
+      infoText,
+      options
+    });
+
+    games.push({
+      gameId,
+      dateTimeRink: detailInput.attrs.value || "",
+      infoText,
+      selected,
+      options,
+      schedule,
+      details,
+      stage
+    });
+  }
+
   return {
     gameCount: games.length,
     games
@@ -143,10 +142,14 @@ function parseInfoText(infoText) {
     };
   }
 
-  if (/^you are playing/i.test(normalized)) {
+  if (isPlayingText(normalized)) {
+    const summary = normalized
+      .split(/goalie-if/i)[0]
+      .replace(/\s+/g, " ")
+      .trim();
     return {
       kind: "playing",
-      summary: normalized
+      summary: summary || normalized
     };
   }
 
@@ -184,7 +187,7 @@ function deriveStage({ selected, infoText, options }) {
   }
 
   const normalizedText = String(infoText || "").toLowerCase();
-  if (normalizedText.includes("you are playing")) {
+  if (isPlayingText(normalizedText)) {
     return "selected";
   }
 
@@ -194,6 +197,15 @@ function deriveStage({ selected, infoText, options }) {
   }
 
   return "unknown";
+}
+
+function isPlayingText(text) {
+  const normalized = String(text || "").toLowerCase();
+  return (
+    normalized.includes("you are playing") ||
+    normalized.includes("you are the goalie for") ||
+    normalized.includes("goalie-if you will miss this game")
+  );
 }
 
 module.exports = {

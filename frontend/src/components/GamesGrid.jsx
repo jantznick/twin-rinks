@@ -3,11 +3,10 @@ import GameCard from "./GameCard";
 export default function GamesGrid({
   games,
   draftSelections,
-  hiddenGames,
+  pendingGameIds,
   denseMode,
   onToggleSub,
-  onToggleAttendance,
-  onToggleHidden
+  onToggleAttendance
 }) {
   return (
     <div
@@ -22,11 +21,10 @@ export default function GamesGrid({
           key={game.gameId || `game-${index}`}
           game={game}
           selection={draftSelections[game.gameId] || {}}
-          hidden={Boolean(hiddenGames[game.gameId])}
+          pending={pendingGameIds?.has(game.gameId)}
           denseMode={denseMode}
           onToggleSub={() => onToggleSub(game.gameId)}
           onToggleAttendance={(value) => onToggleAttendance(game.gameId, value)}
-          onToggleHidden={() => onToggleHidden(game.gameId)}
         />
       ))}
     </div>

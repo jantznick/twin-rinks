@@ -14,12 +14,11 @@ import {
 export default function GameCard({
   game,
   selection,
-  hidden,
+  pending,
   denseMode,
   timeOnly,
   onToggleSub,
-  onToggleAttendance,
-  onToggleHidden
+  onToggleAttendance
 }) {
   const statusLabel = getStatusLabel(game, selection);
   const statusPill = getStatusPillClasses(statusLabel);
@@ -33,9 +32,11 @@ export default function GameCard({
 
   return (
     <article
-      className={`rounded-xl border border-white/80 bg-white/95 shadow-md shadow-slate-200/40 ${
-        denseMode ? "p-2.5" : "p-3"
-      }`}
+      className={`rounded-xl ${
+        pending
+          ? "border border-amber-300 bg-amber-50/70 ring-1 ring-amber-200 shadow-lg shadow-amber-200/50"
+          : "border border-slate-200 bg-white shadow-lg shadow-slate-300/55"
+      } ${denseMode ? "p-2.5" : "p-3"}`}
     >
       <div className="flex items-start justify-between gap-2">
         <div>
@@ -125,15 +126,6 @@ export default function GameCard({
           </button>
         ) : null}
 
-        <button
-          type="button"
-          onClick={onToggleHidden}
-          className={`ml-auto rounded-lg border border-slate-300 bg-white font-medium text-slate-600 transition hover:bg-slate-50 ${
-            denseMode ? "px-2 py-1 text-[10px]" : "px-2.5 py-1 text-[11px]"
-          }`}
-        >
-          {hidden ? "Unhide" : "Hide"}
-        </button>
       </div>
     </article>
   );

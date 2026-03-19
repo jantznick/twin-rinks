@@ -9,10 +9,9 @@ import {
 export default function GamesListView({
   games,
   draftSelections,
-  hiddenGames,
+  pendingGameIds,
   onToggleSub,
-  onToggleAttendance,
-  onToggleHidden
+  onToggleAttendance
 }) {
   return (
     <div className="rounded-2xl border border-white/80 bg-white/90 p-2 shadow-md shadow-slate-200/40">
@@ -24,7 +23,9 @@ export default function GamesListView({
           return (
             <li
               key={game.gameId || `list-${index}`}
-              className="flex flex-col gap-2 px-2 py-2.5 md:flex-row md:items-center md:justify-between"
+              className={`flex flex-col gap-2 px-2 py-2.5 md:flex-row md:items-center md:justify-between ${
+                pendingGameIds?.has(game.gameId) ? "bg-amber-50/70" : ""
+              }`}
             >
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium text-slate-900">
@@ -75,13 +76,6 @@ export default function GamesListView({
                     OUT
                   </button>
                 ) : null}
-                <button
-                  type="button"
-                  onClick={() => onToggleHidden(game.gameId)}
-                  className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] text-slate-700"
-                >
-                  {hiddenGames[game.gameId] ? "Unhide" : "Hide"}
-                </button>
               </div>
             </li>
           );
