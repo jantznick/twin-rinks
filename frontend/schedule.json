@@ -1,0 +1,21 @@
+{
+    "games": [
+        {
+            "id": 1,
+            "date": "2026-01-01",
+            "day": "Saturday",
+            "time": "10:00 AM",
+            "rink": "Blue",
+            "league": "Gold",
+            "home": "Copper",
+            "away": "Red"
+        }
+    ],
+    "otherDates": [
+        {
+            "date": "2026-01-02",
+            "title": "Last day to sign up for $100 discount",
+            "league": "Leisure"
+        }
+    ]
+}

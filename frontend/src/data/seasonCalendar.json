@@ -1,0 +1,7940 @@
+{
+  "games": [
+    {
+      "id": 1,
+      "date": "2026-01-17",
+      "day": "Saturday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Kelly",
+      "away": "Blue"
+    },
+    {
+      "id": 2,
+      "date": "2026-01-18",
+      "day": "Sunday",
+      "time": "04:40 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Coral",
+      "away": "Orange"
+    },
+    {
+      "id": 3,
+      "date": "2026-01-18",
+      "day": "Sunday",
+      "time": "10:10 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Brown",
+      "away": "Tan"
+    },
+    {
+      "id": 4,
+      "date": "2026-01-20",
+      "day": "Tuesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Grey",
+      "away": "Yellow"
+    },
+    {
+      "id": 5,
+      "date": "2026-01-21",
+      "day": "Wednesday",
+      "time": "07:20 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Lime",
+      "away": "Purple"
+    },
+    {
+      "id": 6,
+      "date": "2026-01-25",
+      "day": "Sunday",
+      "time": "07:40 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Copper",
+      "away": "Red"
+    },
+    {
+      "id": 7,
+      "date": "2026-01-25",
+      "day": "Sunday",
+      "time": "08:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Orange",
+      "away": "Kelly"
+    },
+    {
+      "id": 8,
+      "date": "2026-01-26",
+      "day": "Monday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Gold",
+      "away": "Brass"
+    },
+    {
+      "id": 9,
+      "date": "2026-01-27",
+      "day": "Tuesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Tan",
+      "away": "Yellow"
+    },
+    {
+      "id": 10,
+      "date": "2026-01-29",
+      "day": "Thursday",
+      "time": "10:20 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Royal",
+      "away": "Violet"
+    },
+    {
+      "id": 11,
+      "date": "2026-01-29",
+      "day": "Thursday",
+      "time": "10:40 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Brown",
+      "away": "Grey"
+    },
+    {
+      "id": 12,
+      "date": "2026-01-30",
+      "day": "Friday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Blue",
+      "away": "Purple"
+    },
+    {
+      "id": 13,
+      "date": "2026-01-30",
+      "day": "Friday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Teal",
+      "away": "Blue"
+    },
+    {
+      "id": 14,
+      "date": "2026-01-31",
+      "day": "Saturday",
+      "time": "06:00 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Coral",
+      "away": "Grey"
+    },
+    {
+      "id": 15,
+      "date": "2026-01-31",
+      "day": "Saturday",
+      "time": "07:30 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Coral",
+      "away": "Lime"
+    },
+    {
+      "id": 16,
+      "date": "2026-02-01",
+      "day": "Sunday",
+      "time": "04:00 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Blue",
+      "away": "Red"
+    },
+    {
+      "id": 17,
+      "date": "2026-02-01",
+      "day": "Sunday",
+      "time": "04:40 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Blue",
+      "away": "Orange"
+    },
+    {
+      "id": 18,
+      "date": "2026-02-01",
+      "day": "Sunday",
+      "time": "07:40 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Purple",
+      "away": "Grey"
+    },
+    {
+      "id": 19,
+      "date": "2026-02-02",
+      "day": "Monday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Teal",
+      "away": "Yellow"
+    },
+    {
+      "id": 20,
+      "date": "2026-02-02",
+      "day": "Monday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Yellow",
+      "away": "Brown"
+    },
+    {
+      "id": 21,
+      "date": "2026-02-03",
+      "day": "Tuesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Brass",
+      "away": "Violet"
+    },
+    {
+      "id": 22,
+      "date": "2026-02-04",
+      "day": "Wednesday",
+      "time": "08:50 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Blue",
+      "away": "Brown"
+    },
+    {
+      "id": 23,
+      "date": "2026-02-04",
+      "day": "Wednesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Gold",
+      "away": "Red"
+    },
+    {
+      "id": 24,
+      "date": "2026-02-04",
+      "day": "Wednesday",
+      "time": "10:20 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Grey",
+      "away": "Tan"
+    },
+    {
+      "id": 25,
+      "date": "2026-02-05",
+      "day": "Thursday",
+      "time": "08:50 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Grey",
+      "away": "Teal"
+    },
+    {
+      "id": 26,
+      "date": "2026-02-05",
+      "day": "Thursday",
+      "time": "10:40 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Brass",
+      "away": "Lime"
+    },
+    {
+      "id": 27,
+      "date": "2026-02-06",
+      "day": "Friday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Coral",
+      "away": "Violet"
+    },
+    {
+      "id": 28,
+      "date": "2026-02-06",
+      "day": "Friday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Lime",
+      "away": "Kelly"
+    },
+    {
+      "id": 29,
+      "date": "2026-02-06",
+      "day": "Friday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Gold",
+      "away": "Royal"
+    },
+    {
+      "id": 30,
+      "date": "2026-02-07",
+      "day": "Saturday",
+      "time": "06:00 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Brass",
+      "away": "Purple"
+    },
+    {
+      "id": 31,
+      "date": "2026-02-07",
+      "day": "Saturday",
+      "time": "07:20 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Coral",
+      "away": "Copper"
+    },
+    {
+      "id": 32,
+      "date": "2026-02-07",
+      "day": "Saturday",
+      "time": "07:30 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Blue",
+      "away": "Gold"
+    },
+    {
+      "id": 33,
+      "date": "2026-02-07",
+      "day": "Saturday",
+      "time": "08:50 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Purple",
+      "away": "Coral"
+    },
+    {
+      "id": 34,
+      "date": "2026-02-09",
+      "day": "Monday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Lime",
+      "away": "Blue"
+    },
+    {
+      "id": 35,
+      "date": "2026-02-09",
+      "day": "Monday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Teal",
+      "away": "Lime"
+    },
+    {
+      "id": 36,
+      "date": "2026-02-09",
+      "day": "Monday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Brass",
+      "away": "Gold"
+    },
+    {
+      "id": 37,
+      "date": "2026-02-10",
+      "day": "Tuesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Copper",
+      "away": "Yellow"
+    },
+    {
+      "id": 38,
+      "date": "2026-02-10",
+      "day": "Tuesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Brown",
+      "away": "Tan"
+    },
+    {
+      "id": 39,
+      "date": "2026-02-11",
+      "day": "Wednesday",
+      "time": "08:50 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Grey",
+      "away": "Coral"
+    },
+    {
+      "id": 40,
+      "date": "2026-02-11",
+      "day": "Wednesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Kelly",
+      "away": "Purple"
+    },
+    {
+      "id": 41,
+      "date": "2026-02-11",
+      "day": "Wednesday",
+      "time": "10:20 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Yellow",
+      "away": "Teal"
+    },
+    {
+      "id": 42,
+      "date": "2026-02-11",
+      "day": "Wednesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Grey",
+      "away": "Tan"
+    },
+    {
+      "id": 43,
+      "date": "2026-02-12",
+      "day": "Thursday",
+      "time": "10:20 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Yellow",
+      "away": "Grey"
+    },
+    {
+      "id": 44,
+      "date": "2026-02-12",
+      "day": "Thursday",
+      "time": "10:40 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Royal",
+      "away": "Orange"
+    },
+    {
+      "id": 45,
+      "date": "2026-02-13",
+      "day": "Friday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Copper",
+      "away": "Coral"
+    },
+    {
+      "id": 46,
+      "date": "2026-02-13",
+      "day": "Friday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Royal",
+      "away": "Blue"
+    },
+    {
+      "id": 47,
+      "date": "2026-02-13",
+      "day": "Friday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Violet",
+      "away": "Grey"
+    },
+    {
+      "id": 48,
+      "date": "2026-02-13",
+      "day": "Friday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Coral",
+      "away": "Orange"
+    },
+    {
+      "id": 49,
+      "date": "2026-02-14",
+      "day": "Saturday",
+      "time": "05:00 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Brown",
+      "away": "Red"
+    },
+    {
+      "id": 50,
+      "date": "2026-02-14",
+      "day": "Saturday",
+      "time": "06:30 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Red",
+      "away": "Copper"
+    },
+    {
+      "id": 51,
+      "date": "2026-02-14",
+      "day": "Saturday",
+      "time": "07:30 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Violet",
+      "away": "Teal"
+    },
+    {
+      "id": 52,
+      "date": "2026-02-14",
+      "day": "Saturday",
+      "time": "08:00 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Lime",
+      "away": "Orange"
+    },
+    {
+      "id": 53,
+      "date": "2026-02-14",
+      "day": "Saturday",
+      "time": "09:00 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Blue",
+      "away": "Lime"
+    },
+    {
+      "id": 54,
+      "date": "2026-02-15",
+      "day": "Sunday",
+      "time": "04:00 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Tan",
+      "away": "Orange"
+    },
+    {
+      "id": 55,
+      "date": "2026-02-15",
+      "day": "Sunday",
+      "time": "04:40 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Violet",
+      "away": "Brass"
+    },
+    {
+      "id": 56,
+      "date": "2026-02-15",
+      "day": "Sunday",
+      "time": "05:30 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Grey",
+      "away": "Blue"
+    },
+    {
+      "id": 57,
+      "date": "2026-02-15",
+      "day": "Sunday",
+      "time": "07:40 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Coral",
+      "away": "Purple"
+    },
+    {
+      "id": 58,
+      "date": "2026-02-15",
+      "day": "Sunday",
+      "time": "09:10 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Brown",
+      "away": "Tan"
+    },
+    {
+      "id": 59,
+      "date": "2026-02-15",
+      "day": "Sunday",
+      "time": "10:10 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Yellow",
+      "away": "Tan"
+    },
+    {
+      "id": 60,
+      "date": "2026-02-15",
+      "day": "Sunday",
+      "time": "10:40 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Royal",
+      "away": "Brass"
+    },
+    {
+      "id": 61,
+      "date": "2026-02-16",
+      "day": "Monday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Brown",
+      "away": "Violet"
+    },
+    {
+      "id": 62,
+      "date": "2026-02-16",
+      "day": "Monday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Coral",
+      "away": "Kelly"
+    },
+    {
+      "id": 63,
+      "date": "2026-02-16",
+      "day": "Monday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Violet",
+      "away": "Gold"
+    },
+    {
+      "id": 64,
+      "date": "2026-02-16",
+      "day": "Monday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Teal",
+      "away": "Grey"
+    },
+    {
+      "id": 65,
+      "date": "2026-02-17",
+      "day": "Tuesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Purple",
+      "away": "Gold"
+    },
+    {
+      "id": 66,
+      "date": "2026-02-17",
+      "day": "Tuesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Red",
+      "away": "Coral"
+    },
+    {
+      "id": 67,
+      "date": "2026-02-17",
+      "day": "Tuesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Brown",
+      "away": "Copper"
+    },
+    {
+      "id": 68,
+      "date": "2026-02-17",
+      "day": "Tuesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Brass",
+      "away": "Copper"
+    },
+    {
+      "id": 69,
+      "date": "2026-02-18",
+      "day": "Wednesday",
+      "time": "08:50 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Yellow",
+      "away": "Red"
+    },
+    {
+      "id": 70,
+      "date": "2026-02-18",
+      "day": "Wednesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Blue",
+      "away": "Grey"
+    },
+    {
+      "id": 71,
+      "date": "2026-02-18",
+      "day": "Wednesday",
+      "time": "10:20 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Coral",
+      "away": "Orange"
+    },
+    {
+      "id": 72,
+      "date": "2026-02-18",
+      "day": "Wednesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Yellow",
+      "away": "Lime"
+    },
+    {
+      "id": 73,
+      "date": "2026-02-19",
+      "day": "Thursday",
+      "time": "09:10 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Copper",
+      "away": "Teal"
+    },
+    {
+      "id": 74,
+      "date": "2026-02-19",
+      "day": "Thursday",
+      "time": "10:20 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Grey",
+      "away": "Brown"
+    },
+    {
+      "id": 75,
+      "date": "2026-02-19",
+      "day": "Thursday",
+      "time": "10:40 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Lime",
+      "away": "Violet"
+    },
+    {
+      "id": 76,
+      "date": "2026-02-20",
+      "day": "Friday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Purple",
+      "away": "Blue"
+    },
+    {
+      "id": 77,
+      "date": "2026-02-20",
+      "day": "Friday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Coral",
+      "away": "Red"
+    },
+    {
+      "id": 78,
+      "date": "2026-02-20",
+      "day": "Friday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Coral",
+      "away": "Grey"
+    },
+    {
+      "id": 79,
+      "date": "2026-02-20",
+      "day": "Friday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Purple",
+      "away": "Kelly"
+    },
+    {
+      "id": 80,
+      "date": "2026-02-20",
+      "day": "Friday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Violet",
+      "away": "Gold"
+    },
+    {
+      "id": 81,
+      "date": "2026-02-21",
+      "day": "Saturday",
+      "time": "06:00 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Yellow",
+      "away": "Red"
+    },
+    {
+      "id": 82,
+      "date": "2026-02-21",
+      "day": "Saturday",
+      "time": "06:30 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Yellow",
+      "away": "Kelly"
+    },
+    {
+      "id": 83,
+      "date": "2026-02-21",
+      "day": "Saturday",
+      "time": "07:30 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Yellow",
+      "away": "Grey"
+    },
+    {
+      "id": 84,
+      "date": "2026-02-21",
+      "day": "Saturday",
+      "time": "08:00 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Yellow",
+      "away": "Brass"
+    },
+    {
+      "id": 85,
+      "date": "2026-02-22",
+      "day": "Sunday",
+      "time": "04:00 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Orange",
+      "away": "Red"
+    },
+    {
+      "id": 86,
+      "date": "2026-02-22",
+      "day": "Sunday",
+      "time": "04:40 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Gold",
+      "away": "Violet"
+    },
+    {
+      "id": 87,
+      "date": "2026-02-22",
+      "day": "Sunday",
+      "time": "05:30 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Copper",
+      "away": "Blue"
+    },
+    {
+      "id": 88,
+      "date": "2026-02-22",
+      "day": "Sunday",
+      "time": "06:10 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Violet",
+      "away": "Lime"
+    },
+    {
+      "id": 89,
+      "date": "2026-02-22",
+      "day": "Sunday",
+      "time": "07:40 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Orange",
+      "away": "Coral"
+    },
+    {
+      "id": 90,
+      "date": "2026-02-22",
+      "day": "Sunday",
+      "time": "08:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Royal",
+      "away": "Brown"
+    },
+    {
+      "id": 91,
+      "date": "2026-02-22",
+      "day": "Sunday",
+      "time": "09:10 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Purple",
+      "away": "Tan"
+    },
+    {
+      "id": 92,
+      "date": "2026-02-22",
+      "day": "Sunday",
+      "time": "10:10 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Teal",
+      "away": "Brass"
+    },
+    {
+      "id": 93,
+      "date": "2026-02-23",
+      "day": "Monday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Blue",
+      "away": "Tan"
+    },
+    {
+      "id": 94,
+      "date": "2026-02-23",
+      "day": "Monday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Grey",
+      "away": "Blue"
+    },
+    {
+      "id": 95,
+      "date": "2026-02-23",
+      "day": "Monday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Gold",
+      "away": "Violet"
+    },
+    {
+      "id": 96,
+      "date": "2026-02-23",
+      "day": "Monday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Copper",
+      "away": "Lime"
+    },
+    {
+      "id": 97,
+      "date": "2026-02-24",
+      "day": "Tuesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Purple",
+      "away": "Brown"
+    },
+    {
+      "id": 98,
+      "date": "2026-02-24",
+      "day": "Tuesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Royal",
+      "away": "Copper"
+    },
+    {
+      "id": 99,
+      "date": "2026-02-24",
+      "day": "Tuesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Blue",
+      "away": "Coral"
+    },
+    {
+      "id": 100,
+      "date": "2026-02-24",
+      "day": "Tuesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Copper",
+      "away": "Lime"
+    },
+    {
+      "id": 101,
+      "date": "2026-02-24",
+      "day": "Tuesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Royal",
+      "away": "Violet"
+    },
+    {
+      "id": 102,
+      "date": "2026-02-25",
+      "day": "Wednesday",
+      "time": "08:50 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Orange",
+      "away": "Kelly"
+    },
+    {
+      "id": 103,
+      "date": "2026-02-25",
+      "day": "Wednesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Red",
+      "away": "Grey"
+    },
+    {
+      "id": 104,
+      "date": "2026-02-25",
+      "day": "Wednesday",
+      "time": "10:20 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Gold",
+      "away": "Tan"
+    },
+    {
+      "id": 105,
+      "date": "2026-02-25",
+      "day": "Wednesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Yellow",
+      "away": "Grey"
+    },
+    {
+      "id": 106,
+      "date": "2026-02-26",
+      "day": "Thursday",
+      "time": "07:40 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Grey",
+      "away": "Blue"
+    },
+    {
+      "id": 107,
+      "date": "2026-02-26",
+      "day": "Thursday",
+      "time": "09:10 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Teal",
+      "away": "Red"
+    },
+    {
+      "id": 108,
+      "date": "2026-02-26",
+      "day": "Thursday",
+      "time": "10:20 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Tan",
+      "away": "Coral"
+    },
+    {
+      "id": 109,
+      "date": "2026-02-26",
+      "day": "Thursday",
+      "time": "10:40 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Kelly",
+      "away": "Royal"
+    },
+    {
+      "id": 110,
+      "date": "2026-02-27",
+      "day": "Friday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Teal",
+      "away": "Gold"
+    },
+    {
+      "id": 111,
+      "date": "2026-02-27",
+      "day": "Friday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Purple",
+      "away": "Kelly"
+    },
+    {
+      "id": 112,
+      "date": "2026-02-27",
+      "day": "Friday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Lime",
+      "away": "Brass"
+    },
+    {
+      "id": 113,
+      "date": "2026-02-27",
+      "day": "Friday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Teal",
+      "away": "Violet"
+    },
+    {
+      "id": 114,
+      "date": "2026-02-27",
+      "day": "Friday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Gold",
+      "away": "Brass"
+    },
+    {
+      "id": 115,
+      "date": "2026-02-27",
+      "day": "Friday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Tan",
+      "away": "Brown"
+    },
+    {
+      "id": 116,
+      "date": "2026-03-01",
+      "day": "Sunday",
+      "time": "04:00 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Coral",
+      "away": "Blue"
+    },
+    {
+      "id": 117,
+      "date": "2026-03-01",
+      "day": "Sunday",
+      "time": "04:40 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Brown",
+      "away": "Violet"
+    },
+    {
+      "id": 118,
+      "date": "2026-03-01",
+      "day": "Sunday",
+      "time": "05:30 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Coral",
+      "away": "Blue"
+    },
+    {
+      "id": 119,
+      "date": "2026-03-01",
+      "day": "Sunday",
+      "time": "06:10 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Purple",
+      "away": "Lime"
+    },
+    {
+      "id": 120,
+      "date": "2026-03-01",
+      "day": "Sunday",
+      "time": "07:40 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Brass",
+      "away": "Lime"
+    },
+    {
+      "id": 121,
+      "date": "2026-03-01",
+      "day": "Sunday",
+      "time": "08:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Coral",
+      "away": "Red"
+    },
+    {
+      "id": 122,
+      "date": "2026-03-01",
+      "day": "Sunday",
+      "time": "09:10 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Yellow",
+      "away": "Tan"
+    },
+    {
+      "id": 123,
+      "date": "2026-03-01",
+      "day": "Sunday",
+      "time": "10:10 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Royal",
+      "away": "Gold"
+    },
+    {
+      "id": 124,
+      "date": "2026-03-02",
+      "day": "Monday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Purple",
+      "away": "Gold"
+    },
+    {
+      "id": 125,
+      "date": "2026-03-02",
+      "day": "Monday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Grey",
+      "away": "Copper"
+    },
+    {
+      "id": 126,
+      "date": "2026-03-02",
+      "day": "Monday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Orange",
+      "away": "Blue"
+    },
+    {
+      "id": 127,
+      "date": "2026-03-02",
+      "day": "Monday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Brass",
+      "away": "Copper"
+    },
+    {
+      "id": 128,
+      "date": "2026-03-02",
+      "day": "Monday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Gold",
+      "away": "Brown"
+    },
+    {
+      "id": 129,
+      "date": "2026-03-03",
+      "day": "Tuesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Coral",
+      "away": "Brown"
+    },
+    {
+      "id": 130,
+      "date": "2026-03-03",
+      "day": "Tuesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Kelly",
+      "away": "Red"
+    },
+    {
+      "id": 131,
+      "date": "2026-03-03",
+      "day": "Tuesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Tan",
+      "away": "Kelly"
+    },
+    {
+      "id": 132,
+      "date": "2026-03-03",
+      "day": "Tuesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Yellow",
+      "away": "Lime"
+    },
+    {
+      "id": 133,
+      "date": "2026-03-03",
+      "day": "Tuesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Gold",
+      "away": "Violet"
+    },
+    {
+      "id": 134,
+      "date": "2026-03-04",
+      "day": "Wednesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Gold",
+      "away": "Brown"
+    },
+    {
+      "id": 135,
+      "date": "2026-03-04",
+      "day": "Wednesday",
+      "time": "08:50 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Lime",
+      "away": "Yellow"
+    },
+    {
+      "id": 136,
+      "date": "2026-03-04",
+      "day": "Wednesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Red",
+      "away": "Orange"
+    },
+    {
+      "id": 137,
+      "date": "2026-03-04",
+      "day": "Wednesday",
+      "time": "10:20 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Tan",
+      "away": "Lime"
+    },
+    {
+      "id": 138,
+      "date": "2026-03-04",
+      "day": "Wednesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Brown",
+      "away": "Yellow"
+    },
+    {
+      "id": 139,
+      "date": "2026-03-05",
+      "day": "Thursday",
+      "time": "07:40 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Brass",
+      "away": "Teal"
+    },
+    {
+      "id": 140,
+      "date": "2026-03-05",
+      "day": "Thursday",
+      "time": "09:00 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Orange",
+      "away": "Brass"
+    },
+    {
+      "id": 141,
+      "date": "2026-03-05",
+      "day": "Thursday",
+      "time": "09:10 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Orange",
+      "away": "Lime"
+    },
+    {
+      "id": 142,
+      "date": "2026-03-05",
+      "day": "Thursday",
+      "time": "10:30 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Teal",
+      "away": "Orange"
+    },
+    {
+      "id": 143,
+      "date": "2026-03-05",
+      "day": "Thursday",
+      "time": "10:40 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Teal",
+      "away": "Copper"
+    },
+    {
+      "id": 144,
+      "date": "2026-03-06",
+      "day": "Friday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Grey",
+      "away": "Purple"
+    },
+    {
+      "id": 145,
+      "date": "2026-03-06",
+      "day": "Friday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Brass",
+      "away": "Tan"
+    },
+    {
+      "id": 146,
+      "date": "2026-03-06",
+      "day": "Friday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Royal",
+      "away": "Red"
+    },
+    {
+      "id": 147,
+      "date": "2026-03-06",
+      "day": "Friday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Lime",
+      "away": "Purple"
+    },
+    {
+      "id": 148,
+      "date": "2026-03-06",
+      "day": "Friday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Royal",
+      "away": "Grey"
+    },
+    {
+      "id": 149,
+      "date": "2026-03-06",
+      "day": "Friday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Violet",
+      "away": "Lime"
+    },
+    {
+      "id": 150,
+      "date": "2026-03-07",
+      "day": "Saturday",
+      "time": "06:00 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Copper",
+      "away": "Violet"
+    },
+    {
+      "id": 151,
+      "date": "2026-03-07",
+      "day": "Saturday",
+      "time": "07:30 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Gold",
+      "away": "Tan"
+    },
+    {
+      "id": 152,
+      "date": "2026-03-08",
+      "day": "Sunday",
+      "time": "04:00 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Yellow",
+      "away": "Blue"
+    },
+    {
+      "id": 153,
+      "date": "2026-03-08",
+      "day": "Sunday",
+      "time": "04:40 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Blue",
+      "away": "Kelly"
+    },
+    {
+      "id": 154,
+      "date": "2026-03-08",
+      "day": "Sunday",
+      "time": "05:30 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Grey",
+      "away": "Brass"
+    },
+    {
+      "id": 155,
+      "date": "2026-03-08",
+      "day": "Sunday",
+      "time": "06:10 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Coral",
+      "away": "Teal"
+    },
+    {
+      "id": 156,
+      "date": "2026-03-08",
+      "day": "Sunday",
+      "time": "07:40 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Red",
+      "away": "Tan"
+    },
+    {
+      "id": 157,
+      "date": "2026-03-08",
+      "day": "Sunday",
+      "time": "08:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Red",
+      "away": "Violet"
+    },
+    {
+      "id": 158,
+      "date": "2026-03-08",
+      "day": "Sunday",
+      "time": "09:10 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Blue",
+      "away": "Coral"
+    },
+    {
+      "id": 159,
+      "date": "2026-03-08",
+      "day": "Sunday",
+      "time": "10:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Tan",
+      "away": "Teal"
+    },
+    {
+      "id": 160,
+      "date": "2026-03-08",
+      "day": "Sunday",
+      "time": "10:40 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Lime",
+      "away": "Brown"
+    },
+    {
+      "id": 161,
+      "date": "2026-03-09",
+      "day": "Monday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Royal",
+      "away": "Lime"
+    },
+    {
+      "id": 162,
+      "date": "2026-03-09",
+      "day": "Monday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Copper",
+      "away": "Purple"
+    },
+    {
+      "id": 163,
+      "date": "2026-03-09",
+      "day": "Monday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Kelly",
+      "away": "Copper"
+    },
+    {
+      "id": 164,
+      "date": "2026-03-09",
+      "day": "Monday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Red",
+      "away": "Blue"
+    },
+    {
+      "id": 165,
+      "date": "2026-03-09",
+      "day": "Monday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Yellow",
+      "away": "Lime"
+    },
+    {
+      "id": 166,
+      "date": "2026-03-09",
+      "day": "Monday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Tan",
+      "away": "Yellow"
+    },
+    {
+      "id": 167,
+      "date": "2026-03-10",
+      "day": "Tuesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Violet",
+      "away": "Blue"
+    },
+    {
+      "id": 168,
+      "date": "2026-03-10",
+      "day": "Tuesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Royal",
+      "away": "Brass"
+    },
+    {
+      "id": 169,
+      "date": "2026-03-10",
+      "day": "Tuesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Violet",
+      "away": "Orange"
+    },
+    {
+      "id": 170,
+      "date": "2026-03-10",
+      "day": "Tuesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Coral",
+      "away": "Gold"
+    },
+    {
+      "id": 171,
+      "date": "2026-03-10",
+      "day": "Tuesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Gold",
+      "away": "Violet"
+    },
+    {
+      "id": 172,
+      "date": "2026-03-10",
+      "day": "Tuesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Violet",
+      "away": "Brass"
+    },
+    {
+      "id": 173,
+      "date": "2026-03-11",
+      "day": "Wednesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Grey",
+      "away": "Copper"
+    },
+    {
+      "id": 174,
+      "date": "2026-03-11",
+      "day": "Wednesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Copper",
+      "away": "Grey"
+    },
+    {
+      "id": 175,
+      "date": "2026-03-11",
+      "day": "Wednesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Purple",
+      "away": "Red"
+    },
+    {
+      "id": 176,
+      "date": "2026-03-11",
+      "day": "Wednesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Grey",
+      "away": "Brown"
+    },
+    {
+      "id": 177,
+      "date": "2026-03-11",
+      "day": "Wednesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Gold",
+      "away": "Lime"
+    },
+    {
+      "id": 178,
+      "date": "2026-03-11",
+      "day": "Wednesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Yellow",
+      "away": "Coral"
+    },
+    {
+      "id": 179,
+      "date": "2026-03-12",
+      "day": "Thursday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Yellow",
+      "away": "Orange"
+    },
+    {
+      "id": 180,
+      "date": "2026-03-12",
+      "day": "Thursday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Brass",
+      "away": "Coral"
+    },
+    {
+      "id": 181,
+      "date": "2026-03-12",
+      "day": "Thursday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Blue",
+      "away": "Brown"
+    },
+    {
+      "id": 182,
+      "date": "2026-03-12",
+      "day": "Thursday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Brown",
+      "away": "Orange"
+    },
+    {
+      "id": 183,
+      "date": "2026-03-12",
+      "day": "Thursday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Royal",
+      "away": "Gold"
+    },
+    {
+      "id": 184,
+      "date": "2026-03-13",
+      "day": "Friday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Blue",
+      "away": "Red"
+    },
+    {
+      "id": 185,
+      "date": "2026-03-13",
+      "day": "Friday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Orange",
+      "away": "Kelly"
+    },
+    {
+      "id": 186,
+      "date": "2026-03-13",
+      "day": "Friday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Tan",
+      "away": "Lime"
+    },
+    {
+      "id": 187,
+      "date": "2026-03-13",
+      "day": "Friday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Yellow",
+      "away": "Teal"
+    },
+    {
+      "id": 188,
+      "date": "2026-03-13",
+      "day": "Friday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Brown",
+      "away": "Copper"
+    },
+    {
+      "id": 189,
+      "date": "2026-03-14",
+      "day": "Saturday",
+      "time": "05:30 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Blue",
+      "away": "Grey"
+    },
+    {
+      "id": 190,
+      "date": "2026-03-14",
+      "day": "Saturday",
+      "time": "07:00 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Gold",
+      "away": "Blue"
+    },
+    {
+      "id": 191,
+      "date": "2026-03-15",
+      "day": "Sunday",
+      "time": "04:40 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Brass",
+      "away": "Brown"
+    },
+    {
+      "id": 192,
+      "date": "2026-03-15",
+      "day": "Sunday",
+      "time": "05:30 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Lime",
+      "away": "Purple"
+    },
+    {
+      "id": 193,
+      "date": "2026-03-15",
+      "day": "Sunday",
+      "time": "06:10 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Violet",
+      "away": "Tan"
+    },
+    {
+      "id": 194,
+      "date": "2026-03-15",
+      "day": "Sunday",
+      "time": "07:40 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Copper",
+      "away": "Royal"
+    },
+    {
+      "id": 195,
+      "date": "2026-03-15",
+      "day": "Sunday",
+      "time": "08:40 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Brass",
+      "away": "Lime"
+    },
+    {
+      "id": 196,
+      "date": "2026-03-15",
+      "day": "Sunday",
+      "time": "09:10 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Copper",
+      "away": "Violet"
+    },
+    {
+      "id": 197,
+      "date": "2026-03-15",
+      "day": "Sunday",
+      "time": "10:10 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Copper",
+      "away": "Yellow"
+    },
+    {
+      "id": 198,
+      "date": "2026-03-15",
+      "day": "Sunday",
+      "time": "10:40 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Lime",
+      "away": "Brass"
+    },
+    {
+      "id": 199,
+      "date": "2026-03-16",
+      "day": "Monday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Grey",
+      "away": "Teal"
+    },
+    {
+      "id": 200,
+      "date": "2026-03-16",
+      "day": "Monday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Blue",
+      "away": "Brown"
+    },
+    {
+      "id": 201,
+      "date": "2026-03-16",
+      "day": "Monday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Purple",
+      "away": "Violet"
+    },
+    {
+      "id": 202,
+      "date": "2026-03-16",
+      "day": "Monday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Coral",
+      "away": "Grey"
+    },
+    {
+      "id": 203,
+      "date": "2026-03-16",
+      "day": "Monday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Lime",
+      "away": "Gold"
+    },
+    {
+      "id": 204,
+      "date": "2026-03-16",
+      "day": "Monday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Royal",
+      "away": "Coral"
+    },
+    {
+      "id": 205,
+      "date": "2026-03-17",
+      "day": "Tuesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Gold",
+      "away": "Grey"
+    },
+    {
+      "id": 206,
+      "date": "2026-03-17",
+      "day": "Tuesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Red",
+      "away": "Violet"
+    },
+    {
+      "id": 207,
+      "date": "2026-03-17",
+      "day": "Tuesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Orange",
+      "away": "Kelly"
+    },
+    {
+      "id": 208,
+      "date": "2026-03-17",
+      "day": "Tuesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Blue",
+      "away": "Grey"
+    },
+    {
+      "id": 209,
+      "date": "2026-03-17",
+      "day": "Tuesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Yellow",
+      "away": "Orange"
+    },
+    {
+      "id": 210,
+      "date": "2026-03-17",
+      "day": "Tuesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Teal",
+      "away": "Lime"
+    },
+    {
+      "id": 211,
+      "date": "2026-03-18",
+      "day": "Wednesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Red",
+      "away": "Purple"
+    },
+    {
+      "id": 212,
+      "date": "2026-03-18",
+      "day": "Wednesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Blue",
+      "away": "Orange"
+    },
+    {
+      "id": 213,
+      "date": "2026-03-18",
+      "day": "Wednesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Tan",
+      "away": "Orange"
+    },
+    {
+      "id": 214,
+      "date": "2026-03-18",
+      "day": "Wednesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Gold",
+      "away": "Violet"
+    },
+    {
+      "id": 215,
+      "date": "2026-03-18",
+      "day": "Wednesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Grey",
+      "away": "Royal"
+    },
+    {
+      "id": 216,
+      "date": "2026-03-19",
+      "day": "Thursday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Copper",
+      "away": "Teal"
+    },
+    {
+      "id": 217,
+      "date": "2026-03-19",
+      "day": "Thursday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Yellow",
+      "away": "Copper"
+    },
+    {
+      "id": 218,
+      "date": "2026-03-19",
+      "day": "Thursday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Brass",
+      "away": "Coral"
+    },
+    {
+      "id": 219,
+      "date": "2026-03-19",
+      "day": "Thursday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Gold",
+      "away": "Royal"
+    },
+    {
+      "id": 220,
+      "date": "2026-03-19",
+      "day": "Thursday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Brown",
+      "away": "Yellow"
+    },
+    {
+      "id": 221,
+      "date": "2026-03-20",
+      "day": "Friday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Brown",
+      "away": "Blue"
+    },
+    {
+      "id": 222,
+      "date": "2026-03-20",
+      "day": "Friday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Lime",
+      "away": "Red"
+    },
+    {
+      "id": 223,
+      "date": "2026-03-20",
+      "day": "Friday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Red",
+      "away": "Kelly"
+    },
+    {
+      "id": 224,
+      "date": "2026-03-20",
+      "day": "Friday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Yellow",
+      "away": "Violet"
+    },
+    {
+      "id": 225,
+      "date": "2026-03-20",
+      "day": "Friday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Royal",
+      "away": "Brass"
+    },
+    {
+      "id": 226,
+      "date": "2026-03-21",
+      "day": "Saturday",
+      "time": "06:00 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Coral",
+      "away": "Red"
+    },
+    {
+      "id": 227,
+      "date": "2026-03-21",
+      "day": "Saturday",
+      "time": "07:30 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Violet",
+      "away": "Teal"
+    },
+    {
+      "id": 228,
+      "date": "2026-03-21",
+      "day": "Saturday",
+      "time": "09:00 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Violet",
+      "away": "Orange"
+    },
+    {
+      "id": 229,
+      "date": "2026-03-22",
+      "day": "Sunday",
+      "time": "04:00 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Kelly",
+      "away": "Lime"
+    },
+    {
+      "id": 230,
+      "date": "2026-03-22",
+      "day": "Sunday",
+      "time": "05:30 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Teal",
+      "away": "Copper"
+    },
+    {
+      "id": 231,
+      "date": "2026-03-22",
+      "day": "Sunday",
+      "time": "08:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Lime",
+      "away": "Brass"
+    },
+    {
+      "id": 232,
+      "date": "2026-03-22",
+      "day": "Sunday",
+      "time": "10:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Tan",
+      "away": "Orange"
+    },
+    {
+      "id": 233,
+      "date": "2026-03-23",
+      "day": "Monday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Brown",
+      "away": "Purple"
+    },
+    {
+      "id": 234,
+      "date": "2026-03-23",
+      "day": "Monday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Copper",
+      "away": "Purple"
+    },
+    {
+      "id": 235,
+      "date": "2026-03-23",
+      "day": "Monday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Violet",
+      "away": "Gold"
+    },
+    {
+      "id": 236,
+      "date": "2026-03-24",
+      "day": "Tuesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Gold",
+      "away": "Orange"
+    },
+    {
+      "id": 237,
+      "date": "2026-03-24",
+      "day": "Tuesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Coral",
+      "away": "Violet"
+    },
+    {
+      "id": 238,
+      "date": "2026-03-24",
+      "day": "Tuesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Grey",
+      "away": "Tan"
+    },
+    {
+      "id": 239,
+      "date": "2026-03-25",
+      "day": "Wednesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Blue",
+      "away": "Grey"
+    },
+    {
+      "id": 240,
+      "date": "2026-03-25",
+      "day": "Wednesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Brown",
+      "away": "Copper"
+    },
+    {
+      "id": 241,
+      "date": "2026-03-25",
+      "day": "Wednesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Teal",
+      "away": "Brass"
+    },
+    {
+      "id": 242,
+      "date": "2026-03-26",
+      "day": "Thursday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Coral",
+      "away": "Purple"
+    },
+    {
+      "id": 243,
+      "date": "2026-03-26",
+      "day": "Thursday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Blue",
+      "away": "Grey"
+    },
+    {
+      "id": 244,
+      "date": "2026-03-26",
+      "day": "Thursday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Gold",
+      "away": "Copper"
+    },
+    {
+      "id": 245,
+      "date": "2026-03-27",
+      "day": "Friday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Copper",
+      "away": "Teal"
+    },
+    {
+      "id": 246,
+      "date": "2026-03-27",
+      "day": "Friday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Yellow",
+      "away": "Tan"
+    },
+    {
+      "id": 247,
+      "date": "2026-03-27",
+      "day": "Friday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Lime",
+      "away": "Kelly"
+    },
+    {
+      "id": 248,
+      "date": "2026-03-29",
+      "day": "Sunday",
+      "time": "04:00 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Coral",
+      "away": "Gold"
+    },
+    {
+      "id": 249,
+      "date": "2026-03-29",
+      "day": "Sunday",
+      "time": "04:40 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Brass",
+      "away": "Royal"
+    },
+    {
+      "id": 250,
+      "date": "2026-03-29",
+      "day": "Sunday",
+      "time": "05:30 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Red",
+      "away": "Coral"
+    },
+    {
+      "id": 251,
+      "date": "2026-03-29",
+      "day": "Sunday",
+      "time": "06:10 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Brass",
+      "away": "Red"
+    },
+    {
+      "id": 252,
+      "date": "2026-03-29",
+      "day": "Sunday",
+      "time": "07:40 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Brown",
+      "away": "Blue"
+    },
+    {
+      "id": 253,
+      "date": "2026-03-29",
+      "day": "Sunday",
+      "time": "08:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Lime",
+      "away": "Red"
+    },
+    {
+      "id": 254,
+      "date": "2026-03-29",
+      "day": "Sunday",
+      "time": "09:10 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Orange",
+      "away": "Kelly"
+    },
+    {
+      "id": 255,
+      "date": "2026-03-29",
+      "day": "Sunday",
+      "time": "10:10 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Copper",
+      "away": "Yellow"
+    },
+    {
+      "id": 256,
+      "date": "2026-03-29",
+      "day": "Sunday",
+      "time": "10:40 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Royal",
+      "away": "Brass"
+    },
+    {
+      "id": 257,
+      "date": "2026-03-30",
+      "day": "Monday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Lime",
+      "away": "Grey"
+    },
+    {
+      "id": 258,
+      "date": "2026-03-30",
+      "day": "Monday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Gold",
+      "away": "Grey"
+    },
+    {
+      "id": 259,
+      "date": "2026-03-30",
+      "day": "Monday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Brown",
+      "away": "Kelly"
+    },
+    {
+      "id": 260,
+      "date": "2026-03-30",
+      "day": "Monday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Red",
+      "away": "Brown"
+    },
+    {
+      "id": 261,
+      "date": "2026-03-30",
+      "day": "Monday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Teal",
+      "away": "Orange"
+    },
+    {
+      "id": 262,
+      "date": "2026-03-30",
+      "day": "Monday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Tan",
+      "away": "Royal"
+    },
+    {
+      "id": 263,
+      "date": "2026-03-31",
+      "day": "Tuesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Violet",
+      "away": "Kelly"
+    },
+    {
+      "id": 264,
+      "date": "2026-03-31",
+      "day": "Tuesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Blue",
+      "away": "Teal"
+    },
+    {
+      "id": 265,
+      "date": "2026-03-31",
+      "day": "Tuesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Violet",
+      "away": "Blue"
+    },
+    {
+      "id": 266,
+      "date": "2026-03-31",
+      "day": "Tuesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Purple",
+      "away": "Yellow"
+    },
+    {
+      "id": 267,
+      "date": "2026-03-31",
+      "day": "Tuesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Gold",
+      "away": "Kelly"
+    },
+    {
+      "id": 268,
+      "date": "2026-03-31",
+      "day": "Tuesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Yellow",
+      "away": "Teal"
+    },
+    {
+      "id": 269,
+      "date": "2026-04-02",
+      "day": "Thursday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Coral",
+      "away": "Royal"
+    },
+    {
+      "id": 270,
+      "date": "2026-04-02",
+      "day": "Thursday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Orange",
+      "away": "Red"
+    },
+    {
+      "id": 271,
+      "date": "2026-04-02",
+      "day": "Thursday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Tan",
+      "away": "Coral"
+    },
+    {
+      "id": 272,
+      "date": "2026-04-02",
+      "day": "Thursday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Brown",
+      "away": "Tan"
+    },
+    {
+      "id": 273,
+      "date": "2026-04-02",
+      "day": "Thursday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Tan",
+      "away": "Coral"
+    },
+    {
+      "id": 274,
+      "date": "2026-04-02",
+      "day": "Thursday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Yellow",
+      "away": "Grey"
+    },
+    {
+      "id": 275,
+      "date": "2026-04-03",
+      "day": "Friday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Blue",
+      "away": "Gold"
+    },
+    {
+      "id": 276,
+      "date": "2026-04-03",
+      "day": "Friday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Gold",
+      "away": "Orange"
+    },
+    {
+      "id": 277,
+      "date": "2026-04-03",
+      "day": "Friday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Lime",
+      "away": "Orange"
+    },
+    {
+      "id": 278,
+      "date": "2026-04-03",
+      "day": "Friday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Yellow",
+      "away": "Blue"
+    },
+    {
+      "id": 279,
+      "date": "2026-04-03",
+      "day": "Friday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Tan",
+      "away": "Lime"
+    },
+    {
+      "id": 280,
+      "date": "2026-04-03",
+      "day": "Friday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Brass",
+      "away": "Violet"
+    },
+    {
+      "id": 281,
+      "date": "2026-04-04",
+      "day": "Saturday",
+      "time": "05:00 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Violet",
+      "away": "Brown"
+    },
+    {
+      "id": 282,
+      "date": "2026-04-04",
+      "day": "Saturday",
+      "time": "06:30 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Grey",
+      "away": "Violet"
+    },
+    {
+      "id": 283,
+      "date": "2026-04-06",
+      "day": "Monday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Brass",
+      "away": "Royal"
+    },
+    {
+      "id": 284,
+      "date": "2026-04-06",
+      "day": "Monday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Grey",
+      "away": "Kelly"
+    },
+    {
+      "id": 285,
+      "date": "2026-04-06",
+      "day": "Monday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Purple",
+      "away": "Yellow"
+    },
+    {
+      "id": 286,
+      "date": "2026-04-06",
+      "day": "Monday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Copper",
+      "away": "Red"
+    },
+    {
+      "id": 287,
+      "date": "2026-04-06",
+      "day": "Monday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Grey",
+      "away": "Coral"
+    },
+    {
+      "id": 288,
+      "date": "2026-04-06",
+      "day": "Monday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Copper",
+      "away": "Brass"
+    },
+    {
+      "id": 289,
+      "date": "2026-04-07",
+      "day": "Tuesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Coral",
+      "away": "Purple"
+    },
+    {
+      "id": 290,
+      "date": "2026-04-07",
+      "day": "Tuesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Blue",
+      "away": "Brass"
+    },
+    {
+      "id": 291,
+      "date": "2026-04-07",
+      "day": "Tuesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Orange",
+      "away": "Tan"
+    },
+    {
+      "id": 292,
+      "date": "2026-04-07",
+      "day": "Tuesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Royal",
+      "away": "Teal"
+    },
+    {
+      "id": 293,
+      "date": "2026-04-07",
+      "day": "Tuesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Copper",
+      "away": "Lime"
+    },
+    {
+      "id": 294,
+      "date": "2026-04-07",
+      "day": "Tuesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Brown",
+      "away": "Tan"
+    },
+    {
+      "id": 295,
+      "date": "2026-04-08",
+      "day": "Wednesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Grey",
+      "away": "Red"
+    },
+    {
+      "id": 296,
+      "date": "2026-04-08",
+      "day": "Wednesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Purple",
+      "away": "Gold"
+    },
+    {
+      "id": 297,
+      "date": "2026-04-08",
+      "day": "Wednesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Orange",
+      "away": "Purple"
+    },
+    {
+      "id": 298,
+      "date": "2026-04-08",
+      "day": "Wednesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Gold",
+      "away": "Violet"
+    },
+    {
+      "id": 299,
+      "date": "2026-04-08",
+      "day": "Wednesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Violet",
+      "away": "Brown"
+    },
+    {
+      "id": 300,
+      "date": "2026-04-08",
+      "day": "Wednesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Lime",
+      "away": "Gold"
+    },
+    {
+      "id": 301,
+      "date": "2026-04-09",
+      "day": "Thursday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Coral",
+      "away": "Lime"
+    },
+    {
+      "id": 302,
+      "date": "2026-04-09",
+      "day": "Thursday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Copper",
+      "away": "Lime"
+    },
+    {
+      "id": 303,
+      "date": "2026-04-09",
+      "day": "Thursday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Red",
+      "away": "Royal"
+    },
+    {
+      "id": 304,
+      "date": "2026-04-09",
+      "day": "Thursday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Red",
+      "away": "Brown"
+    },
+    {
+      "id": 305,
+      "date": "2026-04-09",
+      "day": "Thursday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Yellow",
+      "away": "Orange"
+    },
+    {
+      "id": 306,
+      "date": "2026-04-09",
+      "day": "Thursday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Brass",
+      "away": "Lime"
+    },
+    {
+      "id": 307,
+      "date": "2026-04-10",
+      "day": "Friday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Coral",
+      "away": "Copper"
+    },
+    {
+      "id": 308,
+      "date": "2026-04-10",
+      "day": "Friday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Red",
+      "away": "Yellow"
+    },
+    {
+      "id": 309,
+      "date": "2026-04-10",
+      "day": "Friday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Blue",
+      "away": "Orange"
+    },
+    {
+      "id": 310,
+      "date": "2026-04-10",
+      "day": "Friday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Royal",
+      "away": "Teal"
+    },
+    {
+      "id": 311,
+      "date": "2026-04-10",
+      "day": "Friday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Copper",
+      "away": "Teal"
+    },
+    {
+      "id": 312,
+      "date": "2026-04-11",
+      "day": "Saturday",
+      "time": "07:30 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Kelly",
+      "away": "Lime"
+    },
+    {
+      "id": 313,
+      "date": "2026-04-11",
+      "day": "Saturday",
+      "time": "09:00 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Yellow",
+      "away": "Blue"
+    },
+    {
+      "id": 314,
+      "date": "2026-04-12",
+      "day": "Sunday",
+      "time": "04:00 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Coral",
+      "away": "Purple"
+    },
+    {
+      "id": 315,
+      "date": "2026-04-12",
+      "day": "Sunday",
+      "time": "04:40 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Purple",
+      "away": "Coral"
+    },
+    {
+      "id": 316,
+      "date": "2026-04-12",
+      "day": "Sunday",
+      "time": "05:30 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Violet",
+      "away": "Blue"
+    },
+    {
+      "id": 317,
+      "date": "2026-04-12",
+      "day": "Sunday",
+      "time": "06:10 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Violet",
+      "away": "Blue"
+    },
+    {
+      "id": 318,
+      "date": "2026-04-12",
+      "day": "Sunday",
+      "time": "07:40 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Kelly",
+      "away": "Brass"
+    },
+    {
+      "id": 319,
+      "date": "2026-04-12",
+      "day": "Sunday",
+      "time": "08:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Grey",
+      "away": "Violet"
+    },
+    {
+      "id": 320,
+      "date": "2026-04-12",
+      "day": "Sunday",
+      "time": "09:10 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Tan",
+      "away": "Copper"
+    },
+    {
+      "id": 321,
+      "date": "2026-04-12",
+      "day": "Sunday",
+      "time": "10:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Tan",
+      "away": "Grey"
+    },
+    {
+      "id": 322,
+      "date": "2026-04-12",
+      "day": "Sunday",
+      "time": "10:40 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Gold",
+      "away": "Brass"
+    },
+    {
+      "id": 323,
+      "date": "2026-04-13",
+      "day": "Monday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Brown",
+      "away": "Gold"
+    },
+    {
+      "id": 324,
+      "date": "2026-04-13",
+      "day": "Monday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Lime",
+      "away": "Brown"
+    },
+    {
+      "id": 325,
+      "date": "2026-04-13",
+      "day": "Monday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Copper",
+      "away": "Violet"
+    },
+    {
+      "id": 326,
+      "date": "2026-04-13",
+      "day": "Monday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Tan",
+      "away": "Royal"
+    },
+    {
+      "id": 327,
+      "date": "2026-04-13",
+      "day": "Monday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Yellow",
+      "away": "Brown"
+    },
+    {
+      "id": 328,
+      "date": "2026-04-14",
+      "day": "Tuesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Coral",
+      "away": "Red"
+    },
+    {
+      "id": 329,
+      "date": "2026-04-14",
+      "day": "Tuesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Copper",
+      "away": "Brass"
+    },
+    {
+      "id": 330,
+      "date": "2026-04-14",
+      "day": "Tuesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Lime",
+      "away": "Kelly"
+    },
+    {
+      "id": 331,
+      "date": "2026-04-14",
+      "day": "Tuesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Orange",
+      "away": "Brown"
+    },
+    {
+      "id": 332,
+      "date": "2026-04-14",
+      "day": "Tuesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Grey",
+      "away": "Tan"
+    },
+    {
+      "id": 333,
+      "date": "2026-04-14",
+      "day": "Tuesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Teal",
+      "away": "Coral"
+    },
+    {
+      "id": 334,
+      "date": "2026-04-15",
+      "day": "Wednesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Coral",
+      "away": "Brown"
+    },
+    {
+      "id": 335,
+      "date": "2026-04-15",
+      "day": "Wednesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Gold",
+      "away": "Orange"
+    },
+    {
+      "id": 336,
+      "date": "2026-04-15",
+      "day": "Wednesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Teal",
+      "away": "Red"
+    },
+    {
+      "id": 337,
+      "date": "2026-04-15",
+      "day": "Wednesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Gold",
+      "away": "Lime"
+    },
+    {
+      "id": 338,
+      "date": "2026-04-15",
+      "day": "Wednesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Lime",
+      "away": "Teal"
+    },
+    {
+      "id": 339,
+      "date": "2026-04-16",
+      "day": "Thursday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Brass",
+      "away": "Lime"
+    },
+    {
+      "id": 340,
+      "date": "2026-04-16",
+      "day": "Thursday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Yellow",
+      "away": "Kelly"
+    },
+    {
+      "id": 341,
+      "date": "2026-04-16",
+      "day": "Thursday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Purple",
+      "away": "Grey"
+    },
+    {
+      "id": 342,
+      "date": "2026-04-16",
+      "day": "Thursday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Grey",
+      "away": "Brass"
+    },
+    {
+      "id": 343,
+      "date": "2026-04-16",
+      "day": "Thursday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Royal",
+      "away": "Yellow"
+    },
+    {
+      "id": 344,
+      "date": "2026-04-16",
+      "day": "Thursday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Yellow",
+      "away": "Grey"
+    },
+    {
+      "id": 345,
+      "date": "2026-04-17",
+      "day": "Friday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Coral",
+      "away": "Gold"
+    },
+    {
+      "id": 346,
+      "date": "2026-04-17",
+      "day": "Friday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Brass",
+      "away": "Copper"
+    },
+    {
+      "id": 347,
+      "date": "2026-04-17",
+      "day": "Friday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Tan",
+      "away": "Red"
+    },
+    {
+      "id": 348,
+      "date": "2026-04-17",
+      "day": "Friday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Yellow",
+      "away": "Brass"
+    },
+    {
+      "id": 349,
+      "date": "2026-04-17",
+      "day": "Friday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Violet",
+      "away": "Royal"
+    },
+    {
+      "id": 350,
+      "date": "2026-04-19",
+      "day": "Sunday",
+      "time": "04:40 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Violet",
+      "away": "Lime"
+    },
+    {
+      "id": 351,
+      "date": "2026-04-19",
+      "day": "Sunday",
+      "time": "05:30 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Red",
+      "away": "Kelly"
+    },
+    {
+      "id": 352,
+      "date": "2026-04-19",
+      "day": "Sunday",
+      "time": "06:10 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Kelly",
+      "away": "Purple"
+    },
+    {
+      "id": 353,
+      "date": "2026-04-19",
+      "day": "Sunday",
+      "time": "07:40 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Copper",
+      "away": "Blue"
+    },
+    {
+      "id": 354,
+      "date": "2026-04-19",
+      "day": "Sunday",
+      "time": "08:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Purple",
+      "away": "Orange"
+    },
+    {
+      "id": 355,
+      "date": "2026-04-19",
+      "day": "Sunday",
+      "time": "09:10 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Coral",
+      "away": "Brown"
+    },
+    {
+      "id": 356,
+      "date": "2026-04-19",
+      "day": "Sunday",
+      "time": "10:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Tan",
+      "away": "Teal"
+    },
+    {
+      "id": 357,
+      "date": "2026-04-19",
+      "day": "Sunday",
+      "time": "10:40 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Teal",
+      "away": "Lime"
+    },
+    {
+      "id": 358,
+      "date": "2026-04-20",
+      "day": "Monday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Lime",
+      "away": "Blue"
+    },
+    {
+      "id": 359,
+      "date": "2026-04-20",
+      "day": "Monday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Purple",
+      "away": "Violet"
+    },
+    {
+      "id": 360,
+      "date": "2026-04-20",
+      "day": "Monday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Lime",
+      "away": "Yellow"
+    },
+    {
+      "id": 361,
+      "date": "2026-04-20",
+      "day": "Monday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Royal",
+      "away": "Gold"
+    },
+    {
+      "id": 362,
+      "date": "2026-04-20",
+      "day": "Monday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Brown",
+      "away": "Violet"
+    },
+    {
+      "id": 363,
+      "date": "2026-04-21",
+      "day": "Tuesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Gold",
+      "away": "Grey"
+    },
+    {
+      "id": 364,
+      "date": "2026-04-21",
+      "day": "Tuesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Orange",
+      "away": "Tan"
+    },
+    {
+      "id": 365,
+      "date": "2026-04-21",
+      "day": "Tuesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Red",
+      "away": "Yellow"
+    },
+    {
+      "id": 366,
+      "date": "2026-04-21",
+      "day": "Tuesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Red",
+      "away": "Blue"
+    },
+    {
+      "id": 367,
+      "date": "2026-04-21",
+      "day": "Tuesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Tan",
+      "away": "Lime"
+    },
+    {
+      "id": 368,
+      "date": "2026-04-21",
+      "day": "Tuesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Royal",
+      "away": "Orange"
+    },
+    {
+      "id": 369,
+      "date": "2026-04-22",
+      "day": "Wednesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Coral",
+      "away": "Kelly"
+    },
+    {
+      "id": 370,
+      "date": "2026-04-22",
+      "day": "Wednesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Orange",
+      "away": "Tan"
+    },
+    {
+      "id": 371,
+      "date": "2026-04-22",
+      "day": "Wednesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Violet",
+      "away": "Grey"
+    },
+    {
+      "id": 372,
+      "date": "2026-04-22",
+      "day": "Wednesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Gold",
+      "away": "Brown"
+    },
+    {
+      "id": 373,
+      "date": "2026-04-22",
+      "day": "Wednesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Copper",
+      "away": "Yellow"
+    },
+    {
+      "id": 374,
+      "date": "2026-04-23",
+      "day": "Thursday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Copper",
+      "away": "Brass"
+    },
+    {
+      "id": 375,
+      "date": "2026-04-23",
+      "day": "Thursday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Copper",
+      "away": "Purple"
+    },
+    {
+      "id": 376,
+      "date": "2026-04-23",
+      "day": "Thursday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Yellow",
+      "away": "Orange"
+    },
+    {
+      "id": 377,
+      "date": "2026-04-23",
+      "day": "Thursday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Brass",
+      "away": "Blue"
+    },
+    {
+      "id": 378,
+      "date": "2026-04-23",
+      "day": "Thursday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Kelly",
+      "away": "Royal"
+    },
+    {
+      "id": 379,
+      "date": "2026-04-23",
+      "day": "Thursday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Grey",
+      "away": "Teal"
+    },
+    {
+      "id": 380,
+      "date": "2026-04-24",
+      "day": "Friday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Lime",
+      "away": "Tan"
+    },
+    {
+      "id": 381,
+      "date": "2026-04-24",
+      "day": "Friday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Red",
+      "away": "Gold"
+    },
+    {
+      "id": 382,
+      "date": "2026-04-24",
+      "day": "Friday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Violet",
+      "away": "Kelly"
+    },
+    {
+      "id": 383,
+      "date": "2026-04-24",
+      "day": "Friday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Lime",
+      "away": "Copper"
+    },
+    {
+      "id": 384,
+      "date": "2026-04-24",
+      "day": "Friday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Yellow",
+      "away": "Coral"
+    },
+    {
+      "id": 385,
+      "date": "2026-04-26",
+      "day": "Sunday",
+      "time": "04:00 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Coral",
+      "away": "Teal"
+    },
+    {
+      "id": 386,
+      "date": "2026-04-26",
+      "day": "Sunday",
+      "time": "04:40 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Red",
+      "away": "Orange"
+    },
+    {
+      "id": 387,
+      "date": "2026-04-26",
+      "day": "Sunday",
+      "time": "05:30 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Purple",
+      "away": "Blue"
+    },
+    {
+      "id": 388,
+      "date": "2026-04-26",
+      "day": "Sunday",
+      "time": "06:10 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Blue",
+      "away": "Brown"
+    },
+    {
+      "id": 389,
+      "date": "2026-04-26",
+      "day": "Sunday",
+      "time": "07:40 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Violet",
+      "away": "Grey"
+    },
+    {
+      "id": 390,
+      "date": "2026-04-26",
+      "day": "Sunday",
+      "time": "08:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Red",
+      "away": "Violet"
+    },
+    {
+      "id": 391,
+      "date": "2026-04-26",
+      "day": "Sunday",
+      "time": "09:10 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Brass",
+      "away": "Orange"
+    },
+    {
+      "id": 392,
+      "date": "2026-04-26",
+      "day": "Sunday",
+      "time": "10:10 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Yellow",
+      "away": "Brass"
+    },
+    {
+      "id": 393,
+      "date": "2026-04-27",
+      "day": "Monday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Red",
+      "away": "Lime"
+    },
+    {
+      "id": 394,
+      "date": "2026-04-27",
+      "day": "Monday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Violet",
+      "away": "Copper"
+    },
+    {
+      "id": 395,
+      "date": "2026-04-27",
+      "day": "Monday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Blue",
+      "away": "Purple"
+    },
+    {
+      "id": 396,
+      "date": "2026-04-27",
+      "day": "Monday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Brass",
+      "away": "Teal"
+    },
+    {
+      "id": 397,
+      "date": "2026-04-27",
+      "day": "Monday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Orange",
+      "away": "Coral"
+    },
+    {
+      "id": 398,
+      "date": "2026-04-27",
+      "day": "Monday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Brown",
+      "away": "Lime"
+    },
+    {
+      "id": 399,
+      "date": "2026-04-28",
+      "day": "Tuesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Coral",
+      "away": "Blue"
+    },
+    {
+      "id": 400,
+      "date": "2026-04-28",
+      "day": "Tuesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Yellow",
+      "away": "Tan"
+    },
+    {
+      "id": 401,
+      "date": "2026-04-28",
+      "day": "Tuesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Blue",
+      "away": "Lime"
+    },
+    {
+      "id": 402,
+      "date": "2026-04-28",
+      "day": "Tuesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Gold",
+      "away": "Grey"
+    },
+    {
+      "id": 403,
+      "date": "2026-04-28",
+      "day": "Tuesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Gold",
+      "away": "Tan"
+    },
+    {
+      "id": 404,
+      "date": "2026-04-28",
+      "day": "Tuesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Grey",
+      "away": "Brown"
+    },
+    {
+      "id": 405,
+      "date": "2026-04-29",
+      "day": "Wednesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Yellow",
+      "away": "Lime"
+    },
+    {
+      "id": 406,
+      "date": "2026-04-29",
+      "day": "Wednesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Gold",
+      "away": "Teal"
+    },
+    {
+      "id": 407,
+      "date": "2026-04-29",
+      "day": "Wednesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Brass",
+      "away": "Kelly"
+    },
+    {
+      "id": 408,
+      "date": "2026-04-29",
+      "day": "Wednesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Tan",
+      "away": "Yellow"
+    },
+    {
+      "id": 409,
+      "date": "2026-04-29",
+      "day": "Wednesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Grey",
+      "away": "Tan"
+    },
+    {
+      "id": 410,
+      "date": "2026-04-30",
+      "day": "Thursday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Red",
+      "away": "Grey"
+    },
+    {
+      "id": 411,
+      "date": "2026-04-30",
+      "day": "Thursday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Purple",
+      "away": "Orange"
+    },
+    {
+      "id": 412,
+      "date": "2026-04-30",
+      "day": "Thursday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Brown",
+      "away": "Copper"
+    },
+    {
+      "id": 413,
+      "date": "2026-04-30",
+      "day": "Thursday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Orange",
+      "away": "Royal"
+    },
+    {
+      "id": 414,
+      "date": "2026-04-30",
+      "day": "Thursday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Copper",
+      "away": "Violet"
+    },
+    {
+      "id": 415,
+      "date": "2026-04-30",
+      "day": "Thursday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Royal",
+      "away": "Coral"
+    },
+    {
+      "id": 416,
+      "date": "2026-05-01",
+      "day": "Friday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Brown",
+      "away": "Teal"
+    },
+    {
+      "id": 417,
+      "date": "2026-05-01",
+      "day": "Friday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Blue",
+      "away": "Brass"
+    },
+    {
+      "id": 418,
+      "date": "2026-05-01",
+      "day": "Friday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Purple",
+      "away": "Orange"
+    },
+    {
+      "id": 419,
+      "date": "2026-05-01",
+      "day": "Friday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Brown",
+      "away": "Kelly"
+    },
+    {
+      "id": 420,
+      "date": "2026-05-01",
+      "day": "Friday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Royal",
+      "away": "Brass"
+    },
+    {
+      "id": 421,
+      "date": "2026-05-03",
+      "day": "Sunday",
+      "time": "04:00 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Yellow",
+      "away": "Orange"
+    },
+    {
+      "id": 422,
+      "date": "2026-05-03",
+      "day": "Sunday",
+      "time": "04:40 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Coral",
+      "away": "Blue"
+    },
+    {
+      "id": 423,
+      "date": "2026-05-03",
+      "day": "Sunday",
+      "time": "05:30 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Copper",
+      "away": "Red"
+    },
+    {
+      "id": 424,
+      "date": "2026-05-03",
+      "day": "Sunday",
+      "time": "06:10 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Gold",
+      "away": "Brass"
+    },
+    {
+      "id": 425,
+      "date": "2026-05-03",
+      "day": "Sunday",
+      "time": "07:40 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Kelly",
+      "away": "Red"
+    },
+    {
+      "id": 426,
+      "date": "2026-05-03",
+      "day": "Sunday",
+      "time": "08:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Gold",
+      "away": "Red"
+    },
+    {
+      "id": 427,
+      "date": "2026-05-03",
+      "day": "Sunday",
+      "time": "09:10 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Violet",
+      "away": "Tan"
+    },
+    {
+      "id": 428,
+      "date": "2026-05-03",
+      "day": "Sunday",
+      "time": "10:10 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Brass",
+      "away": "Lime"
+    },
+    {
+      "id": 429,
+      "date": "2026-05-03",
+      "day": "Sunday",
+      "time": "10:40 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Tan",
+      "away": "Kelly"
+    },
+    {
+      "id": 430,
+      "date": "2026-05-04",
+      "day": "Monday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Purple",
+      "away": "Violet"
+    },
+    {
+      "id": 431,
+      "date": "2026-05-04",
+      "day": "Monday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Coral",
+      "away": "Copper"
+    },
+    {
+      "id": 432,
+      "date": "2026-05-04",
+      "day": "Monday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Red",
+      "away": "Orange"
+    },
+    {
+      "id": 433,
+      "date": "2026-05-04",
+      "day": "Monday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Copper",
+      "away": "Lime"
+    },
+    {
+      "id": 434,
+      "date": "2026-05-04",
+      "day": "Monday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Tan",
+      "away": "Yellow"
+    },
+    {
+      "id": 435,
+      "date": "2026-05-05",
+      "day": "Tuesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Grey",
+      "away": "Teal"
+    },
+    {
+      "id": 436,
+      "date": "2026-05-05",
+      "day": "Tuesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Coral",
+      "away": "Violet"
+    },
+    {
+      "id": 437,
+      "date": "2026-05-05",
+      "day": "Tuesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Brown",
+      "away": "Brass"
+    },
+    {
+      "id": 438,
+      "date": "2026-05-05",
+      "day": "Tuesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Orange",
+      "away": "Kelly"
+    },
+    {
+      "id": 439,
+      "date": "2026-05-05",
+      "day": "Tuesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Royal",
+      "away": "Lime"
+    },
+    {
+      "id": 440,
+      "date": "2026-05-05",
+      "day": "Tuesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Brown",
+      "away": "Gold"
+    },
+    {
+      "id": 441,
+      "date": "2026-05-06",
+      "day": "Wednesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Coral",
+      "away": "Lime"
+    },
+    {
+      "id": 442,
+      "date": "2026-05-06",
+      "day": "Wednesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Blue",
+      "away": "Royal"
+    },
+    {
+      "id": 443,
+      "date": "2026-05-06",
+      "day": "Wednesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Blue",
+      "away": "Brown"
+    },
+    {
+      "id": 444,
+      "date": "2026-05-06",
+      "day": "Wednesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Yellow",
+      "away": "Orange"
+    },
+    {
+      "id": 445,
+      "date": "2026-05-06",
+      "day": "Wednesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Copper",
+      "away": "Lime"
+    },
+    {
+      "id": 446,
+      "date": "2026-05-07",
+      "day": "Thursday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Gold",
+      "away": "Red"
+    },
+    {
+      "id": 447,
+      "date": "2026-05-07",
+      "day": "Thursday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Tan",
+      "away": "Red"
+    },
+    {
+      "id": 448,
+      "date": "2026-05-07",
+      "day": "Thursday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Blue",
+      "away": "Grey"
+    },
+    {
+      "id": 449,
+      "date": "2026-05-07",
+      "day": "Thursday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Orange",
+      "away": "Kelly"
+    },
+    {
+      "id": 450,
+      "date": "2026-05-07",
+      "day": "Thursday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Teal",
+      "away": "Yellow"
+    },
+    {
+      "id": 451,
+      "date": "2026-05-07",
+      "day": "Thursday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Royal",
+      "away": "Teal"
+    },
+    {
+      "id": 452,
+      "date": "2026-05-08",
+      "day": "Friday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Brass",
+      "away": "Red"
+    },
+    {
+      "id": 453,
+      "date": "2026-05-08",
+      "day": "Friday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Purple",
+      "away": "Grey"
+    },
+    {
+      "id": 454,
+      "date": "2026-05-08",
+      "day": "Friday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Brown",
+      "away": "Purple"
+    },
+    {
+      "id": 455,
+      "date": "2026-05-08",
+      "day": "Friday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Brown",
+      "away": "Violet"
+    },
+    {
+      "id": 456,
+      "date": "2026-05-08",
+      "day": "Friday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Brass",
+      "away": "Violet"
+    },
+    {
+      "id": 457,
+      "date": "2026-05-08",
+      "day": "Friday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Grey",
+      "away": "Coral"
+    },
+    {
+      "id": 458,
+      "date": "2026-05-10",
+      "day": "Sunday",
+      "time": "08:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Kelly",
+      "away": "Red"
+    },
+    {
+      "id": 459,
+      "date": "2026-05-10",
+      "day": "Sunday",
+      "time": "09:10 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Orange",
+      "away": "Lime"
+    },
+    {
+      "id": 460,
+      "date": "2026-05-10",
+      "day": "Sunday",
+      "time": "10:10 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Lime",
+      "away": "Gold"
+    },
+    {
+      "id": 461,
+      "date": "2026-05-10",
+      "day": "Sunday",
+      "time": "10:40 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Royal",
+      "away": "Orange"
+    },
+    {
+      "id": 462,
+      "date": "2026-05-11",
+      "day": "Monday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Tan",
+      "away": "Kelly"
+    },
+    {
+      "id": 463,
+      "date": "2026-05-11",
+      "day": "Monday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Gold",
+      "away": "Blue"
+    },
+    {
+      "id": 464,
+      "date": "2026-05-11",
+      "day": "Monday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Gold",
+      "away": "Blue"
+    },
+    {
+      "id": 465,
+      "date": "2026-05-11",
+      "day": "Monday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Coral",
+      "away": "Yellow"
+    },
+    {
+      "id": 466,
+      "date": "2026-05-11",
+      "day": "Monday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Lime",
+      "away": "Brown"
+    },
+    {
+      "id": 467,
+      "date": "2026-05-12",
+      "day": "Tuesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Red",
+      "away": "Grey"
+    },
+    {
+      "id": 468,
+      "date": "2026-05-12",
+      "day": "Tuesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Red",
+      "away": "Yellow"
+    },
+    {
+      "id": 469,
+      "date": "2026-05-12",
+      "day": "Tuesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Blue",
+      "away": "Copper"
+    },
+    {
+      "id": 470,
+      "date": "2026-05-12",
+      "day": "Tuesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Royal",
+      "away": "Red"
+    },
+    {
+      "id": 471,
+      "date": "2026-05-12",
+      "day": "Tuesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Royal",
+      "away": "Tan"
+    },
+    {
+      "id": 472,
+      "date": "2026-05-12",
+      "day": "Tuesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Copper",
+      "away": "Lime"
+    },
+    {
+      "id": 473,
+      "date": "2026-05-13",
+      "day": "Wednesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Grey",
+      "away": "Purple"
+    },
+    {
+      "id": 474,
+      "date": "2026-05-13",
+      "day": "Wednesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Coral",
+      "away": "Violet"
+    },
+    {
+      "id": 475,
+      "date": "2026-05-13",
+      "day": "Wednesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Orange",
+      "away": "Brass"
+    },
+    {
+      "id": 476,
+      "date": "2026-05-13",
+      "day": "Wednesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Teal",
+      "away": "Brass"
+    },
+    {
+      "id": 477,
+      "date": "2026-05-13",
+      "day": "Wednesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Violet",
+      "away": "Copper"
+    },
+    {
+      "id": 478,
+      "date": "2026-05-14",
+      "day": "Thursday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Brass",
+      "away": "Teal"
+    },
+    {
+      "id": 479,
+      "date": "2026-05-14",
+      "day": "Thursday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Brown",
+      "away": "Blue"
+    },
+    {
+      "id": 480,
+      "date": "2026-05-14",
+      "day": "Thursday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Brass",
+      "away": "Grey"
+    },
+    {
+      "id": 481,
+      "date": "2026-05-14",
+      "day": "Thursday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Purple",
+      "away": "Lime"
+    },
+    {
+      "id": 482,
+      "date": "2026-05-14",
+      "day": "Thursday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Gold",
+      "away": "Kelly"
+    },
+    {
+      "id": 483,
+      "date": "2026-05-15",
+      "day": "Friday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Purple",
+      "away": "Brown"
+    },
+    {
+      "id": 484,
+      "date": "2026-05-15",
+      "day": "Friday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Orange",
+      "away": "Gold"
+    },
+    {
+      "id": 485,
+      "date": "2026-05-15",
+      "day": "Friday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Coral",
+      "away": "Yellow"
+    },
+    {
+      "id": 486,
+      "date": "2026-05-15",
+      "day": "Friday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Lime",
+      "away": "Teal"
+    },
+    {
+      "id": 487,
+      "date": "2026-05-15",
+      "day": "Friday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Royal",
+      "away": "Lime"
+    },
+    {
+      "id": 488,
+      "date": "2026-05-16",
+      "day": "Saturday",
+      "time": "05:00 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Copper",
+      "away": "Tan"
+    },
+    {
+      "id": 489,
+      "date": "2026-05-16",
+      "day": "Saturday",
+      "time": "06:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Tan",
+      "away": "Red"
+    },
+    {
+      "id": 490,
+      "date": "2026-05-16",
+      "day": "Saturday",
+      "time": "06:30 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Violet",
+      "away": "Coral"
+    },
+    {
+      "id": 491,
+      "date": "2026-05-16",
+      "day": "Saturday",
+      "time": "08:00 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Grey",
+      "away": "Copper"
+    },
+    {
+      "id": 492,
+      "date": "2026-05-17",
+      "day": "Sunday",
+      "time": "04:00 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Coral",
+      "away": "Gold"
+    },
+    {
+      "id": 493,
+      "date": "2026-05-17",
+      "day": "Sunday",
+      "time": "04:40 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Lime",
+      "away": "Brown"
+    },
+    {
+      "id": 494,
+      "date": "2026-05-17",
+      "day": "Sunday",
+      "time": "05:30 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Kelly",
+      "away": "Tan"
+    },
+    {
+      "id": 495,
+      "date": "2026-05-17",
+      "day": "Sunday",
+      "time": "06:10 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Purple",
+      "away": "Red"
+    },
+    {
+      "id": 496,
+      "date": "2026-05-17",
+      "day": "Sunday",
+      "time": "07:40 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Teal",
+      "away": "Red"
+    },
+    {
+      "id": 497,
+      "date": "2026-05-17",
+      "day": "Sunday",
+      "time": "08:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Brown",
+      "away": "Grey"
+    },
+    {
+      "id": 498,
+      "date": "2026-05-17",
+      "day": "Sunday",
+      "time": "09:10 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Orange",
+      "away": "Red"
+    },
+    {
+      "id": 499,
+      "date": "2026-05-17",
+      "day": "Sunday",
+      "time": "10:10 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Brass",
+      "away": "Yellow"
+    },
+    {
+      "id": 500,
+      "date": "2026-05-17",
+      "day": "Sunday",
+      "time": "10:40 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Teal",
+      "away": "Royal"
+    },
+    {
+      "id": 501,
+      "date": "2026-05-18",
+      "day": "Monday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Lime",
+      "away": "Brown"
+    },
+    {
+      "id": 502,
+      "date": "2026-05-18",
+      "day": "Monday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Purple",
+      "away": "Orange"
+    },
+    {
+      "id": 503,
+      "date": "2026-05-18",
+      "day": "Monday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Coral",
+      "away": "Blue"
+    },
+    {
+      "id": 504,
+      "date": "2026-05-18",
+      "day": "Monday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Grey",
+      "away": "Brass"
+    },
+    {
+      "id": 505,
+      "date": "2026-05-18",
+      "day": "Monday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Royal",
+      "away": "Gold"
+    },
+    {
+      "id": 506,
+      "date": "2026-05-18",
+      "day": "Monday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Tan",
+      "away": "Orange"
+    },
+    {
+      "id": 507,
+      "date": "2026-05-19",
+      "day": "Tuesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Copper",
+      "away": "Blue"
+    },
+    {
+      "id": 508,
+      "date": "2026-05-19",
+      "day": "Tuesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Blue",
+      "away": "Tan"
+    },
+    {
+      "id": 509,
+      "date": "2026-05-19",
+      "day": "Tuesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Lime",
+      "away": "Violet"
+    },
+    {
+      "id": 510,
+      "date": "2026-05-19",
+      "day": "Tuesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Blue",
+      "away": "Violet"
+    },
+    {
+      "id": 511,
+      "date": "2026-05-19",
+      "day": "Tuesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Brown",
+      "away": "Gold"
+    },
+    {
+      "id": 512,
+      "date": "2026-05-20",
+      "day": "Wednesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Coral",
+      "away": "Grey"
+    },
+    {
+      "id": 513,
+      "date": "2026-05-20",
+      "day": "Wednesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Coral",
+      "away": "Grey"
+    },
+    {
+      "id": 514,
+      "date": "2026-05-20",
+      "day": "Wednesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Yellow",
+      "away": "Orange"
+    },
+    {
+      "id": 515,
+      "date": "2026-05-20",
+      "day": "Wednesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Violet",
+      "away": "Royal"
+    },
+    {
+      "id": 516,
+      "date": "2026-05-20",
+      "day": "Wednesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Teal",
+      "away": "Copper"
+    },
+    {
+      "id": 517,
+      "date": "2026-05-21",
+      "day": "Thursday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Brass",
+      "away": "Tan"
+    },
+    {
+      "id": 518,
+      "date": "2026-05-21",
+      "day": "Thursday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Kelly",
+      "away": "Yellow"
+    },
+    {
+      "id": 519,
+      "date": "2026-05-21",
+      "day": "Thursday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Violet",
+      "away": "Yellow"
+    },
+    {
+      "id": 520,
+      "date": "2026-05-21",
+      "day": "Thursday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Copper",
+      "away": "Brass"
+    },
+    {
+      "id": 521,
+      "date": "2026-05-21",
+      "day": "Thursday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Kelly",
+      "away": "Lime"
+    },
+    {
+      "id": 522,
+      "date": "2026-05-21",
+      "day": "Thursday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Copper",
+      "away": "Lime"
+    },
+    {
+      "id": 523,
+      "date": "2026-05-22",
+      "day": "Friday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Violet",
+      "away": "Brown"
+    },
+    {
+      "id": 524,
+      "date": "2026-05-22",
+      "day": "Friday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Purple",
+      "away": "Violet"
+    },
+    {
+      "id": 525,
+      "date": "2026-05-22",
+      "day": "Friday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Orange",
+      "away": "Tan"
+    },
+    {
+      "id": 526,
+      "date": "2026-05-22",
+      "day": "Friday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Orange",
+      "away": "Grey"
+    },
+    {
+      "id": 527,
+      "date": "2026-05-26",
+      "day": "Tuesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Kelly",
+      "away": "Red"
+    },
+    {
+      "id": 528,
+      "date": "2026-05-26",
+      "day": "Tuesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Grey",
+      "away": "Brown"
+    },
+    {
+      "id": 529,
+      "date": "2026-05-26",
+      "day": "Tuesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Brass",
+      "away": "Red"
+    },
+    {
+      "id": 530,
+      "date": "2026-05-26",
+      "day": "Tuesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Lime",
+      "away": "Blue"
+    },
+    {
+      "id": 531,
+      "date": "2026-05-26",
+      "day": "Tuesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Teal",
+      "away": "Yellow"
+    },
+    {
+      "id": 532,
+      "date": "2026-05-26",
+      "day": "Tuesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Royal",
+      "away": "Gold"
+    },
+    {
+      "id": 533,
+      "date": "2026-05-27",
+      "day": "Wednesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Coral",
+      "away": "Brown"
+    },
+    {
+      "id": 534,
+      "date": "2026-05-27",
+      "day": "Wednesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Blue",
+      "away": "Brass"
+    },
+    {
+      "id": 535,
+      "date": "2026-05-27",
+      "day": "Wednesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Copper",
+      "away": "Brass"
+    },
+    {
+      "id": 536,
+      "date": "2026-05-27",
+      "day": "Wednesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Tan",
+      "away": "Royal"
+    },
+    {
+      "id": 537,
+      "date": "2026-05-27",
+      "day": "Wednesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Copper",
+      "away": "Lime"
+    },
+    {
+      "id": 538,
+      "date": "2026-05-28",
+      "day": "Thursday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Brown",
+      "away": "Orange"
+    },
+    {
+      "id": 539,
+      "date": "2026-05-28",
+      "day": "Thursday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Kelly",
+      "away": "Purple"
+    },
+    {
+      "id": 540,
+      "date": "2026-05-28",
+      "day": "Thursday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Blue",
+      "away": "Red"
+    },
+    {
+      "id": 541,
+      "date": "2026-05-28",
+      "day": "Thursday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Violet",
+      "away": "Grey"
+    },
+    {
+      "id": 542,
+      "date": "2026-05-28",
+      "day": "Thursday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Gold",
+      "away": "Kelly"
+    },
+    {
+      "id": 543,
+      "date": "2026-05-28",
+      "day": "Thursday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Tan",
+      "away": "Royal"
+    },
+    {
+      "id": 544,
+      "date": "2026-05-29",
+      "day": "Friday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Copper",
+      "away": "Lime"
+    },
+    {
+      "id": 545,
+      "date": "2026-05-29",
+      "day": "Friday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Lime",
+      "away": "Orange"
+    },
+    {
+      "id": 546,
+      "date": "2026-05-29",
+      "day": "Friday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Red",
+      "away": "Blue"
+    },
+    {
+      "id": 547,
+      "date": "2026-05-29",
+      "day": "Friday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Coral",
+      "away": "Gold"
+    },
+    {
+      "id": 548,
+      "date": "2026-05-29",
+      "day": "Friday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Violet",
+      "away": "Gold"
+    },
+    {
+      "id": 549,
+      "date": "2026-05-29",
+      "day": "Friday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Yellow",
+      "away": "Grey"
+    },
+    {
+      "id": 550,
+      "date": "2026-05-30",
+      "day": "Saturday",
+      "time": "06:30 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Copper",
+      "away": "Red"
+    },
+    {
+      "id": 551,
+      "date": "2026-05-30",
+      "day": "Saturday",
+      "time": "08:00 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Coral",
+      "away": "Teal"
+    },
+    {
+      "id": 552,
+      "date": "2026-05-31",
+      "day": "Sunday",
+      "time": "04:00 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Purple",
+      "away": "Red"
+    },
+    {
+      "id": 553,
+      "date": "2026-05-31",
+      "day": "Sunday",
+      "time": "04:40 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Violet",
+      "away": "Blue"
+    },
+    {
+      "id": 554,
+      "date": "2026-05-31",
+      "day": "Sunday",
+      "time": "05:30 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Brass",
+      "away": "Coral"
+    },
+    {
+      "id": 555,
+      "date": "2026-05-31",
+      "day": "Sunday",
+      "time": "06:10 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Red",
+      "away": "Gold"
+    },
+    {
+      "id": 556,
+      "date": "2026-05-31",
+      "day": "Sunday",
+      "time": "07:40 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Coral",
+      "away": "Blue"
+    },
+    {
+      "id": 557,
+      "date": "2026-05-31",
+      "day": "Sunday",
+      "time": "08:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Yellow",
+      "away": "Tan"
+    },
+    {
+      "id": 558,
+      "date": "2026-05-31",
+      "day": "Sunday",
+      "time": "09:10 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Red",
+      "away": "Grey"
+    },
+    {
+      "id": 559,
+      "date": "2026-05-31",
+      "day": "Sunday",
+      "time": "10:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Grey",
+      "away": "Royal"
+    },
+    {
+      "id": 560,
+      "date": "2026-05-31",
+      "day": "Sunday",
+      "time": "10:40 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Teal",
+      "away": "Brass"
+    },
+    {
+      "id": 561,
+      "date": "2026-06-01",
+      "day": "Monday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Purple",
+      "away": "Tan"
+    },
+    {
+      "id": 562,
+      "date": "2026-06-01",
+      "day": "Monday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Blue",
+      "away": "Violet"
+    },
+    {
+      "id": 563,
+      "date": "2026-06-01",
+      "day": "Monday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Kelly",
+      "away": "Purple"
+    },
+    {
+      "id": 564,
+      "date": "2026-06-01",
+      "day": "Monday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Copper",
+      "away": "Orange"
+    },
+    {
+      "id": 565,
+      "date": "2026-06-01",
+      "day": "Monday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Tan",
+      "away": "Lime"
+    },
+    {
+      "id": 566,
+      "date": "2026-06-02",
+      "day": "Tuesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Lime",
+      "away": "Brown"
+    },
+    {
+      "id": 567,
+      "date": "2026-06-02",
+      "day": "Tuesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Brass",
+      "away": "Orange"
+    },
+    {
+      "id": 568,
+      "date": "2026-06-02",
+      "day": "Tuesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Yellow",
+      "away": "Lime"
+    },
+    {
+      "id": 569,
+      "date": "2026-06-02",
+      "day": "Tuesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Coral",
+      "away": "Grey"
+    },
+    {
+      "id": 570,
+      "date": "2026-06-02",
+      "day": "Tuesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Teal",
+      "away": "Copper"
+    },
+    {
+      "id": 571,
+      "date": "2026-06-03",
+      "day": "Wednesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Grey",
+      "away": "Orange"
+    },
+    {
+      "id": 572,
+      "date": "2026-06-03",
+      "day": "Wednesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Orange",
+      "away": "Lime"
+    },
+    {
+      "id": 573,
+      "date": "2026-06-03",
+      "day": "Wednesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Copper",
+      "away": "Gold"
+    },
+    {
+      "id": 574,
+      "date": "2026-06-03",
+      "day": "Wednesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Brass",
+      "away": "Yellow"
+    },
+    {
+      "id": 575,
+      "date": "2026-06-04",
+      "day": "Thursday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Red",
+      "away": "Brown"
+    },
+    {
+      "id": 576,
+      "date": "2026-06-04",
+      "day": "Thursday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Blue",
+      "away": "Brass"
+    },
+    {
+      "id": 577,
+      "date": "2026-06-04",
+      "day": "Thursday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Gold",
+      "away": "Lime"
+    },
+    {
+      "id": 578,
+      "date": "2026-06-04",
+      "day": "Thursday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Brown",
+      "away": "Kelly"
+    },
+    {
+      "id": 579,
+      "date": "2026-06-04",
+      "day": "Thursday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Gold",
+      "away": "Copper"
+    },
+    {
+      "id": 580,
+      "date": "2026-06-04",
+      "day": "Thursday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Yellow",
+      "away": "Tan"
+    },
+    {
+      "id": 581,
+      "date": "2026-06-05",
+      "day": "Friday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Teal",
+      "away": "Violet"
+    },
+    {
+      "id": 582,
+      "date": "2026-06-05",
+      "day": "Friday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Teal",
+      "away": "Blue"
+    },
+    {
+      "id": 583,
+      "date": "2026-06-05",
+      "day": "Friday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Copper",
+      "away": "Brown"
+    },
+    {
+      "id": 584,
+      "date": "2026-06-05",
+      "day": "Friday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Yellow",
+      "away": "Orange"
+    },
+    {
+      "id": 585,
+      "date": "2026-06-05",
+      "day": "Friday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Kelly",
+      "away": "Royal"
+    },
+    {
+      "id": 586,
+      "date": "2026-06-05",
+      "day": "Friday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Grey",
+      "away": "Orange"
+    },
+    {
+      "id": 587,
+      "date": "2026-06-06",
+      "day": "Saturday",
+      "time": "05:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Teal",
+      "away": "Coral"
+    },
+    {
+      "id": 588,
+      "date": "2026-06-06",
+      "day": "Saturday",
+      "time": "07:00 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Coral",
+      "away": "Lime"
+    },
+    {
+      "id": 589,
+      "date": "2026-06-07",
+      "day": "Sunday",
+      "time": "04:00 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Copper",
+      "away": "Brown"
+    },
+    {
+      "id": 590,
+      "date": "2026-06-07",
+      "day": "Sunday",
+      "time": "04:40 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Red",
+      "away": "Violet"
+    },
+    {
+      "id": 591,
+      "date": "2026-06-07",
+      "day": "Sunday",
+      "time": "05:30 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Coral",
+      "away": "Royal"
+    },
+    {
+      "id": 592,
+      "date": "2026-06-07",
+      "day": "Sunday",
+      "time": "06:10 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Violet",
+      "away": "Brass"
+    },
+    {
+      "id": 593,
+      "date": "2026-06-07",
+      "day": "Sunday",
+      "time": "07:40 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Yellow",
+      "away": "Purple"
+    },
+    {
+      "id": 594,
+      "date": "2026-06-07",
+      "day": "Sunday",
+      "time": "08:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Purple",
+      "away": "Blue"
+    },
+    {
+      "id": 595,
+      "date": "2026-06-07",
+      "day": "Sunday",
+      "time": "09:10 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Red",
+      "away": "Orange"
+    },
+    {
+      "id": 596,
+      "date": "2026-06-07",
+      "day": "Sunday",
+      "time": "10:10 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Grey",
+      "away": "Brown"
+    },
+    {
+      "id": 597,
+      "date": "2026-06-07",
+      "day": "Sunday",
+      "time": "10:40 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Tan",
+      "away": "Gold"
+    },
+    {
+      "id": 598,
+      "date": "2026-06-08",
+      "day": "Monday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Lime",
+      "away": "Tan"
+    },
+    {
+      "id": 599,
+      "date": "2026-06-08",
+      "day": "Monday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Kelly",
+      "away": "Tan"
+    },
+    {
+      "id": 600,
+      "date": "2026-06-08",
+      "day": "Monday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Red",
+      "away": "Brass"
+    },
+    {
+      "id": 601,
+      "date": "2026-06-08",
+      "day": "Monday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Yellow",
+      "away": "Lime"
+    },
+    {
+      "id": 602,
+      "date": "2026-06-08",
+      "day": "Monday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Royal",
+      "away": "Tan"
+    },
+    {
+      "id": 603,
+      "date": "2026-06-09",
+      "day": "Tuesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Violet",
+      "away": "Copper"
+    },
+    {
+      "id": 604,
+      "date": "2026-06-09",
+      "day": "Tuesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Gold",
+      "away": "Brown"
+    },
+    {
+      "id": 605,
+      "date": "2026-06-09",
+      "day": "Tuesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Coral",
+      "away": "Kelly"
+    },
+    {
+      "id": 606,
+      "date": "2026-06-09",
+      "day": "Tuesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Brass",
+      "away": "Lime"
+    },
+    {
+      "id": 607,
+      "date": "2026-06-09",
+      "day": "Tuesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Yellow",
+      "away": "Teal"
+    },
+    {
+      "id": 608,
+      "date": "2026-06-09",
+      "day": "Tuesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Royal",
+      "away": "Lime"
+    },
+    {
+      "id": 609,
+      "date": "2026-06-10",
+      "day": "Wednesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Royal",
+      "away": "Blue"
+    },
+    {
+      "id": 610,
+      "date": "2026-06-10",
+      "day": "Wednesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Purple",
+      "away": "Orange"
+    },
+    {
+      "id": 611,
+      "date": "2026-06-10",
+      "day": "Wednesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Royal",
+      "away": "Grey"
+    },
+    {
+      "id": 612,
+      "date": "2026-06-10",
+      "day": "Wednesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "Purple",
+      "away": "Yellow"
+    },
+    {
+      "id": 613,
+      "date": "2026-06-10",
+      "day": "Wednesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Copper",
+      "away": "Brass"
+    },
+    {
+      "id": 614,
+      "date": "2026-06-10",
+      "day": "Wednesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Grey",
+      "away": "Tan"
+    },
+    {
+      "id": 615,
+      "date": "2026-06-11",
+      "day": "Thursday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Orange",
+      "away": "Brown"
+    },
+    {
+      "id": 616,
+      "date": "2026-06-11",
+      "day": "Thursday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Kelly",
+      "away": "Brass"
+    },
+    {
+      "id": 617,
+      "date": "2026-06-11",
+      "day": "Thursday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Coral",
+      "away": "Blue"
+    },
+    {
+      "id": 618,
+      "date": "2026-06-11",
+      "day": "Thursday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Yellow",
+      "away": "Copper"
+    },
+    {
+      "id": 619,
+      "date": "2026-06-11",
+      "day": "Thursday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Brown",
+      "away": "Violet"
+    },
+    {
+      "id": 620,
+      "date": "2026-06-11",
+      "day": "Thursday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Coral",
+      "away": "Teal"
+    },
+    {
+      "id": 621,
+      "date": "2026-06-12",
+      "day": "Friday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Orange",
+      "away": "Brown"
+    },
+    {
+      "id": 622,
+      "date": "2026-06-12",
+      "day": "Friday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Gold",
+      "away": "Teal"
+    },
+    {
+      "id": 623,
+      "date": "2026-06-12",
+      "day": "Friday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Lime",
+      "away": "Grey"
+    },
+    {
+      "id": 624,
+      "date": "2026-06-12",
+      "day": "Friday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Blue",
+      "away": "Purple"
+    },
+    {
+      "id": 625,
+      "date": "2026-06-12",
+      "day": "Friday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Gold",
+      "away": "Lime"
+    },
+    {
+      "id": 626,
+      "date": "2026-06-13",
+      "day": "Saturday",
+      "time": "05:00 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Red",
+      "away": "Gold"
+    },
+    {
+      "id": 627,
+      "date": "2026-06-13",
+      "day": "Saturday",
+      "time": "06:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Orange",
+      "away": "Tan"
+    },
+    {
+      "id": 628,
+      "date": "2026-06-14",
+      "day": "Sunday",
+      "time": "04:00 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Tan",
+      "away": "Red"
+    },
+    {
+      "id": 629,
+      "date": "2026-06-14",
+      "day": "Sunday",
+      "time": "04:40 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Kelly",
+      "away": "Blue"
+    },
+    {
+      "id": 630,
+      "date": "2026-06-14",
+      "day": "Sunday",
+      "time": "05:30 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Red",
+      "away": "Royal"
+    },
+    {
+      "id": 631,
+      "date": "2026-06-14",
+      "day": "Sunday",
+      "time": "06:10 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Tan",
+      "away": "Coral"
+    },
+    {
+      "id": 632,
+      "date": "2026-06-14",
+      "day": "Sunday",
+      "time": "07:40 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Copper",
+      "away": "Royal"
+    },
+    {
+      "id": 633,
+      "date": "2026-06-14",
+      "day": "Sunday",
+      "time": "08:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Yellow",
+      "away": "Kelly"
+    },
+    {
+      "id": 634,
+      "date": "2026-06-14",
+      "day": "Sunday",
+      "time": "09:10 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Teal",
+      "away": "Grey"
+    },
+    {
+      "id": 635,
+      "date": "2026-06-14",
+      "day": "Sunday",
+      "time": "10:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Yellow",
+      "away": "Tan"
+    },
+    {
+      "id": 636,
+      "date": "2026-06-14",
+      "day": "Sunday",
+      "time": "10:40 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Yellow",
+      "away": "Brass"
+    },
+    {
+      "id": 637,
+      "date": "2026-06-15",
+      "day": "Monday",
+      "time": "07:40 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Purple",
+      "away": "Tan"
+    },
+    {
+      "id": 638,
+      "date": "2026-06-15",
+      "day": "Monday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 639,
+      "date": "2026-06-15",
+      "day": "Monday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Red",
+      "away": "Violet"
+    },
+    {
+      "id": 640,
+      "date": "2026-06-15",
+      "day": "Monday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Kelly",
+      "away": "Lime"
+    },
+    {
+      "id": 641,
+      "date": "2026-06-15",
+      "day": "Monday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Grey",
+      "away": "Teal"
+    },
+    {
+      "id": 642,
+      "date": "2026-06-16",
+      "day": "Tuesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Orange",
+      "away": "Kelly"
+    },
+    {
+      "id": 643,
+      "date": "2026-06-16",
+      "day": "Tuesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Violet",
+      "away": "Brass"
+    },
+    {
+      "id": 644,
+      "date": "2026-06-16",
+      "day": "Tuesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Brown",
+      "away": "Coral"
+    },
+    {
+      "id": 645,
+      "date": "2026-06-16",
+      "day": "Tuesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Red",
+      "away": "Gold"
+    },
+    {
+      "id": 646,
+      "date": "2026-06-16",
+      "day": "Tuesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 647,
+      "date": "2026-06-16",
+      "day": "Tuesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Orange",
+      "away": "Coral"
+    },
+    {
+      "id": 648,
+      "date": "2026-06-17",
+      "day": "Wednesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Violet",
+      "away": "Purple"
+    },
+    {
+      "id": 649,
+      "date": "2026-06-17",
+      "day": "Wednesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Brass",
+      "away": "Coral"
+    },
+    {
+      "id": 650,
+      "date": "2026-06-17",
+      "day": "Wednesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Lime",
+      "away": "Brown"
+    },
+    {
+      "id": 651,
+      "date": "2026-06-17",
+      "day": "Wednesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 652,
+      "date": "2026-06-18",
+      "day": "Thursday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 653,
+      "date": "2026-06-18",
+      "day": "Thursday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Teal",
+      "away": "Blue"
+    },
+    {
+      "id": 654,
+      "date": "2026-06-18",
+      "day": "Thursday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 655,
+      "date": "2026-06-18",
+      "day": "Thursday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Copper",
+      "away": "Blue"
+    },
+    {
+      "id": 656,
+      "date": "2026-06-18",
+      "day": "Thursday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Copper",
+      "away": "Lime"
+    },
+    {
+      "id": 657,
+      "date": "2026-06-18",
+      "day": "Thursday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Brown",
+      "away": "Copper"
+    },
+    {
+      "id": 658,
+      "date": "2026-06-19",
+      "day": "Friday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Brass",
+      "away": "Brown"
+    },
+    {
+      "id": 659,
+      "date": "2026-06-19",
+      "day": "Friday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "Grey",
+      "away": "Gold"
+    },
+    {
+      "id": 660,
+      "date": "2026-06-19",
+      "day": "Friday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Blue",
+      "away": "Coral"
+    },
+    {
+      "id": 661,
+      "date": "2026-06-19",
+      "day": "Friday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 662,
+      "date": "2026-06-19",
+      "day": "Friday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Royal",
+      "away": "Yellow"
+    },
+    {
+      "id": 663,
+      "date": "2026-06-20",
+      "day": "Saturday",
+      "time": "05:30 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Grey",
+      "away": "Brown"
+    },
+    {
+      "id": 664,
+      "date": "2026-06-20",
+      "day": "Saturday",
+      "time": "07:00 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Yellow",
+      "away": "Kelly"
+    },
+    {
+      "id": 665,
+      "date": "2026-06-20",
+      "day": "Saturday",
+      "time": "07:00 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Gold",
+      "away": "Purple"
+    },
+    {
+      "id": 666,
+      "date": "2026-06-20",
+      "day": "Saturday",
+      "time": "08:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Brass",
+      "away": "Gold"
+    },
+    {
+      "id": 667,
+      "date": "2026-06-21",
+      "day": "Sunday",
+      "time": "07:40 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Copper",
+      "away": "Violet"
+    },
+    {
+      "id": 668,
+      "date": "2026-06-21",
+      "day": "Sunday",
+      "time": "08:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "SEMI FINAL",
+      "away": "SEMI FINAL"
+    },
+    {
+      "id": 669,
+      "date": "2026-06-21",
+      "day": "Sunday",
+      "time": "09:10 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Blue",
+      "away": "Red"
+    },
+    {
+      "id": 670,
+      "date": "2026-06-21",
+      "day": "Sunday",
+      "time": "10:10 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Tan",
+      "away": "Kelly"
+    },
+    {
+      "id": 671,
+      "date": "2026-06-21",
+      "day": "Sunday",
+      "time": "10:40 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Lime",
+      "away": "Brass"
+    },
+    {
+      "id": 672,
+      "date": "2026-06-22",
+      "day": "Monday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 673,
+      "date": "2026-06-22",
+      "day": "Monday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "SEMI FINAL",
+      "away": "SEMI FINAL"
+    },
+    {
+      "id": 674,
+      "date": "2026-06-22",
+      "day": "Monday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Royal",
+      "away": "Orange"
+    },
+    {
+      "id": 675,
+      "date": "2026-06-22",
+      "day": "Monday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Lime",
+      "away": "Violet"
+    },
+    {
+      "id": 676,
+      "date": "2026-06-22",
+      "day": "Monday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 677,
+      "date": "2026-06-23",
+      "day": "Tuesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Blue",
+      "away": "Lime"
+    },
+    {
+      "id": 678,
+      "date": "2026-06-23",
+      "day": "Tuesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Leisure",
+      "home": "FINAL",
+      "away": "FINAL"
+    },
+    {
+      "id": 679,
+      "date": "2026-06-23",
+      "day": "Tuesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 680,
+      "date": "2026-06-23",
+      "day": "Tuesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Red",
+      "away": "Purple"
+    },
+    {
+      "id": 681,
+      "date": "2026-06-23",
+      "day": "Tuesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "Teal",
+      "away": "Copper"
+    },
+    {
+      "id": 682,
+      "date": "2026-06-23",
+      "day": "Tuesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Tan",
+      "away": "Orange"
+    },
+    {
+      "id": 683,
+      "date": "2026-06-24",
+      "day": "Wednesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Teal",
+      "away": "Brown"
+    },
+    {
+      "id": 684,
+      "date": "2026-06-24",
+      "day": "Wednesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Yellow",
+      "away": "Coral"
+    },
+    {
+      "id": 685,
+      "date": "2026-06-24",
+      "day": "Wednesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 686,
+      "date": "2026-06-24",
+      "day": "Wednesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Brass",
+      "away": "Red"
+    },
+    {
+      "id": 687,
+      "date": "2026-06-24",
+      "day": "Wednesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Brown",
+      "away": "Copper"
+    },
+    {
+      "id": 688,
+      "date": "2026-06-24",
+      "day": "Wednesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Lime",
+      "away": "Gold"
+    },
+    {
+      "id": 689,
+      "date": "2026-06-25",
+      "day": "Thursday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 690,
+      "date": "2026-06-25",
+      "day": "Thursday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Yellow",
+      "away": "Gold"
+    },
+    {
+      "id": 691,
+      "date": "2026-06-25",
+      "day": "Thursday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 692,
+      "date": "2026-06-25",
+      "day": "Thursday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Copper",
+      "away": "Blue"
+    },
+    {
+      "id": 693,
+      "date": "2026-06-25",
+      "day": "Thursday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Coral",
+      "away": "Grey"
+    },
+    {
+      "id": 694,
+      "date": "2026-06-25",
+      "day": "Thursday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Violet",
+      "away": "Lime"
+    },
+    {
+      "id": 695,
+      "date": "2026-06-26",
+      "day": "Friday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Orange",
+      "away": "Copper"
+    },
+    {
+      "id": 696,
+      "date": "2026-06-26",
+      "day": "Friday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 697,
+      "date": "2026-06-26",
+      "day": "Friday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Kelly",
+      "away": "Tan"
+    },
+    {
+      "id": 698,
+      "date": "2026-06-26",
+      "day": "Friday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 699,
+      "date": "2026-06-26",
+      "day": "Friday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Tan",
+      "away": "Royal"
+    },
+    {
+      "id": 700,
+      "date": "2026-06-26",
+      "day": "Friday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 701,
+      "date": "2026-06-27",
+      "day": "Saturday",
+      "time": "05:00 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Purple",
+      "away": "Brown"
+    },
+    {
+      "id": 702,
+      "date": "2026-06-27",
+      "day": "Saturday",
+      "time": "06:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Orange",
+      "away": "Red"
+    },
+    {
+      "id": 703,
+      "date": "2026-06-28",
+      "day": "Sunday",
+      "time": "04:00 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Brass",
+      "away": "Orange"
+    },
+    {
+      "id": 704,
+      "date": "2026-06-28",
+      "day": "Sunday",
+      "time": "04:40 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Tan",
+      "away": "Brass"
+    },
+    {
+      "id": 705,
+      "date": "2026-06-28",
+      "day": "Sunday",
+      "time": "05:30 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 706,
+      "date": "2026-06-28",
+      "day": "Sunday",
+      "time": "06:10 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Yellow",
+      "away": "Violet"
+    },
+    {
+      "id": 707,
+      "date": "2026-06-28",
+      "day": "Sunday",
+      "time": "07:40 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "SEMI FINAL",
+      "away": "SEMI FINAL"
+    },
+    {
+      "id": 708,
+      "date": "2026-06-28",
+      "day": "Sunday",
+      "time": "08:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 709,
+      "date": "2026-06-28",
+      "day": "Sunday",
+      "time": "09:10 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "SEMI FINAL",
+      "away": "SEMI FINAL"
+    },
+    {
+      "id": 710,
+      "date": "2026-06-28",
+      "day": "Sunday",
+      "time": "10:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Coral",
+      "away": "Teal"
+    },
+    {
+      "id": 711,
+      "date": "2026-06-29",
+      "day": "Monday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Yellow",
+      "away": "Brown"
+    },
+    {
+      "id": 712,
+      "date": "2026-06-29",
+      "day": "Monday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Tan",
+      "away": "Lime"
+    },
+    {
+      "id": 713,
+      "date": "2026-06-29",
+      "day": "Monday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Grey",
+      "away": "Lime"
+    },
+    {
+      "id": 714,
+      "date": "2026-06-29",
+      "day": "Monday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 715,
+      "date": "2026-06-30",
+      "day": "Tuesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 716,
+      "date": "2026-06-30",
+      "day": "Tuesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Red",
+      "away": "Orange"
+    },
+    {
+      "id": 717,
+      "date": "2026-06-30",
+      "day": "Tuesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "Violet",
+      "away": "Royal"
+    },
+    {
+      "id": 718,
+      "date": "2026-06-30",
+      "day": "Tuesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Bronze",
+      "home": "FINAL",
+      "away": "FINAL"
+    },
+    {
+      "id": 719,
+      "date": "2026-06-30",
+      "day": "Tuesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Gold",
+      "away": "Kelly"
+    },
+    {
+      "id": 720,
+      "date": "2026-07-01",
+      "day": "Wednesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 721,
+      "date": "2026-07-01",
+      "day": "Wednesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 722,
+      "date": "2026-07-01",
+      "day": "Wednesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 723,
+      "date": "2026-07-01",
+      "day": "Wednesday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Royal",
+      "away": "Lime"
+    },
+    {
+      "id": 724,
+      "date": "2026-07-02",
+      "day": "Thursday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Purple",
+      "away": "Tan"
+    },
+    {
+      "id": 725,
+      "date": "2026-07-02",
+      "day": "Thursday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 726,
+      "date": "2026-07-02",
+      "day": "Thursday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 727,
+      "date": "2026-07-02",
+      "day": "Thursday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Gold",
+      "away": "Copper"
+    },
+    {
+      "id": 728,
+      "date": "2026-07-02",
+      "day": "Thursday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 729,
+      "date": "2026-07-06",
+      "day": "Monday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Brass",
+      "away": "Orange"
+    },
+    {
+      "id": 730,
+      "date": "2026-07-06",
+      "day": "Monday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "SEMI FINAL",
+      "away": "SEMI FINAL"
+    },
+    {
+      "id": 731,
+      "date": "2026-07-06",
+      "day": "Monday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Silver",
+      "home": "SEMI FINAL",
+      "away": "SEMI FINAL"
+    },
+    {
+      "id": 732,
+      "date": "2026-07-06",
+      "day": "Monday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 733,
+      "date": "2026-07-06",
+      "day": "Monday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Gold",
+      "away": "Copper"
+    },
+    {
+      "id": 734,
+      "date": "2026-07-07",
+      "day": "Tuesday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 735,
+      "date": "2026-07-07",
+      "day": "Tuesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Red",
+      "away": "Violet"
+    },
+    {
+      "id": 736,
+      "date": "2026-07-07",
+      "day": "Tuesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Kelly",
+      "away": "Lime"
+    },
+    {
+      "id": 737,
+      "date": "2026-07-07",
+      "day": "Tuesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "FINAL",
+      "away": "FINAL"
+    },
+    {
+      "id": 738,
+      "date": "2026-07-07",
+      "day": "Tuesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Kelly",
+      "away": "Tan"
+    },
+    {
+      "id": 739,
+      "date": "2026-07-08",
+      "day": "Wednesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 740,
+      "date": "2026-07-08",
+      "day": "Wednesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Yellow",
+      "away": "Brown"
+    },
+    {
+      "id": 741,
+      "date": "2026-07-08",
+      "day": "Wednesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Orange",
+      "away": "Tan"
+    },
+    {
+      "id": 742,
+      "date": "2026-07-08",
+      "day": "Wednesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 743,
+      "date": "2026-07-09",
+      "day": "Thursday",
+      "time": "07:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Gold",
+      "away": "Kelly"
+    },
+    {
+      "id": 744,
+      "date": "2026-07-09",
+      "day": "Thursday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 745,
+      "date": "2026-07-09",
+      "day": "Thursday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Red",
+      "away": "Lime"
+    },
+    {
+      "id": 746,
+      "date": "2026-07-09",
+      "day": "Thursday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Violet",
+      "away": "Copper"
+    },
+    {
+      "id": 747,
+      "date": "2026-07-10",
+      "day": "Friday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Yellow",
+      "away": "Purple"
+    },
+    {
+      "id": 748,
+      "date": "2026-07-10",
+      "day": "Friday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Gold",
+      "away": "Royal"
+    },
+    {
+      "id": 749,
+      "date": "2026-07-10",
+      "day": "Friday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "Lime",
+      "away": "Brown"
+    },
+    {
+      "id": 750,
+      "date": "2026-07-11",
+      "day": "Saturday",
+      "time": "08:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Red",
+      "away": "Tan"
+    },
+    {
+      "id": 751,
+      "date": "2026-07-12",
+      "day": "Sunday",
+      "time": "05:30 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "SEMI FINAL",
+      "away": "SEMI FINAL"
+    },
+    {
+      "id": 752,
+      "date": "2026-07-12",
+      "day": "Sunday",
+      "time": "07:40 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "SEMI FINAL",
+      "away": "SEMI FINAL"
+    },
+    {
+      "id": 753,
+      "date": "2026-07-12",
+      "day": "Sunday",
+      "time": "09:10 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 754,
+      "date": "2026-07-13",
+      "day": "Monday",
+      "time": "07:35 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 755,
+      "date": "2026-07-13",
+      "day": "Monday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "Lime",
+      "away": "Orange"
+    },
+    {
+      "id": 756,
+      "date": "2026-07-13",
+      "day": "Monday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 757,
+      "date": "2026-07-14",
+      "day": "Tuesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Gold",
+      "home": "FINAL",
+      "away": "FINAL"
+    },
+    {
+      "id": 758,
+      "date": "2026-07-14",
+      "day": "Tuesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 759,
+      "date": "2026-07-14",
+      "day": "Tuesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Tan",
+      "away": "Gold"
+    },
+    {
+      "id": 760,
+      "date": "2026-07-15",
+      "day": "Wednesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 761,
+      "date": "2026-07-16",
+      "day": "Thursday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 762,
+      "date": "2026-07-16",
+      "day": "Thursday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Royal",
+      "away": "Kelly"
+    },
+    {
+      "id": 763,
+      "date": "2026-07-17",
+      "day": "Friday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 764,
+      "date": "2026-07-17",
+      "day": "Friday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "Red",
+      "away": "Brass"
+    },
+    {
+      "id": 765,
+      "date": "2026-07-19",
+      "day": "Sunday",
+      "time": "05:30 PM",
+      "rink": "Red",
+      "league": "Platinum",
+      "home": "SEMI FINAL",
+      "away": "SEMI FINAL"
+    },
+    {
+      "id": 766,
+      "date": "2026-07-19",
+      "day": "Sunday",
+      "time": "07:40 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "SEMI FINAL",
+      "away": "SEMI FINAL"
+    },
+    {
+      "id": 767,
+      "date": "2026-07-19",
+      "day": "Sunday",
+      "time": "09:10 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 768,
+      "date": "2026-07-20",
+      "day": "Monday",
+      "time": "10:40 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 769,
+      "date": "2026-07-21",
+      "day": "Tuesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "FINAL",
+      "away": "FINAL"
+    },
+    {
+      "id": 770,
+      "date": "2026-07-21",
+      "day": "Tuesday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 771,
+      "date": "2026-07-22",
+      "day": "Wednesday",
+      "time": "07:40 PM",
+      "rink": "Red",
+      "league": "Diamond",
+      "home": "PLAYOFF",
+      "away": "PLAYOFF"
+    },
+    {
+      "id": 772,
+      "date": "2026-07-23",
+      "day": "Thursday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "SEMI FINAL",
+      "away": "SEMI FINAL"
+    },
+    {
+      "id": 773,
+      "date": "2026-07-26",
+      "day": "Sunday",
+      "time": "07:40 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "SEMI FINAL",
+      "away": "SEMI FINAL"
+    },
+    {
+      "id": 774,
+      "date": "2026-07-28",
+      "day": "Tuesday",
+      "time": "09:00 PM",
+      "rink": "Blue",
+      "league": "Diamond",
+      "home": "FINAL",
+      "away": "FINAL"
+    },
+    {
+      "id": 775,
+      "date": "2026-10-03",
+      "day": "Saturday",
+      "time": "06:00 PM",
+      "rink": "Blue",
+      "league": "Bronze",
+      "home": "Teal",
+      "away": "Coral"
+    },
+    {
+      "id": 776,
+      "date": "2026-10-03",
+      "day": "Saturday",
+      "time": "07:30 PM",
+      "rink": "Red",
+      "league": "Silver",
+      "home": "Purple",
+      "away": "Gold"
+    },
+    {
+      "id": 777,
+      "date": "2026-10-04",
+      "day": "Sunday",
+      "time": "04:40 PM",
+      "rink": "Blue",
+      "league": "Leisure",
+      "home": "Yellow",
+      "away": "Kelly"
+    },
+    {
+      "id": 778,
+      "date": "2026-10-05",
+      "day": "Monday",
+      "time": "09:10 PM",
+      "rink": "Red",
+      "league": "Gold",
+      "home": "Royal",
+      "away": "Tan"
+    },
+    {
+      "id": 779,
+      "date": "2026-10-06",
+      "day": "Tuesday",
+      "time": "10:30 PM",
+      "rink": "Blue",
+      "league": "Platinum",
+      "home": "Lime",
+      "away": "Copper"
+    }
+  ],
+  "otherDates": [
+    {
+      "id": 1,
+      "date": "2025-07-15",
+      "title": "early captains meet for the draft",
+      "league": "Gold"
+    },
+    {
+      "id": 2,
+      "date": "2025-07-15",
+      "title": "all captains meet for the draft",
+      "league": "Gold"
+    },
+    {
+      "id": 3,
+      "date": "2026-04-22",
+      "title": "captains ratings meeting",
+      "league": "Leisure"
+    },
+    {
+      "id": 4,
+      "date": "2026-04-29",
+      "title": "captains ratings meeting",
+      "league": "Bronze"
+    },
+    {
+      "id": 5,
+      "date": "2026-05-06",
+      "title": "captains ratings meeting",
+      "league": "Silver"
+    },
+    {
+      "id": 6,
+      "date": "2026-05-13",
+      "title": "captains ratings meeting",
+      "league": "Gold"
+    },
+    {
+      "id": 7,
+      "date": "2026-05-20",
+      "title": "captains ratings meeting",
+      "league": "Platinum"
+    },
+    {
+      "id": 8,
+      "date": "2026-05-27",
+      "title": "captains ratings meeting",
+      "league": "Diamond"
+    },
+    {
+      "id": 9,
+      "date": "2026-06-19",
+      "title": "Last day for $100 discount",
+      "league": "Leisure"
+    },
+    {
+      "id": 10,
+      "date": "2026-06-24",
+      "title": "early captains meet for the draft",
+      "league": "Leisure"
+    },
+    {
+      "id": 11,
+      "date": "2026-06-24",
+      "title": "all captains meet for the draft",
+      "league": "Leisure"
+    },
+    {
+      "id": 12,
+      "date": "2026-06-26",
+      "title": "Last day for $100 discount",
+      "league": "Bronze"
+    },
+    {
+      "id": 13,
+      "date": "2026-07-01",
+      "title": "early captains meet for the draft",
+      "league": "Bronze"
+    },
+    {
+      "id": 14,
+      "date": "2026-07-01",
+      "title": "all captains meet for the draft",
+      "league": "Bronze"
+    },
+    {
+      "id": 15,
+      "date": "2026-07-03",
+      "title": "Last day for $100 discount",
+      "league": "Silver"
+    },
+    {
+      "id": 16,
+      "date": "2026-07-08",
+      "title": "early captains meet for the draft",
+      "league": "Silver"
+    },
+    {
+      "id": 17,
+      "date": "2026-07-08",
+      "title": "all captains meet for the draft",
+      "league": "Silver"
+    },
+    {
+      "id": 18,
+      "date": "2026-07-10",
+      "title": "Last day for $100 discount",
+      "league": "Gold"
+    },
+    {
+      "id": 19,
+      "date": "2026-07-17",
+      "title": "Last Day for $100 discount",
+      "league": "Platinum"
+    },
+    {
+      "id": 20,
+      "date": "2026-07-22",
+      "title": "Early Captains meet for the draft",
+      "league": "Platinum"
+    },
+    {
+      "id": 21,
+      "date": "2026-07-22",
+      "title": "All Captains meet for the draft",
+      "league": "Platinum"
+    },
+    {
+      "id": 22,
+      "date": "2026-07-24",
+      "title": "Last Day for $100 discount",
+      "league": "Diamond"
+    },
+    {
+      "id": 23,
+      "date": "2026-07-29",
+      "title": "Early Captains meet for the draft",
+      "league": "Diamond"
+    },
+    {
+      "id": 24,
+      "date": "2026-07-29",
+      "title": "All Captains meet for the draft",
+      "league": "Diamond"
+    }
+  ]
+}

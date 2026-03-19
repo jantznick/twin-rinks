@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import GamesCalendarView from "./components/GamesCalendarView";
 import GamesGrid from "./components/GamesGrid";
 import GamesListView from "./components/GamesListView";
+import AppShellHeader from "./components/AppShellHeader";
 import JerseyGuideModal from "./components/JerseyGuideModal";
 import LoginPanel from "./components/LoginPanel";
 import PendingChangesBar from "./components/PendingChangesBar";
@@ -404,20 +405,11 @@ export default function App() {
       }`}
     >
       <div className="mx-auto w-full max-w-6xl space-y-4">
-        <header className="overflow-hidden rounded-3xl border border-white/70 bg-white/80 p-5 shadow-xl shadow-slate-200/60 backdrop-blur md:p-6">
-          <div className="grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-500">
-                Hockey Rink
-              </p>
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900">
-                Subs Program
-              </h1>
-              <p className="mt-2 text-sm text-slate-600">
-                Compact hockey game scheduling and sub management.
-              </p>
-            </div>
-            {isLoggedIn ? (
+        <AppShellHeader
+          title="Subs Program"
+          subtitle="Compact hockey game scheduling and sub management."
+          rightContent={
+            isLoggedIn ? (
               <div className="flex flex-col items-start gap-2">
                 <div className="flex items-center gap-2">
                   <p className="rounded-xl border border-indigo-100 bg-indigo-50 px-3 py-2 text-sm font-medium text-indigo-900">
@@ -437,9 +429,10 @@ export default function App() {
                     : "Your next game is not scheduled yet."}
                 </p>
               </div>
-            ) : null}
-          </div>
-          {isLoggedIn ? (
+            ) : null
+          }
+        />
+        {isLoggedIn ? (
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <div className="inline-flex rounded-xl border border-slate-300 bg-white p-1">
                 <button
@@ -502,7 +495,6 @@ export default function App() {
               </button>
             </div>
           ) : null}
-        </header>
 
         {!isLoggedIn ? (
           <LoginPanel

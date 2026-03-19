@@ -1,10 +1,18 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import App from "./App";
+import SchedulePage from "./pages/SchedulePage";
 import "./index.css";
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <App />
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<App />} />
+        <Route path="/schedule" element={<SchedulePage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   </React.StrictMode>
 );
