@@ -95,8 +95,7 @@ function getChangeSummary(before, after) {
   return `${fromLabel} → ${toLabel}`;
 }
 
-export default function SubsPage({ phpsessid }) {
-  const [gamesResponse, setGamesResponse] = useState(null);
+export default function SubsPage({ phpsessid, gamesResponse, loading, error, isUploading, onRefresh }) {
   const [draftSelections, setDraftSelections] = useState({});
   const [denseMode, setDenseMode] = useState(getSavedDenseMode);
   const [viewMode, setViewMode] = useState(getSavedViewMode);
@@ -105,36 +104,6 @@ export default function SubsPage({ phpsessid }) {
   const [submittedSelections, setSubmittedSelections] = useState({});
   const [pendingExpanded, setPendingExpanded] = useState(false);
   const [jerseyGuideOpen, setJerseyGuideOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const fetchGames = async (sessionId) => {
-    setError("");
-    setLoading(true);
-    try {
-      const response = await fetch(`${API_BASE}/get-games`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phpsessid: sessionId })
-      });
-      const data = await response.json();
-      if (!response.ok || !data.ok) {
-        throw new Error(data.error || "Unable to load games");
-      }
-      setGamesResponse(data);
-    } catch (requestError) {
-      setGamesResponse(null);
-      setError(requestError.message || "Unable to load games");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (phpsessid) {
-      fetchGames(phpsessid);
-    }
-  }, [phpsessid]);
 
   const games = useMemo(() => normalizeGames(gamesResponse), [gamesResponse]);
   const initialDraft = useMemo(() => buildDraftSelections(games), [games]);
@@ -380,7 +349,7 @@ export default function SubsPage({ phpsessid }) {
           <div className="flex w-full items-center gap-2 sm:w-auto">
             <button
               type="button"
-              onClick={() => fetchGames(phpsessid)}
+              onClick={onRefresh}
               disabled={loading}
               aria-label="Refresh games"
               className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
@@ -400,15 +369,25 @@ export default function SubsPage({ phpsessid }) {
               onClick={() => setJerseyGuideOpen(true)}
               className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-indigo-700 shadow-sm transition hover:bg-slate-50 hover:text-indigo-900 sm:flex-none"
             >
-              Jersey guide
+              Subs Jersey guide
             </button>
           </div>
         </div>
       </div>
 
-      {error ? (
+      {error && !isUploading ? (
         <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
           {error}
+        </div>
+      ) : null}
+
+      {isUploading ? (
+        <div className="mb-6 flex items-center gap-3 rounded-xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-800">
+          <svg className="h-5 w-5 animate-spin text-sky-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <p>{error}</p>
         </div>
       ) : null}
 

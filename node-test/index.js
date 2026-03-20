@@ -419,6 +419,17 @@ async function handleGetGames(req, res) {
       });
     }
 
+    if (html.includes("Parse error") || html.includes("middle of uploading")) {
+      logInfo("Legacy games response indicates uploading state", {
+        session: maskSessionId(phpsessid)
+      });
+      return res.status(503).json({
+        ok: false,
+        error: "uploading",
+        message: "Games are in the process of being uploaded."
+      });
+    }
+
     const parsed = parseSubsHtml(html);
     if (parsed.gameCount === 0) {
       logInfo("Games table missing in legacy response", {

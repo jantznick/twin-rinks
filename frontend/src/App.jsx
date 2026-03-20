@@ -42,7 +42,66 @@ export default function App() {
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginError, setLoginError] = useState("");
 
+  const [gamesResponse, setGamesResponse] = useState(null);
+  const [gamesLoading, setGamesLoading] = useState(false);
+  const [gamesError, setGamesError] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+
   const isLoggedIn = Boolean(phpsessid);
+
+  const fetchGames = async (sessionId, isBackground = false) => {
+    if (!isBackground) {
+      setGamesError("");
+      setGamesLoading(true);
+    }
+    try {
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      const response = await fetch(`${API_BASE}/get-games`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phpsessid: sessionId })
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        if (data.error === "uploading") {
+          throw new Error("uploading");
+        }
+        throw new Error(data.error || "Unable to load games");
+      }
+      setGamesResponse(data);
+      setIsUploading(false);
+      if (isBackground) setGamesError("");
+    } catch (err) {
+      if (err.message === "uploading") {
+        setIsUploading(true);
+        setGamesError("Games in process of being uploaded, we'll keep refreshing in the background and update games when they're ready.");
+      } else {
+        setGamesResponse(null);
+        setGamesError(err.message || "Unable to load games");
+        setIsUploading(false);
+      }
+    } finally {
+      if (!isBackground) {
+        setGamesLoading(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (phpsessid && !gamesResponse && !gamesLoading && !gamesError && !isUploading) {
+      fetchGames(phpsessid);
+    }
+  }, [phpsessid, gamesResponse, gamesLoading, gamesError, isUploading]);
+
+  useEffect(() => {
+    let interval;
+    if (isUploading && phpsessid) {
+      interval = setInterval(() => {
+        fetchGames(phpsessid, true);
+      }, 10000);
+    }
+    return () => clearInterval(interval);
+  }, [isUploading, phpsessid]);
 
   const handleLoginSubmit = async (event) => {
     event.preventDefault();
@@ -63,6 +122,9 @@ export default function App() {
       const normalizedEmail = loginUsername.trim();
       setPhpsessid(data.phpsessid);
       setUserEmail(normalizedEmail);
+      setGamesResponse(null);
+      setGamesError("");
+      setIsUploading(false);
       
       try {
         localStorage.setItem(SAVED_SESSION_KEY, data.phpsessid);
@@ -83,6 +145,9 @@ export default function App() {
   const handleLogout = () => {
     setPhpsessid("");
     setUserEmail("");
+    setGamesResponse(null);
+    setGamesError("");
+    setIsUploading(false);
     try {
       localStorage.removeItem(SAVED_SESSION_KEY);
       localStorage.removeItem(SAVED_EMAIL_KEY);
@@ -119,7 +184,14 @@ export default function App() {
             path="/"
             element={
               isLoggedIn ? (
-                <SubsPage phpsessid={phpsessid} />
+                <SubsPage
+                  phpsessid={phpsessid}
+                  gamesResponse={gamesResponse}
+                  loading={gamesLoading}
+                  error={gamesError}
+                  isUploading={isUploading}
+                  onRefresh={() => fetchGames(phpsessid)}
+                />
               ) : (
                 <LandingPage onOpenLogin={() => setLoginModalOpen(true)} />
               )
