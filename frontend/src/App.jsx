@@ -47,6 +47,7 @@ export default function App() {
   const [gamesLoading, setGamesLoading] = useState(false);
   const [gamesError, setGamesError] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isLoggedIn = Boolean(phpsessid);
 
@@ -103,6 +104,34 @@ export default function App() {
     }
     return () => clearInterval(interval);
   }, [isUploading, phpsessid]);
+
+  const submitGames = async (profile, updates) => {
+    setIsSubmitting(true);
+    try {
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      const response = await fetch(`${API_BASE}/update-games`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phpsessid,
+          profile,
+          games: updates
+        })
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || "Failed to submit games");
+      }
+      // Refresh games to get the latest state from the server
+      await fetchGames(phpsessid);
+      return true;
+    } catch (err) {
+      alert(err.message || "Failed to submit games");
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleLoginSubmit = async (event) => {
     event.preventDefault();
@@ -206,7 +235,9 @@ export default function App() {
                   loading={gamesLoading}
                   error={gamesError}
                   isUploading={isUploading}
+                  isSubmitting={isSubmitting}
                   onRefresh={() => fetchGames(phpsessid)}
+                  onSubmitGames={submitGames}
                 />
               ) : (
                 <LandingPage onOpenLogin={() => setLoginModalOpen(true)} />

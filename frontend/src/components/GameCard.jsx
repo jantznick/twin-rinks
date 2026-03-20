@@ -33,7 +33,7 @@ export default function GameCard({
     timeOnly && getTimeText(game) ? getTimeText(game) : getScheduleText(game);
   const jerseyGuide = isMyGamesTab ? getSubJerseyGuide(game) : null;
   
-  const isPlaying = game?.stage === "selected" || game?.stage === "confirmed-in" || selection?.attendance === "IN";
+  const isPlaying = game?.stage === "selected" || game?.stage === "confirmed-in" || game?.stage === "sub-requested" || selection?.attendance === "IN";
 
   return (
     <article
@@ -83,6 +83,12 @@ export default function GameCard({
       {subSpotState === null && getGameNote(game) ? (
         <p className="mt-1 text-xs text-slate-600">{getGameNote(game)}</p>
       ) : null}
+
+      {isPlaying && !optionValues.has("IN") && !optionValues.has("OUT") ? (
+        <p className="mt-1 text-xs text-slate-600">
+          If you will miss this game, email <a href="mailto:subs@twinrinks.com" className="font-medium text-indigo-600 hover:text-indigo-800 hover:underline" onClick={(e) => e.stopPropagation()}>subs@twinrinks.com</a>.
+        </p>
+      ) : null}
       
       {jerseyGuide ? (
         <p className="mt-1 text-xs font-medium text-indigo-700">
@@ -91,7 +97,7 @@ export default function GameCard({
       ) : null}
 
       <div className={`mt-3 flex flex-wrap items-center gap-1.5 ${denseMode ? "text-[11px]" : ""}`}>
-        {optionValues.has("SUB") ? (
+        {optionValues.has("SUB") && game?.stage !== "selected" && game?.stage !== "confirmed-in" ? (
           <button
             type="button"
             onClick={onToggleSub}

@@ -42,6 +42,10 @@ function parseSubsHtml(html) {
   // so we only parse the sub games and ignore their regular roster games.
   const subGamesSection = String(html || "").split(/Games you can sub in:/i)[1] || html;
 
+  // Extract the profile code from the HTML
+  const profileMatch = String(html || "").match(/<input[^>]*name=["']profile["'][^>]*value=["']([^"']+)["']/i);
+  const profile = profileMatch ? profileMatch[1] : "";
+
   const rows = String(subGamesSection)
     .split(/<br\s*\/?>/gi)
     .map((row) => row.trim())
@@ -115,6 +119,7 @@ function parseSubsHtml(html) {
 
   return {
     gameCount: games.length,
+    profile,
     games
   };
 }

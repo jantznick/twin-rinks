@@ -342,9 +342,9 @@ export function getStatusLabel(game, selection) {
     case "out":
       return "OUT - not attending";
     case "sub-requested":
-      return "Sub request selected";
+      return "Sub requested";
     case "selected":
-      return "Selected";
+      return "Action Required: Mark IN";
     case "available":
       return "Available";
     default:
@@ -361,6 +361,9 @@ export function getStatusPillClasses(statusLabel) {
   }
   if (statusLabel.toLowerCase().includes("sub")) {
     return "bg-sky-100 text-sky-800 ring-sky-200";
+  }
+  if (statusLabel.startsWith("Action Required")) {
+    return "bg-rose-100 text-rose-800 ring-rose-200";
   }
   return "bg-slate-100 text-slate-700 ring-slate-200";
 }

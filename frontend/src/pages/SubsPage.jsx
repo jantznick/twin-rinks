@@ -95,7 +95,7 @@ function getChangeSummary(before, after) {
   return `${fromLabel} → ${toLabel}`;
 }
 
-export default function SubsPage({ phpsessid, gamesResponse, loading, error, isUploading, onRefresh }) {
+export default function SubsPage({ phpsessid, gamesResponse, loading, error, isUploading, isSubmitting, onRefresh, onSubmitGames }) {
   const [draftSelections, setDraftSelections] = useState({});
   const [denseMode, setDenseMode] = useState(getSavedDenseMode);
   const [viewMode, setViewMode] = useState(getSavedViewMode);
@@ -104,6 +104,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
   const [submittedSelections, setSubmittedSelections] = useState({});
   const [pendingExpanded, setPendingExpanded] = useState(false);
   const [jerseyGuideOpen, setJerseyGuideOpen] = useState(false);
+  const [demoMode, setDemoMode] = useState(true);
 
   const games = useMemo(() => normalizeGames(gamesResponse), [gamesResponse]);
   const initialDraft = useMemo(() => buildDraftSelections(games), [games]);
@@ -112,12 +113,12 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
     const ids = new Set();
     for (const game of games) {
       const stage = String(game?.stage || "").toLowerCase();
-      if (stage === "selected" || stage === "confirmed-in") {
+      if (stage === "selected" || stage === "confirmed-in" || stage === "sub-requested") {
         ids.add(game.gameId);
       }
     }
     for (const [gameId, selection] of Object.entries(submittedSelections)) {
-      if (isMyGameSelection(selection)) {
+      if (selection?.attendance === "IN" || selection?.sub) {
         ids.add(gameId);
       }
     }
@@ -279,9 +280,66 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
     });
   };
 
-  const handleSubmitPendingChanges = () => {
-    setSubmittedSelections(cloneSelections(draftSelections));
-    setPendingExpanded(false);
+  const handleSubmitPendingChanges = async () => {
+    const updates = games.map((game) => {
+      const draft = normalizeSelection(draftSelections[game.gameId]);
+      return {
+        gameId: game.gameId,
+        dateTimeRink: game.dateTimeRink || game.schedule?.raw || "",
+        selection: draft.sub ? "SUB" : draft.attendance
+      };
+    });
+
+    if (demoMode) {
+      console.group("🚀 [DEMO MODE] Simulated Submission Payload");
+      console.log("JSON sent to our Node backend:", {
+        profile: gamesResponse?.profile || "UNKNOWN_PROFILE",
+        games: updates
+      });
+
+      // Mock the URLSearchParams that the backend will generate
+      const bodyParams = new URLSearchParams();
+      bodyParams.append("action", "games update");
+      bodyParams.append("profile", gamesResponse?.profile || "UNKNOWN_PROFILE");
+      
+      const activeSelections = [];
+      for (const game of updates) {
+        bodyParams.append(game.gameId, game.dateTimeRink);
+        if (game.selection) {
+          bodyParams.append(`${game.gameId}i`, game.selection);
+          activeSelections.push(`${game.gameId}i=${game.selection}`);
+        }
+      }
+      
+      bodyParams.append("submit", "Submit");
+      bodyParams.append("required", "");
+      bodyParams.append("data_order", "action,profile12/03/2015");
+      const dataOrderParts = ["action", "profile"];
+      for (let i = 1; i <= 100; i++) {
+        dataOrderParts.push(`g${i}`, `g${i}i`);
+      }
+      bodyParams.append("data_order", dataOrderParts.join(","));
+      bodyParams.append("outputfile", "../adulthockey/subs/subs_entry");
+      bodyParams.append("countfile", "form1");
+      bodyParams.append("emailfile", "form1");
+      bodyParams.append("form_id", "My Test Form");
+      bodyParams.append("ok_url", "../adulthockey/subs/subs_submit_ok.html");
+      bodyParams.append("not_ok_url", "../adulthockey/subs/sub_submit_not_ok.html");
+
+      console.log("✨ Active Selections (The important part!):", activeSelections);
+      console.log("📝 Full URL-Encoded Body (sent to legacy server):", decodeURIComponent(bodyParams.toString()));
+      console.groupEnd();
+
+      setSubmittedSelections(cloneSelections(draftSelections));
+      setPendingExpanded(false);
+      return;
+    }
+
+    const success = await onSubmitGames(gamesResponse?.profile, updates);
+    if (success) {
+      setSubmittedSelections(cloneSelections(draftSelections));
+      setPendingExpanded(false);
+    }
   };
 
   const handleCancelPendingChanges = () => {
@@ -538,9 +596,33 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
           </div>
         ) : null}
 
-        <div className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
-          <strong>Demo mode:</strong> selections are local only. Submit to `bnbform.cgi` is not wired yet.
-        </div>
+        {demoMode ? (
+          <div className="flex items-center justify-between gap-4 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+            <div>
+              <strong>Demo mode:</strong> selections are local only. Submit to `bnbform.cgi` is not active.
+            </div>
+            <button 
+              type="button" 
+              className="shrink-0 cursor-pointer rounded-md border border-sky-300 bg-sky-200 px-2 py-1 text-xs font-medium text-sky-900 transition hover:bg-sky-300" 
+              onClick={() => setDemoMode(false)}
+            >
+              Activate Live Mode
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between gap-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+            <div>
+              <strong>Live mode active:</strong> Submitting changes will update your actual games on the server.
+            </div>
+            <button 
+              type="button" 
+              className="shrink-0 cursor-pointer rounded-md border border-emerald-300 bg-emerald-200 px-2 py-1 text-xs font-medium text-emerald-900 transition hover:bg-emerald-300" 
+              onClick={() => setDemoMode(true)}
+            >
+              Return to Demo Mode
+            </button>
+          </div>
+        )}
       </section>
 
       <SafetyFooter />
@@ -549,7 +631,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
         isExpanded={pendingExpanded}
         changeCount={pendingSelectionChanges.length}
         changes={pendingSelectionChanges}
-        loading={false}
+        loading={isSubmitting}
         onToggleExpanded={() => setPendingExpanded((previous) => !previous)}
         onSubmit={handleSubmitPendingChanges}
         onCancel={handleCancelPendingChanges}

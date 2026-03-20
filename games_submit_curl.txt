@@ -1,0 +1,20 @@
+curl 'https://www.hockeydomain.com/cgi-bin/bnbform.cgi' \
+  -H 'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7' \
+  -H 'accept-language: en-US,en;q=0.9' \
+  -H 'cache-control: no-cache' \
+  -H 'content-type: application/x-www-form-urlencoded' \
+  -b 'PHPSESSID=a7068f1663eb21ee3cc6fa526571100d' \
+  -H 'origin: https://www.hockeydomain.com' \
+  -H 'pragma: no-cache' \
+  -H 'priority: u=0, i' \
+  -H 'referer: https://www.hockeydomain.com/adulthockey/subs/all_player_login.php' \
+  -H 'sec-ch-ua: "Chromium";v="146", "Not-A.Brand";v="24", "Google Chrome";v="146"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "macOS"' \
+  -H 'sec-fetch-dest: document' \
+  -H 'sec-fetch-mode: navigate' \
+  -H 'sec-fetch-site: same-origin' \
+  -H 'sec-fetch-user: ?1' \
+  -H 'upgrade-insecure-requests: 1' \
+  -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36' \
+  --data-raw 'action=games+update&profile=JAN0987&g5=03%2F21%2F2026+SAT+06%3A00P+red++rink-g&g6=03%2F21%2F2026+SAT+07%3A30P+red++rink-g&g9=03%2F22%2F2026+SUN+10%3A10P+red++rink-g&g10=03%2F23%2F2026+MON+07%3A40P+red++rink-g&g12=03%2F24%2F2026+TUE+09%3A10P+red++rink-g&g12i=IN&g13=03%2F25%2F2026+WED+09%3A10P+red++rink-g&g14=03%2F27%2F2026+FRI+07%3A40P+red++rink-g&g15=03%2F29%2F2026+SUN+04%3A00P+red++rink-g&g15i=IN&g16=03%2F29%2F2026+SUN+05%3A30P+red++rink-g&g17=03%2F30%2F2026+MON+09%3A10P+red++rink-g&g18=04%2F03%2F2026+FRI+07%3A30P+blue+rink-g&g18i=SUB&submit=Submit&required=&data_order=action%2Cprofile12%2F03%2F2015&data_order=action%2Cprofile%2Cg1%2Cg1i%2Cg2%2Cg2i%2Cg3%2Cg3i%2Cg4%2Cg4i%2Cg5%2Cg5i%2Cg6%2Cg6i%2Cg7%2Cg7i%2Cg8%2Cg8i%2Cg9%2Cg9i%2Cg10%2Cg10i%2Cg11%2Cg11i%2Cg12%2Cg12i%2Cg13%2Cg13i%2Cg14%2Cg14i%2Cg15%2Cg15i%2Cg16%2Cg16i%2Cg17%2Cg17i%2Cg18%2Cg18i%2Cg19%2Cg19i%2Cg20%2Cg20i%2Cg21%2Cg21i%2Cg22%2Cg22i%2Cg23%2Cg23i%2Cg24%2Cg24i%2Cg25%2Cg25i%2Cg26%2Cg26i%2Cg27%2Cg27i%2Cg28%2Cg28i%2Cg29%2Cg29i%2Cg30%2Cg30i%2Cg31%2Cg31i%2Cg32%2Cg32i%2Cg33%2Cg33i%2Cg34%2Cg34i%2Cg35%2Cg35i%2Cg36%2Cg36i%2Cg37%2Cg37i%2Cg38%2Cg38i%2Cg39%2Cg39i%2Cg40%2Cg40i%2Cg41%2Cg41i%2Cg42%2Cg42i%2Cg43%2Cg43i%2Cg44%2Cg44i%2Cg45%2Cg45i%2Cg46%2Cg46i%2Cg47%2Cg47i%2Cg48%2Cg48i%2Cg49%2Cg49i%2Cg50%2Cg50i%2Cg51%2Cg51i%2Cg52%2Cg52i%2Cg53%2Cg53i%2Cg54%2Cg54i%2Cg55%2Cg55i%2Cg56%2Cg56i%2Cg57%2Cg57i%2Cg58%2Cg58i%2Cg59%2Cg59i%2Cg60%2Cg60i%2Cg61%2Cg61i%2Cg62%2Cg62i%2Cg63%2Cg63i%2Cg64%2Cg64i%2Cg65%2Cg65i%2Cg66%2Cg66i%2Cg67%2Cg67i%2Cg68%2Cg68i%2Cg69%2Cg69i%2Cg70%2Cg70i%2Cg71%2Cg71i%2Cg72%2Cg72i%2Cg73%2Cg73i%2Cg74%2Cg74i%2Cg75%2Cg75i%2Cg76%2Cg76i%2Cg77%2Cg77i%2Cg78%2Cg78i%2Cg79%2Cg79i%2Cg80%2Cg80i%2Cg81%2Cg81i%2Cg82%2Cg82i%2Cg83%2Cg83i%2Cg84%2Cg84i%2Cg85%2Cg85i%2Cg86%2Cg86i%2Cg87%2Cg87i%2Cg88%2Cg88i%2Cg89%2Cg89i%2Cg90%2Cg90i%2Cg91%2Cg91i%2Cg92%2Cg92i%2Cg93%2Cg93i%2Cg94%2Cg94i%2Cg95%2Cg95i%2Cg96%2Cg96i%2Cg97%2Cg97i%2Cg98%2Cg98i%2Cg99%2Cg99i%2Cg100%2Cg100i&outputfile=..%2Fadulthockey%2Fsubs%2Fsubs_entry&countfile=form1&emailfile=form1&form_id=My+Test+Form&ok_url=..%2Fadulthockey%2Fsubs%2Fsubs_submit_ok.html&not_ok_url=..%2Fadulthockey%2Fsubs%2Fsub_submit_not_ok.html'

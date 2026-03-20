@@ -14,6 +14,8 @@ const LEGACY_BASE_URL =
 const LEGACY_LOGIN_PATH = process.env.LEGACY_LOGIN_PATH || "/subs_entry.php";
 const LEGACY_GAMES_PATH =
   process.env.LEGACY_GAMES_PATH || "/all_player_login.php";
+const LEGACY_SUBMIT_PATH =
+  process.env.LEGACY_SUBMIT_PATH || "/cgi-bin/bnbform.cgi";
 const LOG_PREFIX = "[legacy-middleware]";
 const BODY_PREVIEW_LIMIT = Number(process.env.BODY_PREVIEW_LIMIT || 4000);
 const LOG_SENSITIVE = process.env.LOG_SENSITIVE === "1";
@@ -449,12 +451,14 @@ async function handleGetGames(req, res) {
 
     logInfo("Games parsed successfully", {
       gameCount: parsed.gameCount,
+      hasProfile: !!parsed.profile,
       session: maskSessionId(phpsessid)
     });
 
     return res.json({
       ok: true,
       gameCount: parsed.gameCount,
+      profile: parsed.profile,
       sourceType: "rows",
       games: parsed.games
     });
@@ -469,6 +473,120 @@ async function handleGetGames(req, res) {
 
 app.get("/get-games", handleGetGames);
 app.post("/get-games", handleGetGames);
+
+app.post("/update-games", async (req, res) => {
+  const phpsessid = getSessionFromRequest(req);
+  const { profile, games } = req.body || {};
+
+  if (!phpsessid) {
+    return res.status(400).json({ ok: false, error: "phpsessid is required" });
+  }
+  if (!profile) {
+    return res.status(400).json({ ok: false, error: "profile is required" });
+  }
+  if (!Array.isArray(games)) {
+    return res.status(400).json({ ok: false, error: "games array is required" });
+  }
+
+  try {
+    const submitUrl = new URL(LEGACY_SUBMIT_PATH, LEGACY_BASE_URL).toString();
+    const bodyParams = new URLSearchParams();
+    
+    // Boilerplate form fields
+    bodyParams.append("action", "games update");
+    bodyParams.append("profile", profile);
+    
+    // Append all games and their selections
+    for (const game of games) {
+      if (game.gameId && game.dateTimeRink) {
+        bodyParams.append(game.gameId, game.dateTimeRink);
+        if (game.selection) {
+          bodyParams.append(`${game.gameId}i`, game.selection);
+        }
+      }
+    }
+
+    // More boilerplate fields from the legacy form
+    bodyParams.append("submit", "Submit");
+    bodyParams.append("required", "");
+    bodyParams.append("data_order", "action,profile12/03/2015");
+    
+    // The legacy form sends a massive data_order string with all possible g1-g100 inputs
+    const dataOrderParts = ["action", "profile"];
+    for (let i = 1; i <= 100; i++) {
+      dataOrderParts.push(`g${i}`, `g${i}i`);
+    }
+    bodyParams.append("data_order", dataOrderParts.join(","));
+    
+    bodyParams.append("outputfile", "../adulthockey/subs/subs_entry");
+    bodyParams.append("countfile", "form1");
+    bodyParams.append("emailfile", "form1");
+    bodyParams.append("form_id", "My Test Form");
+    bodyParams.append("ok_url", "../adulthockey/subs/subs_submit_ok.html");
+    bodyParams.append("not_ok_url", "../adulthockey/subs/sub_submit_not_ok.html");
+
+    const cookieValueForLogs = LOG_SENSITIVE
+      ? `PHPSESSID=${phpsessid}`
+      : `PHPSESSID=${maskSessionId(phpsessid)}`;
+      
+    const submitCurl = buildCurlCommand({
+      method: "POST",
+      url: submitUrl,
+      headers: {
+        Cookie: cookieValueForLogs,
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: bodyParams.toString()
+    });
+
+    logInfo("Submitting games to legacy", {
+      session: maskSessionId(phpsessid),
+      gamesCount: games.length
+    });
+    logInfo("Legacy submit request target", {
+      url: submitUrl,
+      command: submitCurl
+    });
+
+    const response = await fetch(submitUrl, {
+      method: "POST",
+      headers: {
+        Cookie: `PHPSESSID=${phpsessid}`,
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: bodyParams,
+      redirect: "manual" // We expect a 302 redirect on success
+    });
+
+    const responseHeaders = headersToObject(response.headers);
+    const responseBody = await response.text();
+    const bodyPreview = buildBodyPreview(responseBody);
+
+    logInfo("Legacy submit response received", {
+      status: response.status,
+      location: response.headers.get("location"),
+      headers: responseHeaders,
+      bodyPreview
+    });
+
+    // The legacy script returns a 302 redirect on success
+    if (response.status >= 400) {
+      return res.status(401).json({
+        ok: false,
+        error: `Legacy submit request failed with status ${response.status}`
+      });
+    }
+
+    return res.json({ ok: true });
+  } catch (error) {
+    logInfo("Legacy submit request failed", { error: error.message });
+    return res.status(502).json({
+      ok: false,
+      error: "Legacy submit request failed",
+      details: error.message
+    });
+  }
+});
 
 app.listen(PORT, () => {
   logInfo(`Legacy middleware listening on http://localhost:${PORT}`, {

@@ -133,6 +133,7 @@ function GameDetailsModal({
   const rink = getRink(game);
   const countdown = getCountdownText(game);
   const options = getOptionValues(game);
+  const isPlaying = game?.stage === "selected" || game?.stage === "confirmed-in" || selection?.attendance === "IN";
 
   return (
     <div
@@ -166,6 +167,11 @@ function GameDetailsModal({
           <p className="text-sm font-medium text-slate-800">{getGameHeadline(game)}</p>
           {getGameNote(game) ? (
             <p className="text-xs text-slate-600">{getGameNote(game)}</p>
+          ) : null}
+          {isPlaying && !options.has("IN") && !options.has("OUT") ? (
+            <p className="text-xs text-slate-600">
+              If you will miss this game, email <a href="mailto:subs@twinrinks.com" className="font-medium text-indigo-600 hover:underline">subs@twinrinks.com</a>.
+            </p>
           ) : null}
           <p className="text-xs text-slate-600">
             Current status: <span className="font-semibold">{status}</span>
