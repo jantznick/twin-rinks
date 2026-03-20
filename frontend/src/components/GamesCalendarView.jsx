@@ -49,7 +49,16 @@ export default function GamesCalendarView({
           isMyGamesTab={isMyGamesTab}
         />
       ) : layoutMode === "week" ? (
-        <GamesWeekBoard games={games} draftSelections={draftSelections} onSelectGame={setSelectedGame} />
+        <GamesWeekBoard
+          games={games}
+          draftSelections={draftSelections}
+          pendingGameIds={pendingGameIds}
+          denseMode={denseMode}
+          isMyGamesTab={isMyGamesTab}
+          onToggleSub={onToggleSub}
+          onToggleAttendance={onToggleAttendance}
+          onSelectGame={setSelectedGame}
+        />
       ) : (
         groups.map((group) => (
           <section key={group.key} className="pt-2">

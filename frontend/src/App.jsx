@@ -99,7 +99,7 @@ export default function App() {
     if (isUploading && phpsessid) {
       interval = setInterval(() => {
         fetchGames(phpsessid, true);
-      }, 10000);
+      }, 20000);
     }
     return () => clearInterval(interval);
   }, [isUploading, phpsessid]);

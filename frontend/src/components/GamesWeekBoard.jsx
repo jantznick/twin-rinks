@@ -1,15 +1,44 @@
 import {
   buildUpcomingWeekBuckets,
   getLeagueLabel,
-  getTimeText
+  getTimeText,
+  getGameStartDate
 } from "../lib/gameUtils";
+import GameCard from "./GameCard";
 
-export default function GamesWeekBoard({ games, draftSelections, onSelectGame }) {
+export default function GamesWeekBoard({
+  games,
+  draftSelections,
+  pendingGameIds,
+  denseMode,
+  isMyGamesTab,
+  onToggleSub,
+  onToggleAttendance,
+  onSelectGame
+}) {
   const buckets = buildUpcomingWeekBuckets(games, 14);
   const firstWeek = buckets.slice(0, 7);
   const secondWeek = buckets.slice(7, 14);
   const firstRangeLabel = getRangeLabel(firstWeek);
   const secondRangeLabel = getRangeLabel(secondWeek);
+
+  const lastBucketDate = buckets[buckets.length - 1].date;
+  const cutoffTime = new Date(
+    lastBucketDate.getFullYear(),
+    lastBucketDate.getMonth(),
+    lastBucketDate.getDate(),
+    23,
+    59,
+    59,
+    999
+  ).getTime();
+
+  const overflowGames = games
+    .filter((g) => {
+      const d = getGameStartDate(g);
+      return d && d.getTime() > cutoffTime;
+    })
+    .sort((a, b) => getGameStartDate(a).getTime() - getGameStartDate(b).getTime());
 
   return (
     <div className="space-y-3">
@@ -33,6 +62,28 @@ export default function GamesWeekBoard({ games, draftSelections, onSelectGame })
           ))}
         </div>
       </div>
+
+      {overflowGames.length > 0 && (
+        <div className="mt-6">
+          <p className="mb-3 text-sm font-semibold text-slate-800">
+            There {overflowGames.length === 1 ? "is" : "are"} {overflowGames.length} game{overflowGames.length === 1 ? "" : "s"} over 2 weeks away
+          </p>
+          <div className={`grid grid-cols-1 ${denseMode ? "gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "gap-3 sm:grid-cols-2 xl:grid-cols-3"}`}>
+            {overflowGames.map((game, index) => (
+              <GameCard
+                key={game.gameId || `overflow-${index}`}
+                game={game}
+                selection={draftSelections[game.gameId] || {}}
+                pending={pendingGameIds?.has(game.gameId)}
+                denseMode={denseMode}
+                isMyGamesTab={isMyGamesTab}
+                onToggleSub={() => onToggleSub(game.gameId)}
+                onToggleAttendance={(value) => onToggleAttendance(game.gameId, value)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

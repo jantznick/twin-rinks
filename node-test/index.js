@@ -414,14 +414,7 @@ async function handleGetGames(req, res) {
       bodyPreview
     });
 
-    if (response.status >= 400) {
-      return res.status(401).json({
-        ok: false,
-        error: `Legacy games request failed with status ${response.status}`
-      });
-    }
-
-    if (html.includes("Parse error") || html.includes("middle of uploading")) {
+    if (html.includes("<b>Parse error</b>:") || html.includes("syntax error, unexpected")) {
       logInfo("Legacy games response indicates uploading state", {
         session: maskSessionId(phpsessid)
       });
@@ -429,6 +422,13 @@ async function handleGetGames(req, res) {
         ok: false,
         error: "uploading",
         message: "Games are in the process of being uploaded."
+      });
+    }
+
+    if (response.status >= 400) {
+      return res.status(401).json({
+        ok: false,
+        error: `Legacy games request failed with status ${response.status}`
       });
     }
 
