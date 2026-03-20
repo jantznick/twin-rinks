@@ -12,7 +12,7 @@ const SAVED_EMAIL_KEY = "legacy-user-email";
 
 function getSavedSession() {
   try {
-    return localStorage.getItem(SAVED_SESSION_KEY) || "";
+    return localStorage.getItem(SAVED_SESSION_KEY) || sessionStorage.getItem(SAVED_SESSION_KEY) || "";
   } catch {
     return "";
   }
@@ -20,7 +20,7 @@ function getSavedSession() {
 
 function getSavedEmail() {
   try {
-    return localStorage.getItem(SAVED_EMAIL_KEY) || "";
+    return localStorage.getItem(SAVED_EMAIL_KEY) || sessionStorage.getItem(SAVED_EMAIL_KEY) || "";
   } catch {
     return "";
   }
@@ -131,6 +131,8 @@ export default function App() {
         try {
           localStorage.setItem(SAVED_SESSION_KEY, data.phpsessid);
           localStorage.setItem(SAVED_EMAIL_KEY, normalizedEmail);
+          sessionStorage.removeItem(SAVED_SESSION_KEY);
+          sessionStorage.removeItem(SAVED_EMAIL_KEY);
         } catch {
           // Ignore localStorage failures
         }
@@ -138,6 +140,8 @@ export default function App() {
         try {
           localStorage.removeItem(SAVED_SESSION_KEY);
           localStorage.removeItem(SAVED_EMAIL_KEY);
+          sessionStorage.setItem(SAVED_SESSION_KEY, data.phpsessid);
+          sessionStorage.setItem(SAVED_EMAIL_KEY, normalizedEmail);
         } catch {
           // Ignore localStorage failures
         }
@@ -161,6 +165,8 @@ export default function App() {
     try {
       localStorage.removeItem(SAVED_SESSION_KEY);
       localStorage.removeItem(SAVED_EMAIL_KEY);
+      sessionStorage.removeItem(SAVED_SESSION_KEY);
+      sessionStorage.removeItem(SAVED_EMAIL_KEY);
     } catch {
       // Ignore localStorage failures
     }
