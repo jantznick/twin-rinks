@@ -39,6 +39,7 @@ export default function App() {
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [loginUsername, setLoginUsername] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [loginRemember, setLoginRemember] = useState(true);
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginError, setLoginError] = useState("");
 
@@ -126,11 +127,20 @@ export default function App() {
       setGamesError("");
       setIsUploading(false);
       
-      try {
-        localStorage.setItem(SAVED_SESSION_KEY, data.phpsessid);
-        localStorage.setItem(SAVED_EMAIL_KEY, normalizedEmail);
-      } catch {
-        // Ignore localStorage failures
+      if (loginRemember) {
+        try {
+          localStorage.setItem(SAVED_SESSION_KEY, data.phpsessid);
+          localStorage.setItem(SAVED_EMAIL_KEY, normalizedEmail);
+        } catch {
+          // Ignore localStorage failures
+        }
+      } else {
+        try {
+          localStorage.removeItem(SAVED_SESSION_KEY);
+          localStorage.removeItem(SAVED_EMAIL_KEY);
+        } catch {
+          // Ignore localStorage failures
+        }
       }
       
       setLoginModalOpen(false);
@@ -207,10 +217,12 @@ export default function App() {
         onClose={() => setLoginModalOpen(false)}
         username={loginUsername}
         password={loginPassword}
+        remember={loginRemember}
         loading={loginLoading}
         error={loginError}
         onUsernameChange={setLoginUsername}
         onPasswordChange={setLoginPassword}
+        onRememberChange={setLoginRemember}
         onSubmit={handleLoginSubmit}
       />
     </div>

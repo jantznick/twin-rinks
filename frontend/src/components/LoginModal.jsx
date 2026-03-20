@@ -5,10 +5,12 @@ export default function LoginModal({
   onClose,
   username,
   password,
+  remember,
   loading,
   error,
   onUsernameChange,
   onPasswordChange,
+  onRememberChange,
   onSubmit
 }) {
   useEffect(() => {
@@ -74,6 +76,16 @@ export default function LoginModal({
               autoComplete="current-password"
               required
             />
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="remember"
+              checked={remember}
+              onChange={(e) => onRememberChange(e.target.checked)}
+              className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600"
+            />
+            <span className="text-slate-700">Remember me</span>
           </label>
           <div className="pt-2">
             <button
