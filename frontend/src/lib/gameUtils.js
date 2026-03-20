@@ -1,3 +1,5 @@
+import seasonCalendar from "../data/seasonCalendar.json";
+
 export function normalizeGames(gamesResponse) {
   if (!gamesResponse || !gamesResponse.games) {
     return [];
@@ -178,6 +180,66 @@ export function getJerseyColorForTeamMatchup(teamColor, opponentColor) {
 }
 
 export function getSubJerseyGuide(game) {
+  if (game?.details?.kind === "playing") {
+    const myTeam = getPlayingTeamColor(game);
+    if (!myTeam) return null;
+
+    const gameDate = parseGameDate(game);
+    if (!gameDate) return null;
+
+    const isoDate = `${gameDate.getFullYear()}-${String(gameDate.getMonth() + 1).padStart(2, "0")}-${String(gameDate.getDate()).padStart(2, "0")}`;
+    
+    // Format time to match seasonCalendar.json (e.g., "05:30 PM")
+    let hours = gameDate.getHours();
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    const strHours = String(hours).padStart(2, "0");
+    const strMins = String(gameDate.getMinutes()).padStart(2, "0");
+    const formattedTime = `${strHours}:${strMins} ${ampm}`;
+
+    const scheduleGames = Array.isArray(seasonCalendar) ? seasonCalendar : seasonCalendar.games || [];
+    
+    // Find the matching game in the schedule
+    const matchedGame = scheduleGames.find(g => {
+      if (g.date !== isoDate) return false;
+      // Time matching can be tricky due to leading zeros, so we check both
+      const gTime = String(g.time).trim().toUpperCase();
+      const matchTime1 = formattedTime;
+      const matchTime2 = `${hours}:${strMins} ${ampm}`; // without leading zero
+      if (gTime !== matchTime1 && gTime !== matchTime2) return false;
+
+      const home = normalizeTeamColorName(g.home);
+      const away = normalizeTeamColorName(g.away);
+      // We check if myTeam is a substring of home/away or vice versa, 
+      // because the schedule might say "Coral" but myTeam parsed as "CORA"
+      return home.includes(myTeam) || myTeam.includes(home) || 
+             away.includes(myTeam) || myTeam.includes(away);
+    });
+
+    if (matchedGame) {
+      const home = normalizeTeamColorName(matchedGame.home);
+      const away = normalizeTeamColorName(matchedGame.away);
+      const opponent = (home.includes(myTeam) || myTeam.includes(home)) ? away : home;
+      const jersey = getJerseyColorForTeamMatchup(myTeam, opponent);
+      
+      if (jersey) {
+        return {
+          team: myTeam,
+          jersey,
+          text: `Wear a ${myTeam.toLowerCase()} or ${jersey.toLowerCase()} jersey (vs ${opponent})`
+        };
+      }
+    }
+    
+    // Fallback if not found in schedule
+    return {
+      team: myTeam,
+      jersey: "UNKNOWN",
+      text: "Check jersey guide"
+    };
+  }
+
   if (game?.details?.kind !== "matchup") {
     return null;
   }
@@ -204,19 +266,34 @@ export function getPlayingTeamColor(game) {
   const source = String(game?.details?.summary || game?.infoText || "").toUpperCase();
   const compact = source.replace(/\s+/g, " ").trim();
 
+  // Extract the 4 letter code like CORA from RECG-CORA
   const teamFromLeagueCode = compact.match(/\b[A-Z]{3,6}-([A-Z]+)\b/);
   if (teamFromLeagueCode?.[1]) {
-    const normalized = normalizeTeamColorName(teamFromLeagueCode[1]);
-    if (normalized) {
-      return normalized;
+    const rawCode = teamFromLeagueCode[1];
+    
+    // Check if the raw code is a direct match
+    let normalized = normalizeTeamColorName(rawCode);
+    if (normalized) return normalized;
+    
+    // If not a direct match, try to find a color in the chart that starts with this code
+    // For example, "CORA" -> "CORAL", "PURP" -> "PURPLE"
+    for (const color of JERSEY_CHART_ORDER) {
+      if (color.startsWith(rawCode)) {
+        return color;
+      }
     }
   }
 
   const teamFromGoalieText = compact.match(/\bGOALIE\s+FOR\s+([A-Z]+)\b/);
   if (teamFromGoalieText?.[1]) {
-    const normalized = normalizeTeamColorName(teamFromGoalieText[1]);
-    if (normalized) {
-      return normalized;
+    const rawCode = teamFromGoalieText[1];
+    let normalized = normalizeTeamColorName(rawCode);
+    if (normalized) return normalized;
+    
+    for (const color of JERSEY_CHART_ORDER) {
+      if (color.startsWith(rawCode)) {
+        return color;
+      }
     }
   }
 

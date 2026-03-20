@@ -8,7 +8,8 @@ import {
   getTimeText,
   getStatusLabel,
   getStatusPillClasses,
-  getSubSpotState
+  getSubSpotState,
+  getSubJerseyGuide
 } from "../lib/gameUtils";
 
 export default function GameCard({
@@ -29,6 +30,7 @@ export default function GameCard({
   const rinkPillClasses = getRinkPillClasses(rink);
   const scheduleLabel =
     timeOnly && getTimeText(game) ? getTimeText(game) : getScheduleText(game);
+  const jerseyGuide = getSubJerseyGuide(game);
 
   return (
     <article
@@ -76,6 +78,13 @@ export default function GameCard({
       {subSpotState === null && getGameNote(game) ? (
         <p className="mt-1 text-xs text-slate-600">{getGameNote(game)}</p>
       ) : null}
+      
+      {jerseyGuide ? (
+        <p className="mt-1 text-xs font-medium text-indigo-700">
+          {jerseyGuide.text}
+        </p>
+      ) : null}
+
       <div className={`mt-3 flex flex-wrap items-center gap-1.5 ${denseMode ? "text-[11px]" : ""}`}>
         {optionValues.has("SUB") ? (
           <button

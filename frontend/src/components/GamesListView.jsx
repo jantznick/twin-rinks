@@ -3,7 +3,8 @@ import {
   getOptionValues,
   getRink,
   getScheduleText,
-  getStatusLabel
+  getStatusLabel,
+  getSubJerseyGuide
 } from "../lib/gameUtils";
 
 export default function GamesListView({
@@ -20,6 +21,7 @@ export default function GamesListView({
           const selection = draftSelections[game.gameId] || {};
           const options = getOptionValues(game);
           const status = getStatusLabel(game, selection);
+          const jerseyGuide = getSubJerseyGuide(game);
           return (
             <li
               key={game.gameId || `list-${index}`}
@@ -33,7 +35,12 @@ export default function GamesListView({
                   {getRink(game) ? ` • ${getRink(game)} rink` : ""}
                 </p>
                 <p className="truncate text-xs text-slate-600">{getGameHeadline(game)}</p>
-                <p className="text-[11px] uppercase tracking-wide text-slate-500">{status}</p>
+                {jerseyGuide ? (
+                  <p className="mt-0.5 text-[11px] font-medium text-indigo-700">
+                    {jerseyGuide.text}
+                  </p>
+                ) : null}
+                <p className="mt-0.5 text-[11px] uppercase tracking-wide text-slate-500">{status}</p>
               </div>
 
               <div className="flex flex-wrap items-center gap-1.5">
