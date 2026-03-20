@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function LoginModal({
   open,
@@ -13,6 +13,8 @@ export default function LoginModal({
   onRememberChange,
   onSubmit
 }) {
+  const [showPassword, setShowPassword] = useState(false);
+
   useEffect(() => {
     if (!open) return undefined;
     const previousOverflow = document.body.style.overflow;
@@ -68,14 +70,34 @@ export default function LoginModal({
           </label>
           <label className="block text-sm">
             <span className="font-medium text-slate-700">Password</span>
-            <input
-              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 outline-none ring-indigo-300 transition focus:ring-2"
-              type="password"
-              value={password}
-              onChange={(event) => onPasswordChange(event.target.value)}
-              autoComplete="current-password"
-              required
-            />
+            <div className="relative mt-1">
+              <input
+                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 pr-10 outline-none ring-indigo-300 transition focus:ring-2"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(event) => onPasswordChange(event.target.value)}
+                autoComplete="current-password"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="h-5 w-5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="h-5 w-5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                )}
+              </button>
+            </div>
           </label>
           <label className="flex items-center gap-2 text-sm">
             <input
