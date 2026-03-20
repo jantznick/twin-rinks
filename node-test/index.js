@@ -17,6 +17,7 @@ const LEGACY_GAMES_PATH =
 const LOG_PREFIX = "[legacy-middleware]";
 const BODY_PREVIEW_LIMIT = Number(process.env.BODY_PREVIEW_LIMIT || 4000);
 const LOG_SENSITIVE = process.env.LOG_SENSITIVE === "1";
+const SITE_ACCESS_PASSWORD = process.env.SITE_ACCESS_PASSWORD || "";
 
 app.use(cors());
 app.use(express.json());
@@ -260,6 +261,20 @@ function getSetCookieHeaders(headers) {
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true });
+});
+
+app.post("/verify-access", (req, res) => {
+  const { password } = req.body || {};
+  
+  if (!SITE_ACCESS_PASSWORD) {
+    return res.json({ ok: true, message: "No password configured" });
+  }
+  
+  if (password === SITE_ACCESS_PASSWORD) {
+    return res.json({ ok: true });
+  }
+  
+  return res.status(401).json({ ok: false, error: "Invalid password" });
 });
 
 app.post("/login", async (req, res) => {

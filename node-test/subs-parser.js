@@ -38,7 +38,11 @@ function looksLikeScheduleValue(value) {
 }
 
 function parseSubsHtml(html) {
-  const rows = String(html || "")
+  // Split the HTML into the "Your Games" and "Games you can sub in" sections
+  // so we only parse the sub games and ignore their regular roster games.
+  const subGamesSection = String(html || "").split(/Games you can sub in:/i)[1] || html;
+
+  const rows = String(subGamesSection)
     .split(/<br\s*\/?>/gi)
     .map((row) => row.trim())
     .filter(Boolean);

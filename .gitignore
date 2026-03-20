@@ -5,6 +5,5 @@ node-test/node_modules
 frontend/node_modules
 frontend/dist
 
-index.html
 subs_page.html
 utility.js

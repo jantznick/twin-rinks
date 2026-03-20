@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
 import TopNav from "./components/TopNav";
 import LoginModal from "./components/LoginModal";
+import SiteBlocker from "./components/SiteBlocker";
 import LandingPage from "./pages/LandingPage";
 import SubsPage from "./pages/SubsPage";
 import SchedulePage from "./pages/SchedulePage";
@@ -26,6 +27,13 @@ function getSavedEmail() {
 }
 
 export default function App() {
+  const [siteUnlocked, setSiteUnlocked] = useState(() => {
+    try {
+      return localStorage.getItem("site-unlocked") === "true";
+    } catch {
+      return false;
+    }
+  });
   const [phpsessid, setPhpsessid] = useState(getSavedSession);
   const [userEmail, setUserEmail] = useState(getSavedEmail);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
@@ -82,6 +90,19 @@ export default function App() {
       // Ignore localStorage failures
     }
   };
+
+  const handleUnlock = () => {
+    setSiteUnlocked(true);
+    try {
+      localStorage.setItem("site-unlocked", "true");
+    } catch {
+      // Ignore localStorage failures
+    }
+  };
+
+  if (!siteUnlocked) {
+    return <SiteBlocker onUnlock={handleUnlock} />;
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900">
