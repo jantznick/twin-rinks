@@ -19,7 +19,9 @@ const BODY_PREVIEW_LIMIT = Number(process.env.BODY_PREVIEW_LIMIT || 4000);
 const LOG_SENSITIVE = process.env.LOG_SENSITIVE === "1";
 const SITE_ACCESS_PASSWORD = process.env.SITE_ACCESS_PASSWORD || "";
 
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || "http://localhost:5173"
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
