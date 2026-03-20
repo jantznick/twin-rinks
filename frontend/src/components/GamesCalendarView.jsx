@@ -21,7 +21,8 @@ export default function GamesCalendarView({
   denseMode,
   layoutMode,
   onToggleSub,
-  onToggleAttendance
+  onToggleAttendance,
+  isMyGamesTab
 }) {
   const groups = groupGamesByDate(games);
   const plannerBuckets = useMemo(() => buildPlannerBuckets(games, 14), [games]);
@@ -45,9 +46,10 @@ export default function GamesCalendarView({
           denseMode={denseMode}
           onToggleSub={onToggleSub}
           onToggleAttendance={onToggleAttendance}
+          isMyGamesTab={isMyGamesTab}
         />
       ) : layoutMode === "week" ? (
-        <GamesWeekBoard games={games} onSelectGame={setSelectedGame} />
+        <GamesWeekBoard games={games} draftSelections={draftSelections} onSelectGame={setSelectedGame} />
       ) : (
         groups.map((group) => (
           <section key={group.key} className="pt-2">
@@ -87,6 +89,7 @@ export default function GamesCalendarView({
                     pending={pendingGameIds?.has(game.gameId)}
                     denseMode={denseMode}
                     timeOnly
+                    isMyGamesTab={isMyGamesTab}
                     onToggleSub={() => onToggleSub(game.gameId)}
                     onToggleAttendance={(value) => onToggleAttendance(game.gameId, value)}
                   />

@@ -19,7 +19,8 @@ export default function GameCard({
   denseMode,
   timeOnly,
   onToggleSub,
-  onToggleAttendance
+  onToggleAttendance,
+  isMyGamesTab
 }) {
   const statusLabel = getStatusLabel(game, selection);
   const statusPill = getStatusPillClasses(statusLabel);
@@ -30,13 +31,17 @@ export default function GameCard({
   const rinkPillClasses = getRinkPillClasses(rink);
   const scheduleLabel =
     timeOnly && getTimeText(game) ? getTimeText(game) : getScheduleText(game);
-  const jerseyGuide = getSubJerseyGuide(game);
+  const jerseyGuide = isMyGamesTab ? getSubJerseyGuide(game) : null;
+  
+  const isPlaying = game?.stage === "selected" || game?.stage === "confirmed-in" || selection?.attendance === "IN";
 
   return (
     <article
       className={`rounded-xl ${
         pending
           ? "border border-amber-300 bg-amber-50/70 ring-1 ring-amber-200 shadow-lg shadow-amber-200/50"
+          : isPlaying && !isMyGamesTab
+          ? "border-2 border-emerald-600 bg-emerald-50/30 shadow-lg shadow-emerald-200/40"
           : "border border-slate-200 bg-white shadow-lg shadow-slate-300/55"
       } ${denseMode ? "p-2.5" : "p-3"}`}
     >

@@ -4,7 +4,7 @@ import {
   getTimeText
 } from "../lib/gameUtils";
 
-export default function GamesWeekBoard({ games, onSelectGame }) {
+export default function GamesWeekBoard({ games, draftSelections, onSelectGame }) {
   const buckets = buildUpcomingWeekBuckets(games, 14);
   const firstWeek = buckets.slice(0, 7);
   const secondWeek = buckets.slice(7, 14);
@@ -19,7 +19,7 @@ export default function GamesWeekBoard({ games, onSelectGame }) {
         </p>
         <div className="grid min-w-[980px] grid-cols-7 gap-3">
           {firstWeek.map((bucket) => (
-            <WeekDayColumn key={bucket.key} bucket={bucket} onSelectGame={onSelectGame} />
+            <WeekDayColumn key={bucket.key} bucket={bucket} draftSelections={draftSelections} onSelectGame={onSelectGame} />
           ))}
         </div>
       </div>
@@ -29,7 +29,7 @@ export default function GamesWeekBoard({ games, onSelectGame }) {
         </p>
         <div className="grid min-w-[980px] grid-cols-7 gap-3">
           {secondWeek.map((bucket) => (
-            <WeekDayColumn key={bucket.key} bucket={bucket} onSelectGame={onSelectGame} />
+            <WeekDayColumn key={bucket.key} bucket={bucket} draftSelections={draftSelections} onSelectGame={onSelectGame} />
           ))}
         </div>
       </div>
@@ -37,7 +37,7 @@ export default function GamesWeekBoard({ games, onSelectGame }) {
   );
 }
 
-function WeekDayColumn({ bucket, onSelectGame }) {
+function WeekDayColumn({ bucket, draftSelections, onSelectGame }) {
   const isToday = isDateToday(bucket.date);
 
   return (
@@ -63,19 +63,27 @@ function WeekDayColumn({ bucket, onSelectGame }) {
         <p className="text-[11px] text-slate-500">No games</p>
       ) : (
         <div className="space-y-1.5">
-          {bucket.games.map((game, index) => (
-            <button
-              key={game.gameId || `${bucket.key}-${index}`}
-              type="button"
-              onClick={() => onSelectGame(game)}
-              className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-left hover:bg-slate-100"
-            >
-              <p className="text-[11px] font-medium text-slate-700">
-                {getTimeText(game) || "Time TBA"}
-              </p>
-              <p className="text-[11px] text-slate-600">{getLeagueLabel(game)}</p>
-            </button>
-          ))}
+          {bucket.games.map((game, index) => {
+            const selection = draftSelections?.[game.gameId];
+            const isPlaying = game?.stage === "selected" || game?.stage === "confirmed-in" || selection?.attendance === "IN";
+            return (
+              <button
+                key={game.gameId || `${bucket.key}-${index}`}
+                type="button"
+                onClick={() => onSelectGame(game)}
+                className={`w-full rounded-lg border px-2 py-1.5 text-left hover:bg-slate-100 ${
+                  isPlaying
+                    ? "border-emerald-500 bg-emerald-50/50"
+                    : "border-slate-200 bg-slate-50"
+                }`}
+              >
+                <p className="text-[11px] font-medium text-slate-700">
+                  {getTimeText(game) || "Time TBA"}
+                </p>
+                <p className="text-[11px] text-slate-600">{getLeagueLabel(game)}</p>
+              </button>
+            );
+          })}
         </div>
       )}
     </section>

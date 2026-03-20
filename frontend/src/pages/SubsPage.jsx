@@ -4,6 +4,7 @@ import GamesGrid from "../components/GamesGrid";
 import GamesListView from "../components/GamesListView";
 import JerseyGuideModal from "../components/JerseyGuideModal";
 import PendingChangesBar from "../components/PendingChangesBar";
+import SafetyFooter from "../components/SafetyFooter";
 import {
   buildDraftSelections,
   getJerseyChart,
@@ -145,9 +146,9 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
   const subsGames = useMemo(
     () =>
       games.filter(
-        (game) => !submittedGameIds.has(game.gameId) && !outGameIds.has(game.gameId)
+        (game) => !outGameIds.has(game.gameId)
       ),
-    [games, submittedGameIds, outGameIds]
+    [games, outGameIds]
   );
 
   const myGames = useMemo(
@@ -505,6 +506,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
             layoutMode={calendarLayoutMode}
             onToggleSub={handleToggleSub}
             onToggleAttendance={handleToggleAttendance}
+            isMyGamesTab={activeTab === "my-games"}
           />
         ) : viewMode === "list" ? (
           <GamesListView
@@ -513,6 +515,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
             pendingGameIds={pendingGameIds}
             onToggleSub={handleToggleSub}
             onToggleAttendance={handleToggleAttendance}
+            isMyGamesTab={activeTab === "my-games"}
           />
         ) : (
           <GamesGrid
@@ -522,6 +525,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
             denseMode={denseMode}
             onToggleSub={handleToggleSub}
             onToggleAttendance={handleToggleAttendance}
+            isMyGamesTab={activeTab === "my-games"}
           />
         )}
 
@@ -539,6 +543,8 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
           <strong>Demo mode:</strong> selections are local only. Submit to `bnbform.cgi` is not wired yet.
         </div>
       </section>
+
+      <SafetyFooter />
 
       <PendingChangesBar
         isExpanded={pendingExpanded}

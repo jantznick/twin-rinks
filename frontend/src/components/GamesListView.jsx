@@ -12,7 +12,8 @@ export default function GamesListView({
   draftSelections,
   pendingGameIds,
   onToggleSub,
-  onToggleAttendance
+  onToggleAttendance,
+  isMyGamesTab
 }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
@@ -21,12 +22,16 @@ export default function GamesListView({
           const selection = draftSelections[game.gameId] || {};
           const options = getOptionValues(game);
           const status = getStatusLabel(game, selection);
-          const jerseyGuide = getSubJerseyGuide(game);
+          const jerseyGuide = isMyGamesTab ? getSubJerseyGuide(game) : null;
           return (
             <li
               key={game.gameId || `list-${index}`}
               className={`flex flex-col gap-2 px-2 py-2.5 md:flex-row md:items-center md:justify-between ${
-                pendingGameIds?.has(game.gameId) ? "bg-amber-50/70" : ""
+                pendingGameIds?.has(game.gameId)
+                  ? "bg-amber-50/70"
+                  : (game?.stage === "selected" || game?.stage === "confirmed-in" || selection?.attendance === "IN") && !isMyGamesTab
+                  ? "bg-emerald-50/30"
+                  : ""
               }`}
             >
               <div className="min-w-0">
