@@ -48,7 +48,7 @@ export default function GamesWeekBoard({
         </p>
         <div className="grid min-w-[980px] grid-cols-7 gap-3">
           {firstWeek.map((bucket) => (
-            <WeekDayColumn key={bucket.key} bucket={bucket} draftSelections={draftSelections} onSelectGame={onSelectGame} />
+            <WeekDayColumn key={bucket.key} bucket={bucket} draftSelections={draftSelections} isMyGamesTab={isMyGamesTab} onSelectGame={onSelectGame} />
           ))}
         </div>
       </div>
@@ -58,7 +58,7 @@ export default function GamesWeekBoard({
         </p>
         <div className="grid min-w-[980px] grid-cols-7 gap-3">
           {secondWeek.map((bucket) => (
-            <WeekDayColumn key={bucket.key} bucket={bucket} draftSelections={draftSelections} onSelectGame={onSelectGame} />
+            <WeekDayColumn key={bucket.key} bucket={bucket} draftSelections={draftSelections} isMyGamesTab={isMyGamesTab} onSelectGame={onSelectGame} />
           ))}
         </div>
       </div>
@@ -88,7 +88,7 @@ export default function GamesWeekBoard({
   );
 }
 
-function WeekDayColumn({ bucket, draftSelections, onSelectGame }) {
+function WeekDayColumn({ bucket, draftSelections, isMyGamesTab, onSelectGame }) {
   const isToday = isDateToday(bucket.date);
 
   return (
@@ -116,17 +116,26 @@ function WeekDayColumn({ bucket, draftSelections, onSelectGame }) {
         <div className="space-y-1.5">
           {bucket.games.map((game, index) => {
             const selection = draftSelections?.[game.gameId];
-            const isPlaying = game?.stage === "selected" || game?.stage === "confirmed-in" || selection?.attendance === "IN";
+            const isPlaying = game?.stage === "selected" || game?.stage === "confirmed-in" || game?.stage === "sub-requested" || selection?.attendance === "IN";
+            const isGameToday = isDateToday(bucket.date);
+            
+            let borderClass = "border-slate-200";
+            let bgClass = "bg-slate-50";
+            
+            if (isPlaying && !isMyGamesTab) {
+              borderClass = "border-emerald-500";
+              bgClass = "bg-emerald-50/50";
+            } else if (isGameToday && !isMyGamesTab) {
+              borderClass = "border-rose-500";
+              bgClass = "bg-rose-50/50";
+            }
+
             return (
               <button
                 key={game.gameId || `${bucket.key}-${index}`}
                 type="button"
                 onClick={() => onSelectGame(game)}
-                className={`w-full rounded-lg border px-2 py-1.5 text-left hover:bg-slate-100 ${
-                  isPlaying
-                    ? "border-emerald-500 bg-emerald-50/50"
-                    : "border-slate-200 bg-slate-50"
-                }`}
+                className={`w-full rounded-lg border px-2 py-1.5 text-left hover:bg-slate-100 ${borderClass} ${bgClass}`}
               >
                 <p className="text-[11px] font-medium text-slate-700">
                   {getTimeText(game) || "Time TBA"}

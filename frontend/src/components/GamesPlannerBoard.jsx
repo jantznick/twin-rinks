@@ -1,6 +1,18 @@
 import { useState } from "react";
 import GameCard from "./GameCard";
 
+function isDateToday(date) {
+  if (!date) {
+    return false;
+  }
+  const now = new Date();
+  return (
+    date.getDate() === now.getDate() &&
+    date.getMonth() === now.getMonth() &&
+    date.getFullYear() === now.getFullYear()
+  );
+}
+
 export default function GamesPlannerBoard({
   buckets,
   draftSelections,
@@ -25,7 +37,14 @@ export default function GamesPlannerBoard({
         <section key={bucket.key} className="pt-2">
           <div className="mb-3 flex items-center justify-between border-b border-slate-200 pb-2">
             {bucket.games.length === 0 ? (
-              <p className="text-sm font-semibold text-slate-800">{bucket.label}</p>
+              <p className="text-sm font-semibold text-slate-800">
+                {bucket.label}
+                {isDateToday(bucket.date) ? (
+                  <span className="ml-2 rounded bg-indigo-600 px-1.5 py-0.5 text-[10px] font-medium text-white">
+                    Today
+                  </span>
+                ) : null}
+              </p>
             ) : (
               <button
                 type="button"
@@ -33,7 +52,14 @@ export default function GamesPlannerBoard({
                 className="inline-flex items-center gap-2 text-left text-sm font-semibold text-slate-800"
               >
                 <span>{collapsedDays[bucket.key] ? "▸" : "▾"}</span>
-                <span>{bucket.label}</span>
+                <span>
+                  {bucket.label}
+                  {isDateToday(bucket.date) ? (
+                    <span className="ml-2 rounded bg-indigo-600 px-1.5 py-0.5 text-[10px] font-medium text-white">
+                      Today
+                    </span>
+                  ) : null}
+                </span>
               </button>
             )}
             <span className="rounded-full bg-white px-2 py-0.5 text-xs font-medium text-slate-600 shadow-sm ring-1 ring-slate-200">

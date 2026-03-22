@@ -207,7 +207,7 @@ function GameDetailsModal({
             {selection?.attendance === "OUT" ? (
               <button
                 type="button"
-                onClick={() => onToggleAttendance("OUT")}
+                onClick={() => onToggleAttendance("")}
                 className="rounded-lg px-2.5 py-1 text-xs font-medium bg-slate-200 text-slate-800"
               >
                 Unhide
@@ -215,10 +215,10 @@ function GameDetailsModal({
             ) : options.has("OUT") ? (
               <button
                 type="button"
-                onClick={() => onToggleAttendance("OUT")}
+                onClick={() => onToggleAttendance(game?.stage === "sub-requested" || selection?.sub ? "" : "OUT")}
                 className="rounded-lg px-2.5 py-1 text-xs font-medium border border-slate-300 bg-white text-slate-700"
               >
-                OUT
+                {game?.stage === "sub-requested" || selection?.sub ? "Cancel Sub" : "OUT"}
               </button>
             ) : null}
           </div>

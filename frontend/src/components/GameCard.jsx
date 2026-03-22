@@ -43,7 +43,7 @@ export default function GameCard({
           ? "border border-amber-300 bg-amber-50/70 ring-1 ring-amber-200 shadow-lg shadow-amber-200/50"
           : isPlaying && !isMyGamesTab
           ? "border-2 border-emerald-600 bg-emerald-50/30 shadow-lg shadow-emerald-200/40"
-          : isGameToday
+          : isGameToday && !isMyGamesTab
           ? "border-2 border-rose-600 bg-rose-50/30 shadow-lg shadow-rose-200/40"
           : "border border-slate-200 bg-white shadow-lg shadow-slate-300/55"
       } ${denseMode ? "p-2.5" : "p-3"}`}
@@ -137,7 +137,7 @@ export default function GameCard({
         {selection?.attendance === "OUT" ? (
           <button
             type="button"
-            onClick={() => onToggleAttendance("OUT")}
+            onClick={() => onToggleAttendance("")}
             className={`rounded-lg font-medium transition ${
               denseMode ? "px-2 py-1 text-[11px]" : "px-2.5 py-1 text-xs"
             } bg-slate-200 text-slate-800 hover:bg-slate-300`}
@@ -147,12 +147,12 @@ export default function GameCard({
         ) : optionValues.has("OUT") ? (
           <button
             type="button"
-            onClick={() => onToggleAttendance("OUT")}
+            onClick={() => onToggleAttendance(game?.stage === "sub-requested" || selection?.sub ? "" : "OUT")}
             className={`rounded-lg font-medium transition ${
               denseMode ? "px-2 py-1 text-[11px]" : "px-2.5 py-1 text-xs"
             } border border-slate-300 bg-white text-slate-700 hover:bg-slate-50`}
           >
-            OUT
+            {game?.stage === "sub-requested" || selection?.sub ? "Cancel Sub" : "OUT"}
           </button>
         ) : null}
 

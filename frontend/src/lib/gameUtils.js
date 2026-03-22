@@ -100,7 +100,13 @@ export function getGameHeadline(game) {
   if (game?.details?.summary) {
     return game.details.summary;
   }
-  return game?.infoText || "Game";
+  
+  let text = game?.infoText || "Game";
+  const prefixMatch = text.match(/^(.*?sub\.\s*)/i);
+  if (prefixMatch && text.toLowerCase().includes("you are not available")) {
+    text = text.substring(0, prefixMatch[1].length).trim();
+  }
+  return text;
 }
 
 export function getLeagueLabel(game) {
@@ -114,13 +120,26 @@ export function getLeagueLabel(game) {
 }
 
 export function getGameNote(game) {
+  let note = "";
   if (game?.details?.kind === "matchup" && game?.details?.note) {
-    return game.details.note;
+    note = game.details.note;
+  } else if (game?.details?.kind === "playing") {
+    note = "";
+  } else if (!game?.details?.note && game?.infoText && game?.details?.summary) {
+    let text = game.infoText;
+    const prefixMatch = text.match(/^(.*?sub\.\s*)/i);
+    if (prefixMatch && text.toLowerCase().includes("you are not available")) {
+      text = text.substring(0, prefixMatch[1].length).trim();
+    }
+    note = text;
   }
-  if (game?.details?.kind === "playing") {
-    return "You are currently selected for this game.";
+
+  // Remove redundant sub text since the status pill handles it
+  if (note && (note.toLowerCase() === "i can sub" || note.toLowerCase() === "i can sub." || note.toLowerCase().includes("i can goalie sub") || note.toLowerCase().includes("i can skater sub"))) {
+    return "";
   }
-  return "";
+
+  return note;
 }
 
 const JERSEY_CHART = [
@@ -322,7 +341,7 @@ export function isPlayerPlaying(game, selection) {
 
 export function getSubSpotState(game) {
   const note = String(game?.details?.note || "").toLowerCase();
-  if (note.includes("sub needed")) {
+  if (note.includes("sub needed") || note.includes("sub spot needed")) {
     return "needed";
   }
   if (note.includes("sub spot filled")) {
@@ -341,6 +360,9 @@ export function getStatusLabel(game, selection) {
   if (selection?.sub) {
     return "Sub request selected";
   }
+  if (game?.stage === "out" && (!selection || selection.attendance === "")) {
+    return "Pending: Unhide";
+  }
   switch (game?.stage) {
     case "confirmed-in":
       return "IN - playing";
@@ -351,18 +373,30 @@ export function getStatusLabel(game, selection) {
     case "selected":
       return "Action Required: Mark IN";
     case "available":
+      if (game?.schedule?.date === formatDateKey(new Date())) {
+        return "GAME TODAY: SUB NEEDED";
+      }
       return "Available";
     default:
+      if (game?.schedule?.date === formatDateKey(new Date())) {
+        return "GAME TODAY: SUB NEEDED";
+      }
       return "No selection";
   }
 }
 
 export function getStatusPillClasses(statusLabel) {
+  if (statusLabel === "GAME TODAY: SUB NEEDED") {
+    return "bg-rose-100 text-rose-800 ring-rose-200";
+  }
   if (statusLabel.startsWith("IN")) {
     return "bg-emerald-100 text-emerald-800 ring-emerald-200";
   }
   if (statusLabel.startsWith("OUT")) {
     return "bg-amber-100 text-amber-800 ring-amber-200";
+  }
+  if (statusLabel.startsWith("Pending")) {
+    return "bg-slate-100 text-slate-700 ring-slate-200";
   }
   if (statusLabel.toLowerCase().includes("sub")) {
     return "bg-sky-100 text-sky-800 ring-sky-200";
@@ -554,6 +588,72 @@ function addDays(date, days) {
   );
 }
 
+export function checkIsProcessed(game, selection) {
+  if (selection === "IN") {
+    return game.selected === "IN" || game.stage === "confirmed-in";
+  }
+  if (selection === "OUT") {
+    return game.selected === "OUT" || game.stage === "out";
+  }
+  if (selection === "SUB") {
+    return game.selected === "SUB" || game.stage === "sub-requested";
+  }
+  if (selection === "") {
+    return game.stage !== "out" && game.selected !== "OUT" && game.stage !== "sub-requested" && game.selected !== "SUB";
+  }
+  return false;
+}
+
+export function applyPendingUpdate(game, selection) {
+  const updated = { ...game };
+  if (selection === "IN") {
+    updated.selected = "IN";
+    updated.stage = "confirmed-in";
+  } else if (selection === "OUT") {
+    updated.selected = "OUT";
+    updated.stage = "out";
+    updated.details = {
+      ...updated.details,
+      note: "You are not available"
+    };
+  } else if (selection === "SUB") {
+    updated.selected = "SUB";
+    updated.stage = "sub-requested";
+    const originalNote = String(updated.details?.note || "");
+    const prefixMatch = originalNote.match(/^(.*?sub\.)/i);
+    const prefix = prefixMatch ? prefixMatch[1] + " " : "";
+    updated.details = {
+      ...updated.details,
+      note: prefix
+    };
+  } else if (selection === "") {
+    updated.selected = "";
+    if (updated.stage === "out" || updated.stage === "sub-requested") {
+      updated.stage = "available";
+      
+      // Preserve the original prefix (e.g., "goalie sub.") if it exists
+      const originalNote = String(game?.details?.note || "");
+      const prefixMatch = originalNote.match(/^(.*?sub\.)/i);
+      const prefix = prefixMatch ? prefixMatch[1] + " " : "";
+
+      updated.details = {
+        ...updated.details,
+        note: prefix + "Sub spot needed"
+      };
+      
+      // Restore the SUB and OUT options so the buttons reappear
+      if (!updated.options) updated.options = [];
+      if (!updated.options.some(o => o.value === "SUB")) {
+        updated.options.push({ value: "SUB", type: "checkbox", checked: false });
+      }
+      if (!updated.options.some(o => o.value === "OUT")) {
+        updated.options.push({ value: "OUT", type: "radio", checked: false });
+      }
+    }
+  }
+  return updated;
+}
+
 export function formatDateKey(date) {
   const mm = String(date.getMonth() + 1).padStart(2, "0");
   const dd = String(date.getDate()).padStart(2, "0");
@@ -600,6 +700,17 @@ function parseGameDate(game) {
     return null;
   }
   return parsed;
+}
+
+export function getRinkPillClasses(rink) {
+  if (!rink) return "bg-slate-100 text-slate-700";
+  const r = rink.toLowerCase();
+  if (r.includes("red")) return "bg-rose-100 text-rose-800";
+  if (r.includes("blue")) return "bg-blue-100 text-blue-800";
+  if (r.includes("green")) return "bg-emerald-100 text-emerald-800";
+  if (r.includes("south")) return "bg-amber-100 text-amber-800";
+  if (r.includes("north")) return "bg-sky-100 text-sky-800";
+  return "bg-slate-100 text-slate-700";
 }
 
 export function getGameStartDate(game) {

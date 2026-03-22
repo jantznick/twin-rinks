@@ -13,11 +13,15 @@ import {
   isPlayerPlaying,
   getPlayingTeamColor,
   getScheduleText,
-  normalizeGames
+  normalizeGames,
+  checkIsProcessed,
+  applyPendingUpdate
 } from "../lib/gameUtils";
 
 const DENSE_MODE_KEY = "subs-dense-mode";
 const VIEW_MODE_KEY = "subs-view-mode";
+const PENDING_UPDATES_KEY = "twin-rinks-pending-updates";
+const MAX_PENDING_AGE = 20 * 60 * 1000; // 20 minutes
 
 function getSavedDenseMode() {
   try {
@@ -106,8 +110,55 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
   const [jerseyGuideOpen, setJerseyGuideOpen] = useState(false);
   const [demoMode, setDemoMode] = useState(true);
   const [hideMyGames, setHideMyGames] = useState(false);
+  const [pendingUpdates, setPendingUpdates] = useState({});
 
-  const games = useMemo(() => normalizeGames(gamesResponse), [gamesResponse]);
+  const rawGames = useMemo(() => normalizeGames(gamesResponse), [gamesResponse]);
+
+  useEffect(() => {
+    const profile = gamesResponse?.profile;
+    if (!profile || !rawGames.length) return;
+
+    try {
+      const stored = JSON.parse(localStorage.getItem(PENDING_UPDATES_KEY) || "{}");
+      const userPending = stored[profile] || {};
+      let changed = false;
+      const now = Date.now();
+      const newPending = { ...userPending };
+
+      for (const [gameId, pending] of Object.entries(newPending)) {
+        if (now - pending.timestamp > MAX_PENDING_AGE) {
+          delete newPending[gameId];
+          changed = true;
+          continue;
+        }
+        const game = rawGames.find((g) => g.gameId === gameId);
+        if (game && checkIsProcessed(game, pending.selection)) {
+          delete newPending[gameId];
+          changed = true;
+        }
+      }
+
+      if (changed) {
+        stored[profile] = newPending;
+        localStorage.setItem(PENDING_UPDATES_KEY, JSON.stringify(stored));
+      }
+      setPendingUpdates(newPending);
+    } catch (e) {
+      console.error("Failed to parse pending updates", e);
+    }
+  }, [rawGames, gamesResponse?.profile]);
+
+  const games = useMemo(() => {
+    if (!Object.keys(pendingUpdates).length) return rawGames;
+    return rawGames.map((game) => {
+      const pending = pendingUpdates[game.gameId];
+      if (pending) {
+        return applyPendingUpdate(game, pending.selection);
+      }
+      return game;
+    });
+  }, [rawGames, pendingUpdates]);
+
   const initialDraft = useMemo(() => buildDraftSelections(games), [games]);
 
   const submittedGameIds = useMemo(() => {
@@ -137,7 +188,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
     for (const [gameId, selection] of Object.entries(submittedSelections)) {
       if (selection?.attendance === "OUT") {
         ids.add(gameId);
-      } else if (ids.has(gameId)) {
+      } else if (selection?.attendance === "" && ids.has(gameId)) {
         ids.delete(gameId);
       }
     }
@@ -268,12 +319,22 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
 
   const handleToggleAttendance = (gameId, value) => {
     setDraftSelections((previous) => {
+      if (value === "") {
+        return {
+          ...previous,
+          [gameId]: {
+            ...(previous[gameId] || {}),
+            attendance: "",
+            sub: false
+          }
+        };
+      }
       const current = previous[gameId]?.attendance || "";
       const nextValue = current === value ? "" : value;
       return {
         ...previous,
         [gameId]: {
-          ...previous[gameId],
+          ...(previous[gameId] || {}),
           attendance: nextValue,
           sub: false
         }
@@ -331,6 +392,30 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
       console.log("📝 Full URL-Encoded Body (sent to legacy server):", decodeURIComponent(bodyParams.toString()));
       console.groupEnd();
 
+      // Save to local storage for optimistic UI
+      try {
+        const profile = gamesResponse?.profile;
+        const changedUpdates = updates.filter(u => {
+          const draft = normalizeSelection(draftSelections[u.gameId]);
+          const submitted = normalizeSelection(submittedSelections[u.gameId]);
+          return !areSelectionsEqual(draft, submitted);
+        });
+
+        if (profile && changedUpdates.length > 0) {
+          const stored = JSON.parse(localStorage.getItem(PENDING_UPDATES_KEY) || "{}");
+          const userPending = stored[profile] || {};
+          const now = Date.now();
+          changedUpdates.forEach((u) => {
+            userPending[u.gameId] = { selection: u.selection, timestamp: now };
+          });
+          stored[profile] = userPending;
+          localStorage.setItem(PENDING_UPDATES_KEY, JSON.stringify(stored));
+          setPendingUpdates(userPending);
+        }
+      } catch (e) {
+        console.error("Failed to save pending updates", e);
+      }
+
       setSubmittedSelections(cloneSelections(draftSelections));
       setPendingExpanded(false);
       return;
@@ -338,6 +423,30 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
 
     const success = await onSubmitGames(gamesResponse?.profile, updates);
     if (success) {
+      // Save to local storage for optimistic UI
+      try {
+        const profile = gamesResponse?.profile;
+        const changedUpdates = updates.filter(u => {
+          const draft = normalizeSelection(draftSelections[u.gameId]);
+          const submitted = normalizeSelection(submittedSelections[u.gameId]);
+          return !areSelectionsEqual(draft, submitted);
+        });
+
+        if (profile && changedUpdates.length > 0) {
+          const stored = JSON.parse(localStorage.getItem(PENDING_UPDATES_KEY) || "{}");
+          const userPending = stored[profile] || {};
+          const now = Date.now();
+          changedUpdates.forEach((u) => {
+            userPending[u.gameId] = { selection: u.selection, timestamp: now };
+          });
+          stored[profile] = userPending;
+          localStorage.setItem(PENDING_UPDATES_KEY, JSON.stringify(stored));
+          setPendingUpdates(userPending);
+        }
+      } catch (e) {
+        console.error("Failed to save pending updates", e);
+      }
+
       setSubmittedSelections(cloneSelections(draftSelections));
       setPendingExpanded(false);
     }

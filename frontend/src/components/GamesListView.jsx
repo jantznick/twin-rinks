@@ -5,7 +5,10 @@ import {
   getScheduleText,
   getStatusLabel,
   getSubJerseyGuide,
-  formatDateKey
+  formatDateKey,
+  getStatusPillClasses,
+  getRinkPillClasses,
+  getGameNote
 } from "../lib/gameUtils";
 
 export default function GamesListView({
@@ -17,8 +20,8 @@ export default function GamesListView({
   isMyGamesTab
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
-      <ul className="divide-y divide-slate-200">
+    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <ul className="flex flex-col">
         {games.map((game, index) => {
           const selection = draftSelections[game.gameId] || {};
           const options = getOptionValues(game);
@@ -26,78 +29,110 @@ export default function GamesListView({
           const isPlaying = game?.stage === "selected" || game?.stage === "confirmed-in" || game?.stage === "sub-requested" || selection?.attendance === "IN";
           const jerseyGuide = isMyGamesTab || isPlaying ? getSubJerseyGuide(game) : null;
           const isGameToday = game?.schedule?.date === formatDateKey(new Date());
+          
+          const statusPill = getStatusPillClasses(status);
+          const rink = getRink(game);
+          const rinkPillClasses = getRinkPillClasses(rink);
+
+          let borderClass = "border-l-4 border-transparent border-b border-b-slate-200 last:border-b-0";
+          let bgClass = "bg-white hover:bg-slate-50";
+
+          if (pendingGameIds?.has(game.gameId)) {
+            borderClass = "border-l-4 border-l-amber-400 border-b border-b-amber-200 last:border-b-0";
+            bgClass = "bg-amber-50/50";
+          } else if (isPlaying && !isMyGamesTab) {
+            borderClass = "border-l-4 border-l-emerald-500 border-b border-b-emerald-200 last:border-b-0";
+            bgClass = "bg-emerald-50/30";
+          } else if (isGameToday && !isMyGamesTab) {
+            borderClass = "border-l-4 border-l-rose-500 border-b border-b-rose-200 last:border-b-0";
+            bgClass = "bg-rose-50/30";
+          }
 
           return (
             <li
               key={game.gameId || `list-${index}`}
-              className={`flex flex-col gap-2 px-2 py-2.5 md:flex-row md:items-center md:justify-between ${
-                pendingGameIds?.has(game.gameId)
-                  ? "bg-amber-50/70"
-                  : isPlaying && !isMyGamesTab
-                  ? "bg-emerald-50/30"
-                  : isGameToday
-                  ? "bg-rose-50/30"
-                  : ""
-              }`}
+              className={`flex flex-col gap-3 px-3 py-3.5 sm:flex-row sm:items-start sm:gap-5 transition ${borderClass} ${bgClass}`}
             >
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-slate-900">
+              <div className="shrink-0 sm:w-44">
+                <p className="text-sm font-bold text-slate-900">
                   {getScheduleText(game)}
-                  {getRink(game) ? ` • ${getRink(game)} rink` : ""}
                 </p>
-                <p className="truncate text-xs text-slate-600">{getGameHeadline(game)}</p>
+                {rink && (
+                  <div className="mt-1">
+                    <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium ${rinkPillClasses}`}>
+                      {rink} rink
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-sm font-semibold text-slate-800">
+                    {getGameHeadline(game)}
+                  </p>
+                  <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 whitespace-nowrap ${statusPill}`}>
+                    {status}
+                  </span>
+                </div>
+                
+                {getGameNote(game) ? (
+                  <p className="mt-1 text-sm text-slate-600">{getGameNote(game)}</p>
+                ) : null}
+                
                 {jerseyGuide ? (
-                  <p className="mt-0.5 text-[11px] font-medium text-indigo-700">
+                  <p className="mt-1 text-sm font-medium text-indigo-700">
                     {jerseyGuide.text}
                   </p>
                 ) : null}
-                <p className="mt-0.5 text-[11px] uppercase tracking-wide text-slate-500">{status}</p>
-              </div>
 
-              <div className="flex flex-wrap items-center gap-1.5">
-                {options.has("SUB") ? (
-                  <button
-                    type="button"
-                    onClick={() => onToggleSub(game.gameId)}
-                    className={`rounded px-2 py-1 text-[11px] font-medium ${
-                      selection?.sub
-                        ? "bg-sky-600 text-white"
-                        : "border border-slate-300 bg-white text-slate-700"
-                    }`}
-                  >
-                    SUB
-                  </button>
-                ) : null}
-                {options.has("IN") ? (
-                  <button
-                    type="button"
-                    onClick={() => onToggleAttendance(game.gameId, "IN")}
-                    className={`rounded px-2 py-1 text-[11px] font-medium ${
-                      selection?.attendance === "IN"
-                        ? "bg-emerald-600 text-white"
-                        : "border border-slate-300 bg-white text-slate-700"
-                    }`}
-                  >
-                    IN
-                  </button>
-                ) : null}
-                {selection?.attendance === "OUT" ? (
-                  <button
-                    type="button"
-                    onClick={() => onToggleAttendance(game.gameId, "OUT")}
-                    className="rounded px-2 py-1 text-[11px] font-medium bg-slate-200 text-slate-800"
-                  >
-                    UNHIDE
-                  </button>
-                ) : options.has("OUT") ? (
-                  <button
-                    type="button"
-                    onClick={() => onToggleAttendance(game.gameId, "OUT")}
-                    className="rounded px-2 py-1 text-[11px] font-medium border border-slate-300 bg-white text-slate-700"
-                  >
-                    OUT
-                  </button>
-                ) : null}
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  {options.has("SUB") && game?.stage !== "selected" && game?.stage !== "confirmed-in" && game?.stage !== "sub-requested" ? (
+                    <button
+                      type="button"
+                      onClick={() => onToggleSub(game.gameId)}
+                      className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+                        selection?.sub
+                          ? "bg-sky-600 text-white hover:bg-sky-700"
+                          : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                      }`}
+                    >
+                      {selection?.sub ? "Sub selected" : "I can sub"}
+                    </button>
+                  ) : null}
+                  
+                  {options.has("IN") ? (
+                    <button
+                      type="button"
+                      onClick={() => onToggleAttendance(game.gameId, "IN")}
+                      className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+                        selection?.attendance === "IN"
+                          ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                          : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                      }`}
+                    >
+                      IN
+                    </button>
+                  ) : null}
+                  
+                  {selection?.attendance === "OUT" ? (
+                    <button
+                      type="button"
+                      onClick={() => onToggleAttendance(game.gameId, "")}
+                      className="rounded-lg px-3 py-1.5 text-xs font-medium transition bg-slate-200 text-slate-800 hover:bg-slate-300"
+                    >
+                      Unhide
+                    </button>
+                  ) : options.has("OUT") ? (
+                    <button
+                      type="button"
+                      onClick={() => onToggleAttendance(game.gameId, game?.stage === "sub-requested" || selection?.sub ? "" : "OUT")}
+                      className="rounded-lg px-3 py-1.5 text-xs font-medium transition border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                    >
+                      {game?.stage === "sub-requested" || selection?.sub ? "Cancel Sub" : "OUT"}
+                    </button>
+                  ) : null}
+                </div>
               </div>
             </li>
           );
