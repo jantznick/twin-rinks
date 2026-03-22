@@ -26,11 +26,16 @@ export function buildDraftSelections(games) {
     const radioChecked = (game.options || []).find(
       (option) => option.type === "radio" && option.checked
     );
+    let attendance =
+      radioChecked?.value ||
+      (game.selected === "IN" || game.selected === "OUT" ? game.selected : "");
+
+    if (!attendance && game.stage === "out") attendance = "OUT";
+    if (!attendance && game.stage === "confirmed-in") attendance = "IN";
+
     draft[game.gameId] = {
-      sub: subChecked || game.selected === "SUB",
-      attendance:
-        radioChecked?.value ||
-        (game.selected === "IN" || game.selected === "OUT" ? game.selected : "")
+      sub: subChecked || game.selected === "SUB" || game.stage === "sub-requested",
+      attendance
     };
   }
   return draft;
@@ -549,7 +554,7 @@ function addDays(date, days) {
   );
 }
 
-function formatDateKey(date) {
+export function formatDateKey(date) {
   const mm = String(date.getMonth() + 1).padStart(2, "0");
   const dd = String(date.getDate()).padStart(2, "0");
   const yyyy = String(date.getFullYear());

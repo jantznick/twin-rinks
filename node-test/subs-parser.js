@@ -196,7 +196,16 @@ function deriveStage({ selected, infoText, options }) {
   }
 
   const normalizedText = String(infoText || "").toLowerCase();
+
+  if (normalizedText.includes("you are not available")) {
+    return "out";
+  }
+
   if (isPlayingText(normalizedText)) {
+    const hasInOption = options.some((option) => option.value === "IN");
+    if (!hasInOption) {
+      return "confirmed-in";
+    }
     return "selected";
   }
 

@@ -4,7 +4,8 @@ import {
   getRink,
   getScheduleText,
   getStatusLabel,
-  getSubJerseyGuide
+  getSubJerseyGuide,
+  formatDateKey
 } from "../lib/gameUtils";
 
 export default function GamesListView({
@@ -22,15 +23,20 @@ export default function GamesListView({
           const selection = draftSelections[game.gameId] || {};
           const options = getOptionValues(game);
           const status = getStatusLabel(game, selection);
-          const jerseyGuide = isMyGamesTab ? getSubJerseyGuide(game) : null;
+          const isPlaying = game?.stage === "selected" || game?.stage === "confirmed-in" || game?.stage === "sub-requested" || selection?.attendance === "IN";
+          const jerseyGuide = isMyGamesTab || isPlaying ? getSubJerseyGuide(game) : null;
+          const isGameToday = game?.schedule?.date === formatDateKey(new Date());
+
           return (
             <li
               key={game.gameId || `list-${index}`}
               className={`flex flex-col gap-2 px-2 py-2.5 md:flex-row md:items-center md:justify-between ${
                 pendingGameIds?.has(game.gameId)
                   ? "bg-amber-50/70"
-                  : (game?.stage === "selected" || game?.stage === "confirmed-in" || selection?.attendance === "IN") && !isMyGamesTab
+                  : isPlaying && !isMyGamesTab
                   ? "bg-emerald-50/30"
+                  : isGameToday
+                  ? "bg-rose-50/30"
                   : ""
               }`}
             >
@@ -75,15 +81,19 @@ export default function GamesListView({
                     IN
                   </button>
                 ) : null}
-                {options.has("OUT") ? (
+                {selection?.attendance === "OUT" ? (
                   <button
                     type="button"
                     onClick={() => onToggleAttendance(game.gameId, "OUT")}
-                    className={`rounded px-2 py-1 text-[11px] font-medium ${
-                      selection?.attendance === "OUT"
-                        ? "bg-amber-600 text-white"
-                        : "border border-slate-300 bg-white text-slate-700"
-                    }`}
+                    className="rounded px-2 py-1 text-[11px] font-medium bg-slate-200 text-slate-800"
+                  >
+                    UNHIDE
+                  </button>
+                ) : options.has("OUT") ? (
+                  <button
+                    type="button"
+                    onClick={() => onToggleAttendance(game.gameId, "OUT")}
+                    className="rounded px-2 py-1 text-[11px] font-medium border border-slate-300 bg-white text-slate-700"
                   >
                     OUT
                   </button>

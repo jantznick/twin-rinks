@@ -9,7 +9,8 @@ import {
   getStatusLabel,
   getStatusPillClasses,
   getSubSpotState,
-  getSubJerseyGuide
+  getSubJerseyGuide,
+  formatDateKey
 } from "../lib/gameUtils";
 
 export default function GameCard({
@@ -31,9 +32,9 @@ export default function GameCard({
   const rinkPillClasses = getRinkPillClasses(rink);
   const scheduleLabel =
     timeOnly && getTimeText(game) ? getTimeText(game) : getScheduleText(game);
-  const jerseyGuide = isMyGamesTab ? getSubJerseyGuide(game) : null;
-  
   const isPlaying = game?.stage === "selected" || game?.stage === "confirmed-in" || game?.stage === "sub-requested" || selection?.attendance === "IN";
+  const jerseyGuide = isMyGamesTab || isPlaying ? getSubJerseyGuide(game) : null;
+  const isGameToday = game?.schedule?.date === formatDateKey(new Date());
 
   return (
     <article
@@ -42,11 +43,13 @@ export default function GameCard({
           ? "border border-amber-300 bg-amber-50/70 ring-1 ring-amber-200 shadow-lg shadow-amber-200/50"
           : isPlaying && !isMyGamesTab
           ? "border-2 border-emerald-600 bg-emerald-50/30 shadow-lg shadow-emerald-200/40"
+          : isGameToday
+          ? "border-2 border-rose-600 bg-rose-50/30 shadow-lg shadow-rose-200/40"
           : "border border-slate-200 bg-white shadow-lg shadow-slate-300/55"
       } ${denseMode ? "p-2.5" : "p-3"}`}
     >
       <div className="flex items-start justify-between gap-2">
-        <div>
+        <div className="min-w-0 flex-1">
           <p className={`font-semibold text-slate-900 ${denseMode ? "text-[13px]" : "text-sm"}`}>
             {scheduleLabel}
           </p>
@@ -59,11 +62,13 @@ export default function GameCard({
             {countdown ? <span className="text-slate-500">{countdown}</span> : null}
           </div>
         </div>
-        <span
-          className={`rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ${statusPill}`}
-        >
-          {statusLabel}
-        </span>
+        <div className="shrink-0 max-w-[45%] text-right flex items-start justify-end">
+          <span
+            className={`inline-block rounded-full px-2 py-0.5 text-[11px] leading-tight font-medium ring-1 text-center ${statusPill}`}
+          >
+            {statusLabel}
+          </span>
+        </div>
       </div>
 
       <p className={`mt-2 font-medium text-slate-800 ${denseMode ? "text-[13px]" : "text-sm"}`}>
@@ -129,17 +134,23 @@ export default function GameCard({
           </button>
         ) : null}
 
-        {optionValues.has("OUT") ? (
+        {selection?.attendance === "OUT" ? (
           <button
             type="button"
             onClick={() => onToggleAttendance("OUT")}
             className={`rounded-lg font-medium transition ${
               denseMode ? "px-2 py-1 text-[11px]" : "px-2.5 py-1 text-xs"
-            } ${
-              selection?.attendance === "OUT"
-                ? "bg-amber-600 text-white hover:bg-amber-700"
-                : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-            }`}
+            } bg-slate-200 text-slate-800 hover:bg-slate-300`}
+          >
+            Unhide
+          </button>
+        ) : optionValues.has("OUT") ? (
+          <button
+            type="button"
+            onClick={() => onToggleAttendance("OUT")}
+            className={`rounded-lg font-medium transition ${
+              denseMode ? "px-2 py-1 text-[11px]" : "px-2.5 py-1 text-xs"
+            } border border-slate-300 bg-white text-slate-700 hover:bg-slate-50`}
           >
             OUT
           </button>

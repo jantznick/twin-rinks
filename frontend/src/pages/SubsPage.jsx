@@ -105,6 +105,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
   const [pendingExpanded, setPendingExpanded] = useState(false);
   const [jerseyGuideOpen, setJerseyGuideOpen] = useState(false);
   const [demoMode, setDemoMode] = useState(true);
+  const [hideMyGames, setHideMyGames] = useState(false);
 
   const games = useMemo(() => normalizeGames(gamesResponse), [gamesResponse]);
   const initialDraft = useMemo(() => buildDraftSelections(games), [games]);
@@ -146,9 +147,9 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
   const subsGames = useMemo(
     () =>
       games.filter(
-        (game) => !outGameIds.has(game.gameId)
+        (game) => !outGameIds.has(game.gameId) && (!hideMyGames || !submittedGameIds.has(game.gameId))
       ),
-    [games, outGameIds]
+    [games, outGameIds, hideMyGames, submittedGameIds]
   );
 
   const myGames = useMemo(
@@ -527,29 +528,42 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
               ) : null}
             </div>
             
-            <div className="flex w-full items-center rounded-lg border border-slate-200 bg-slate-50 p-0.5 sm:w-auto sm:inline-flex">
-              <button
-                type="button"
-                onClick={() => handleSetDenseMode(false)}
-                className={`flex-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition sm:flex-none ${
-                  !denseMode
-                    ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                Big
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSetDenseMode(true)}
-                className={`flex-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition sm:flex-none ${
-                  denseMode
-                    ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                Small
-              </button>
+            <div className="flex w-full items-center gap-4 sm:w-auto">
+              <div className="flex w-full items-center rounded-lg border border-slate-200 bg-slate-50 p-0.5 sm:w-auto sm:inline-flex">
+                <button
+                  type="button"
+                  onClick={() => handleSetDenseMode(false)}
+                  className={`flex-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition sm:flex-none ${
+                    !denseMode
+                      ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  Big
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSetDenseMode(true)}
+                  className={`flex-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition sm:flex-none ${
+                    denseMode
+                      ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  Small
+                </button>
+              </div>
+              {activeTab === "subs" && (
+                <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-700">
+                  <input
+                    type="checkbox"
+                    checked={hideMyGames}
+                    onChange={(e) => setHideMyGames(e.target.checked)}
+                    className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600"
+                  />
+                  Hide my games
+                </label>
+              )}
             </div>
           </div>
         </div>

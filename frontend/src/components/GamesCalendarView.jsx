@@ -204,15 +204,19 @@ function GameDetailsModal({
                 IN
               </button>
             ) : null}
-            {options.has("OUT") ? (
+            {selection?.attendance === "OUT" ? (
               <button
                 type="button"
                 onClick={() => onToggleAttendance("OUT")}
-                className={`rounded-lg px-2.5 py-1 text-xs font-medium ${
-                  selection?.attendance === "OUT"
-                    ? "bg-amber-600 text-white"
-                    : "border border-slate-300 bg-white text-slate-700"
-                }`}
+                className="rounded-lg px-2.5 py-1 text-xs font-medium bg-slate-200 text-slate-800"
+              >
+                Unhide
+              </button>
+            ) : options.has("OUT") ? (
+              <button
+                type="button"
+                onClick={() => onToggleAttendance("OUT")}
+                className="rounded-lg px-2.5 py-1 text-xs font-medium border border-slate-300 bg-white text-slate-700"
               >
                 OUT
               </button>
