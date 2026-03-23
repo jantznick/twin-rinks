@@ -188,7 +188,7 @@ function GameDetailsModal({
                     : "border border-slate-300 bg-white text-slate-700"
                 }`}
               >
-                {selection?.sub ? "Sub selected" : "I can sub"}
+                {game?.stage === "sub-requested" && selection?.sub ? "Sub requested" : "I can sub"}
               </button>
             ) : null}
             {options.has("IN") ? (

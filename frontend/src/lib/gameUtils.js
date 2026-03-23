@@ -357,11 +357,11 @@ export function getStatusLabel(game, selection) {
   if (selection?.attendance === "OUT") {
     return "OUT - not attending";
   }
-  if (selection?.sub) {
-    return "Sub request selected";
-  }
   if (game?.stage === "out" && (!selection || selection.attendance === "")) {
     return "Pending: Unhide";
+  }
+  if (game?.stage === "sub-requested" && !selection?.sub) {
+    return "Pending: Cancel Sub";
   }
   switch (game?.stage) {
     case "confirmed-in":
