@@ -7,3 +7,6 @@ frontend/dist
 
 subs_page.html
 utility.js
+profile_update.html
+telegram_instructions.html
+frontend/profile_update_submission.text
