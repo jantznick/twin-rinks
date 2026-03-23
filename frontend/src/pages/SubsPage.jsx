@@ -111,6 +111,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
   const [demoMode, setDemoMode] = useState(true);
   const [hideMyGames, setHideMyGames] = useState(false);
   const [pendingUpdates, setPendingUpdates] = useState({});
+  const [submitError, setSubmitError] = useState(null);
 
   const rawGames = useMemo(() => normalizeGames(gamesResponse), [gamesResponse]);
 
@@ -304,6 +305,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
   };
 
   const handleToggleSub = (gameId) => {
+    setSubmitError(null);
     setDraftSelections((previous) => {
       const wasSelected = Boolean(previous[gameId]?.sub);
       return {
@@ -318,6 +320,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
   };
 
   const handleToggleAttendance = (gameId, value) => {
+    setSubmitError(null);
     setDraftSelections((previous) => {
       if (value === "") {
         return {
@@ -343,6 +346,19 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
   };
 
   const handleSubmitPendingChanges = async () => {
+    setSubmitError(null);
+
+    if (window.__FAKE_SUB_FAILURE) {
+      window.__FAKE_SUB_FAILURE = false;
+      setSubmitError("Failed to submit games. Please try again.");
+      setTimeout(() => {
+        setSubmitError((prev) => 
+          prev === "Failed to submit games. Please try again." ? null : prev
+        );
+      }, 5000);
+      return;
+    }
+
     const updates = games.map((game) => {
       const draft = normalizeSelection(draftSelections[game.gameId]);
       return {
@@ -421,8 +437,8 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
       return;
     }
 
-    const success = await onSubmitGames(gamesResponse?.profile, updates);
-    if (success) {
+    const result = await onSubmitGames(gamesResponse?.profile, updates);
+    if (result && result.success) {
       // Save to local storage for optimistic UI
       try {
         const profile = gamesResponse?.profile;
@@ -449,15 +465,23 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
 
       setSubmittedSelections(cloneSelections(draftSelections));
       setPendingExpanded(false);
+    } else if (result && !result.success) {
+      const errorMessage = result.error || "An unknown error occurred while submitting.";
+      setSubmitError(errorMessage);
+      setTimeout(() => {
+        setSubmitError((prev) => (prev === errorMessage ? null : prev));
+      }, 5000);
     }
   };
 
   const handleCancelPendingChanges = () => {
+    setSubmitError(null);
     setDraftSelections(cloneSelections(submittedSelections));
     setPendingExpanded(false);
   };
 
   const handleRemovePendingChange = (gameId) => {
+    setSubmitError(null);
     const baseline = normalizeSelection(submittedSelections[gameId]);
     setDraftSelections((previous) => ({
       ...previous,
@@ -755,6 +779,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
         changeCount={pendingSelectionChanges.length}
         changes={pendingSelectionChanges}
         loading={isSubmitting}
+        error={submitError}
         onToggleExpanded={() => setPendingExpanded((previous) => !previous)}
         onSubmit={handleSubmitPendingChanges}
         onCancel={handleCancelPendingChanges}

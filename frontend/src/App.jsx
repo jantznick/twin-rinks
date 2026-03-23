@@ -10,6 +10,12 @@ import SchedulePage from "./pages/SchedulePage";
 const SAVED_SESSION_KEY = "legacy-phpsessid";
 const SAVED_EMAIL_KEY = "legacy-user-email";
 
+// Expose a global function for testing submission failures
+window.fake_sub_failure = () => {
+  window.__FAKE_SUB_FAILURE = true;
+  console.log("Next submission will fail!");
+};
+
 function getSavedSession() {
   try {
     return localStorage.getItem(SAVED_SESSION_KEY) || sessionStorage.getItem(SAVED_SESSION_KEY) || "";
@@ -124,10 +130,9 @@ export default function App() {
       }
       // Refresh games to get the latest state from the server
       await fetchGames(phpsessid);
-      return true;
+      return { success: true };
     } catch (err) {
-      alert(err.message || "Failed to submit games");
-      return false;
+      return { success: false, error: err.message || "Failed to submit games" };
     } finally {
       setIsSubmitting(false);
     }
