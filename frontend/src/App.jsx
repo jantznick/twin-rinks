@@ -6,6 +6,7 @@ import SiteBlocker from "./components/SiteBlocker";
 import LandingPage from "./pages/LandingPage";
 import SubsPage from "./pages/SubsPage";
 import SchedulePage from "./pages/SchedulePage";
+import ProfilePage from "./pages/ProfilePage";
 
 const SAVED_SESSION_KEY = "legacy-phpsessid";
 const SAVED_EMAIL_KEY = "legacy-user-email";
@@ -250,6 +251,19 @@ export default function App() {
             }
           />
           <Route path="/schedule" element={<SchedulePage />} />
+          <Route 
+            path="/profile" 
+            element={
+              isLoggedIn ? (
+                <ProfilePage 
+                  userEmail={userEmail} 
+                  profilePath={gamesResponse?.profilePath} 
+                />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            } 
+          />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>

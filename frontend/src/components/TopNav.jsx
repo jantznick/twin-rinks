@@ -43,9 +43,16 @@ export default function TopNav({ isLoggedIn, userEmail, onLogout, onOpenLogin })
         <div className="flex items-center gap-4">
           {isLoggedIn ? (
             <div className="flex items-center gap-4">
-              <span className="hidden text-sm font-medium text-slate-700 sm:block">
-                {userEmail}
-              </span>
+              <NavLink
+                to="/profile"
+                className={({ isActive }) =>
+                  `hidden text-sm font-medium transition sm:block ${
+                    isActive ? "text-indigo-600" : "text-slate-700 hover:text-indigo-600"
+                  }`
+                }
+              >
+                {userEmail} (Edit your profile)
+              </NavLink>
               <button
                 type="button"
                 onClick={onLogout}

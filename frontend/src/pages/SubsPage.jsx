@@ -5,6 +5,7 @@ import GamesListView from "../components/GamesListView";
 import JerseyGuideModal from "../components/JerseyGuideModal";
 import PendingChangesBar from "../components/PendingChangesBar";
 import SafetyFooter from "../components/SafetyFooter";
+import Toast from "../components/Toast";
 import {
   buildDraftSelections,
   getJerseyChart,
@@ -112,6 +113,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
   const [hideMyGames, setHideMyGames] = useState(false);
   const [pendingUpdates, setPendingUpdates] = useState({});
   const [submitError, setSubmitError] = useState(null);
+  const [toastMessage, setToastMessage] = useState(null);
 
   const rawGames = useMemo(() => normalizeGames(gamesResponse), [gamesResponse]);
 
@@ -408,32 +410,9 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
       console.log("📝 Full URL-Encoded Body (sent to legacy server):", decodeURIComponent(bodyParams.toString()));
       console.groupEnd();
 
-      // Save to local storage for optimistic UI
-      try {
-        const profile = gamesResponse?.profile;
-        const changedUpdates = updates.filter(u => {
-          const draft = normalizeSelection(draftSelections[u.gameId]);
-          const submitted = normalizeSelection(submittedSelections[u.gameId]);
-          return !areSelectionsEqual(draft, submitted);
-        });
-
-        if (profile && changedUpdates.length > 0) {
-          const stored = JSON.parse(localStorage.getItem(PENDING_UPDATES_KEY) || "{}");
-          const userPending = stored[profile] || {};
-          const now = Date.now();
-          changedUpdates.forEach((u) => {
-            userPending[u.gameId] = { selection: u.selection, timestamp: now };
-          });
-          stored[profile] = userPending;
-          localStorage.setItem(PENDING_UPDATES_KEY, JSON.stringify(stored));
-          setPendingUpdates(userPending);
-        }
-      } catch (e) {
-        console.error("Failed to save pending updates", e);
-      }
-
       setSubmittedSelections(cloneSelections(draftSelections));
       setPendingExpanded(false);
+      setToastMessage({ type: "success", text: "Games updated successfully (Demo Mode)" });
       return;
     }
 
@@ -465,6 +444,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
 
       setSubmittedSelections(cloneSelections(draftSelections));
       setPendingExpanded(false);
+      setToastMessage({ type: "success", text: "Games updated successfully!" });
     } else if (result && !result.success) {
       const errorMessage = result.error || "An unknown error occurred while submitting.";
       setSubmitError(errorMessage);
@@ -582,6 +562,34 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
           <p>{error}</p>
         </div>
       ) : null}
+
+      {demoMode ? (
+        <div className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+          <div>
+            <strong>Demo mode:</strong> selections and submissions are local only.
+          </div>
+          <button 
+            type="button" 
+            className="shrink-0 cursor-pointer rounded-md border border-sky-300 bg-sky-200 px-2 py-1 text-xs font-medium text-sky-900 transition hover:bg-sky-300" 
+            onClick={() => setDemoMode(false)}
+          >
+            Activate Live Mode
+          </button>
+        </div>
+      ) : (
+        <div className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          <div>
+            <strong>Live mode active:</strong> Submitting changes will update your actual games on the server.
+          </div>
+          <button 
+            type="button" 
+            className="shrink-0 cursor-pointer rounded-md border border-emerald-300 bg-emerald-200 px-2 py-1 text-xs font-medium text-emerald-900 transition hover:bg-emerald-300" 
+            onClick={() => setDemoMode(true)}
+          >
+            Return to Demo Mode
+          </button>
+        </div>
+      )}
 
       <section className="space-y-4">
         <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
@@ -743,33 +751,6 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
           </div>
         ) : null}
 
-        {demoMode ? (
-          <div className="flex items-center justify-between gap-4 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
-            <div>
-              <strong>Demo mode:</strong> selections are local only. Submit to `bnbform.cgi` is not active.
-            </div>
-            <button 
-              type="button" 
-              className="shrink-0 cursor-pointer rounded-md border border-sky-300 bg-sky-200 px-2 py-1 text-xs font-medium text-sky-900 transition hover:bg-sky-300" 
-              onClick={() => setDemoMode(false)}
-            >
-              Activate Live Mode
-            </button>
-          </div>
-        ) : (
-          <div className="flex items-center justify-between gap-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-            <div>
-              <strong>Live mode active:</strong> Submitting changes will update your actual games on the server.
-            </div>
-            <button 
-              type="button" 
-              className="shrink-0 cursor-pointer rounded-md border border-emerald-300 bg-emerald-200 px-2 py-1 text-xs font-medium text-emerald-900 transition hover:bg-emerald-300" 
-              onClick={() => setDemoMode(true)}
-            >
-              Return to Demo Mode
-            </button>
-          </div>
-        )}
       </section>
 
       <SafetyFooter />
@@ -790,6 +771,12 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
         open={jerseyGuideOpen}
         onClose={() => setJerseyGuideOpen(false)}
         chart={jerseyChart}
+      />
+
+      <Toast 
+        message={toastMessage?.text} 
+        type={toastMessage?.type} 
+        onClose={() => setToastMessage(null)} 
       />
     </div>
   );

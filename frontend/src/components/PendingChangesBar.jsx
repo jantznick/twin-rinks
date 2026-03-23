@@ -7,7 +7,8 @@ export default function PendingChangesBar({
   onToggleExpanded,
   onSubmit,
   onCancel,
-  onRemoveChange
+  onRemoveChange,
+  extraControls
 }) {
   if (changeCount === 0) {
     return null;
@@ -54,6 +55,12 @@ export default function PendingChangesBar({
               </svg>
               {error}
             </p>
+          </div>
+        )}
+
+        {extraControls && (
+          <div className="px-4 pb-3">
+            {extraControls}
           </div>
         )}
 

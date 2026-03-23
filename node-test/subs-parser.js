@@ -46,6 +46,9 @@ function parseSubsHtml(html) {
   const profileMatch = String(html || "").match(/<input[^>]*name=["']profile["'][^>]*value=["']([^"']+)["']/i);
   const profile = profileMatch ? profileMatch[1] : "";
 
+  const profileLinkMatch = String(html || "").match(/<a[^>]*href=["']([^"']+\.php)["'][^>]*>Click here to update your profile information<\/a>/i);
+  const profilePath = profileLinkMatch ? profileLinkMatch[1] : "";
+
   const rows = String(subGamesSection)
     .split(/<br\s*\/?>/gi)
     .map((row) => row.trim())
@@ -120,6 +123,7 @@ function parseSubsHtml(html) {
   return {
     gameCount: games.length,
     profile,
+    profilePath,
     games
   };
 }
@@ -226,6 +230,82 @@ function isPlayingText(text) {
   );
 }
 
+function parseProfileHtml(html) {
+  const data = {};
+  
+  const getInputValue = (name) => {
+    const regex = new RegExp(`<input\\b[^>]*name=["']?${name}["']?[^>]*>`, 'i');
+    const match = html.match(regex);
+    if (match) {
+      const attrs = parseInputAttributes(match[0]);
+      return attrs.value || "";
+    }
+    return "";
+  };
+
+  const getRadioChecked = (name) => {
+    const regex = new RegExp(`<input\\b[^>]*type=["']?radio["']?[^>]*name=["']?${name}["']?[^>]*>`, 'gi');
+    const matches = html.match(regex) || [];
+    for (const m of matches) {
+      const attrs = parseInputAttributes(m);
+      if (Object.prototype.hasOwnProperty.call(attrs, "checked")) {
+        return attrs.value || "";
+      }
+    }
+    return "";
+  };
+
+  const getSelectSelected = (name) => {
+    const selectRegex = new RegExp(`<select\\b[^>]*name=["']?${name}["']?[\\s\\S]*?</select>`, 'i');
+    const selectMatch = html.match(selectRegex);
+    if (selectMatch) {
+      const options = selectMatch[0].match(/<option\\b[^>]*>([\\s\\S]*?)<\/option>/gi) || [];
+      for (const opt of options) {
+        if (/selected/i.test(opt)) {
+          const valMatch = opt.match(/value=["']?([^"'>\\s]+)/i);
+          if (valMatch) return valMatch[1];
+        }
+      }
+    }
+    return "";
+  };
+
+  const getCheckboxChecked = (name) => {
+    const regex = new RegExp(`<input\\b[^>]*type=["']?checkbox["']?[^>]*name=["']?${name}["']?[^>]*>`, 'i');
+    const match = html.match(regex);
+    if (match) {
+      const attrs = parseInputAttributes(match[0]);
+      return Object.prototype.hasOwnProperty.call(attrs, "checked");
+    }
+    return false;
+  };
+
+  data.email = getInputValue("email");
+  data.player = getInputValue("player");
+  data.position = getRadioChecked("position");
+  data.cell = getInputValue("cell");
+  data.carrier = getSelectSelected("carrier");
+  data.chatid = getInputValue("chatid");
+  
+  data.t_day = getInputValue("t_day");
+  data.t_hou = getInputValue("t_hou");
+  data.t_min = getInputValue("t_min");
+  
+  data.e_day = getInputValue("e_day");
+  data.e_hou = getInputValue("e_hou");
+  data.e_min = getInputValue("e_min");
+  
+  data.s_day = getInputValue("s_day");
+  data.s_hou = getInputValue("s_hou");
+  data.s_min = getInputValue("s_min");
+  
+  data.test_text = getCheckboxChecked("text");
+  data.test_mail = getCheckboxChecked("mail");
+
+  return data;
+}
+
 module.exports = {
-  parseSubsHtml
+  parseSubsHtml,
+  parseProfileHtml
 };

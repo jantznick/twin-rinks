@@ -4,7 +4,7 @@ require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
-const { parseSubsHtml } = require("./subs-parser");
+const { parseSubsHtml, parseProfileHtml } = require("./subs-parser");
 
 const app = express();
 
@@ -459,6 +459,7 @@ async function handleGetGames(req, res) {
       ok: true,
       gameCount: parsed.gameCount,
       profile: parsed.profile,
+      profilePath: parsed.profilePath,
       sourceType: "rows",
       games: parsed.games
     });
@@ -473,6 +474,92 @@ async function handleGetGames(req, res) {
 
 app.get("/get-games", handleGetGames);
 app.post("/get-games", handleGetGames);
+
+async function handleGetProfile(req, res) {
+  const phpsessid = getSessionFromRequest(req);
+  const profilePath = req.query?.profilePath || req.body?.profilePath;
+
+  if (!phpsessid) {
+    return res.status(400).json({ ok: false, error: "phpsessid is required" });
+  }
+  if (!profilePath) {
+    return res.status(400).json({ ok: false, error: "profilePath is required" });
+  }
+
+  try {
+    // Ensure base URL has a trailing slash so relative paths like "ZPROJAN0987.php" resolve correctly
+    const baseUrl = LEGACY_BASE_URL.endsWith('/') ? LEGACY_BASE_URL : `${LEGACY_BASE_URL}/`;
+    const profileUrl = new URL(profilePath, baseUrl).toString();
+    
+    const cookieValueForLogs = LOG_SENSITIVE
+      ? `PHPSESSID=${phpsessid}`
+      : `PHPSESSID=${maskSessionId(phpsessid)}`;
+      
+    const profileCurl = buildCurlCommand({
+      method: "GET",
+      url: profileUrl,
+      headers: {
+        Cookie: cookieValueForLogs
+      }
+    });
+
+    logInfo("Fetching profile from legacy", {
+      session: maskSessionId(phpsessid),
+      profilePath
+    });
+    logInfo("Legacy profile request target", {
+      url: profileUrl,
+      command: profileCurl
+    });
+
+    const response = await fetch(profileUrl, {
+      method: "GET",
+      headers: {
+        Cookie: `PHPSESSID=${phpsessid}`
+      }
+    });
+    
+    const responseHeaders = headersToObject(response.headers);
+    const html = await response.text();
+    const bodyPreview = buildBodyPreview(html);
+    
+    logInfo("Legacy profile response received", {
+      status: response.status,
+      location: response.headers.get("location"),
+      headers: responseHeaders,
+      bodyPreview
+    });
+
+    if (response.status >= 400) {
+      return res.status(401).json({
+        ok: false,
+        error: `Legacy profile request failed with status ${response.status}`
+      });
+    }
+
+    const parsedProfile = parseProfileHtml(html);
+    
+    logInfo("Profile parsed successfully", {
+      session: maskSessionId(phpsessid),
+      hasEmail: !!parsedProfile.email
+    });
+
+    return res.json({
+      ok: true,
+      profile: parsedProfile
+    });
+  } catch (error) {
+    logInfo("Legacy profile request failed", { error: error.message });
+    return res.status(502).json({
+      ok: false,
+      error: "Legacy profile request failed",
+      details: error.message
+    });
+  }
+}
+
+app.get("/get-profile", handleGetProfile);
+app.post("/get-profile", handleGetProfile);
 
 app.post("/update-games", async (req, res) => {
   const phpsessid = getSessionFromRequest(req);
@@ -583,6 +670,131 @@ app.post("/update-games", async (req, res) => {
     return res.status(502).json({
       ok: false,
       error: "Legacy submit request failed",
+      details: error.message
+    });
+  }
+});
+
+app.post("/update-profile", async (req, res) => {
+  const phpsessid = getSessionFromRequest(req);
+  const profileData = req.body || {};
+
+  if (!phpsessid) {
+    return res.status(400).json({ ok: false, error: "phpsessid is required" });
+  }
+
+  try {
+    const submitUrl = new URL(LEGACY_SUBMIT_PATH, LEGACY_BASE_URL).toString();
+    const bodyParams = new URLSearchParams();
+
+    // The fields from the profile update form
+    const fields = [
+      "profile", "email", "player", "pass", "position", "cell", "carrier", 
+      "chatid"
+    ];
+
+    for (const field of fields) {
+      if (profileData[field] !== undefined) {
+        bodyParams.append(field, profileData[field]);
+      }
+    }
+
+    // Handle timer fields - if disabled, send 0,0,0
+    if (profileData.t_enabled === false) {
+      bodyParams.append("t_day", "0");
+      bodyParams.append("t_hou", "0");
+      bodyParams.append("t_min", "0");
+    } else {
+      bodyParams.append("t_day", profileData.t_day || "0");
+      bodyParams.append("t_hou", profileData.t_hou || "0");
+      bodyParams.append("t_min", profileData.t_min || "0");
+    }
+
+    if (profileData.e_enabled === false) {
+      bodyParams.append("e_day", "0");
+      bodyParams.append("e_hou", "0");
+      bodyParams.append("e_min", "0");
+    } else {
+      bodyParams.append("e_day", profileData.e_day || "0");
+      bodyParams.append("e_hou", profileData.e_hou || "0");
+      bodyParams.append("e_min", profileData.e_min || "0");
+    }
+
+    // Sub notifications don't have an explicit disable, but we'll send the values
+    bodyParams.append("s_day", profileData.s_day || "0");
+    bodyParams.append("s_hou", profileData.s_hou || "0");
+    bodyParams.append("s_min", profileData.s_min || "0");
+
+    if (profileData.test_text) bodyParams.append("text", "on");
+    if (profileData.test_mail) bodyParams.append("mail", "on");
+
+    // Boilerplate fields
+    bodyParams.append("required", "position");
+    bodyParams.append("data_order", "profile,player,email,pass,position,cell,carrier,chatid,t_day,t_hou,t_min,e_day,e_hou,e_min,s_day,s_hou,s_min,text,mail");
+    bodyParams.append("outputfile", "../adulthockey/subs/subs_entry");
+    bodyParams.append("countfile", "form1");
+    bodyParams.append("emailfile", "form1");
+    bodyParams.append("form_id", "My Test Form");
+    bodyParams.append("ok_url", "../adulthockey/subs/subs_submit_ok.html");
+    bodyParams.append("not_ok_url", "../adulthockey/subs/subs_submit_not_ok.html");
+
+    const cookieValueForLogs = LOG_SENSITIVE
+      ? `PHPSESSID=${phpsessid}`
+      : `PHPSESSID=${maskSessionId(phpsessid)}`;
+
+    const submitCurl = buildCurlCommand({
+      method: "POST",
+      url: submitUrl,
+      headers: {
+        Cookie: cookieValueForLogs,
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: bodyParams.toString()
+    });
+
+    logInfo("Submitting profile update to legacy", {
+      session: maskSessionId(phpsessid)
+    });
+    logInfo("Legacy profile submit request target", {
+      url: submitUrl,
+      command: submitCurl
+    });
+
+    const response = await fetch(submitUrl, {
+      method: "POST",
+      headers: {
+        Cookie: `PHPSESSID=${phpsessid}`,
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: bodyParams,
+      redirect: "manual" // We expect a 302 redirect on success
+    });
+
+    const responseHeaders = headersToObject(response.headers);
+    const responseBody = await response.text();
+    const bodyPreview = buildBodyPreview(responseBody);
+
+    logInfo("Legacy profile submit response received", {
+      status: response.status,
+      location: response.headers.get("location"),
+      headers: responseHeaders,
+      bodyPreview
+    });
+
+    // The legacy script returns a 302 redirect on success
+    if (response.status >= 400) {
+      return res.status(401).json({
+        ok: false,
+        error: `Legacy profile submit request failed with status ${response.status}`
+      });
+    }
+
+    return res.json({ ok: true });
+  } catch (error) {
+    logInfo("Legacy profile submit request failed", { error: error.message });
+    return res.status(502).json({
+      ok: false,
+      error: "Legacy profile submit request failed",
       details: error.message
     });
   }
