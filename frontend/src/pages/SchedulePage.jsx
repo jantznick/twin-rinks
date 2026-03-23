@@ -375,19 +375,29 @@ function ScheduleDayModal({ open, title, games, events, onClose }) {
               No games for this day.
             </p>
           ) : (
-            games.map((game) => (
-              <div
-                key={game.id}
-                className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm"
-              >
-                <p className="font-medium text-slate-800">
-                  {game.time} - {game.league}
-                </p>
-                <p className="text-xs text-slate-600">
-                  {game.home} vs {game.away} - {game.rink} rink
-                </p>
-              </div>
-            ))
+            games.map((game) => {
+              let bgClass = "bg-slate-50 border-slate-200";
+              const rinkUpper = String(game.rink || "").toUpperCase();
+              if (rinkUpper.includes("RED")) {
+                bgClass = "bg-rose-50 border-rose-400";
+              } else if (rinkUpper.includes("BLUE")) {
+                bgClass = "bg-sky-50 border-sky-400";
+              }
+              
+              return (
+                <div
+                  key={game.id}
+                  className={`rounded-lg border px-3 py-2 text-sm ${bgClass}`}
+                >
+                  <p className="font-medium text-slate-800">
+                    {game.time} - {game.league}
+                  </p>
+                  <p className="text-xs text-slate-600">
+                    {game.home} vs {game.away} - {game.rink} rink
+                  </p>
+                </div>
+              );
+            })
           )}
         </div>
       </div>
