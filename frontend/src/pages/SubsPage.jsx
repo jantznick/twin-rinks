@@ -5,7 +5,6 @@ import GamesListView from "../components/GamesListView";
 import JerseyGuideModal from "../components/JerseyGuideModal";
 import PendingChangesBar from "../components/PendingChangesBar";
 import SafetyFooter from "../components/SafetyFooter";
-import Toast from "../components/Toast";
 import {
   buildDraftSelections,
   getJerseyChart,
@@ -100,7 +99,7 @@ function getChangeSummary(before, after) {
   return `${fromLabel} → ${toLabel}`;
 }
 
-export default function SubsPage({ phpsessid, gamesResponse, loading, error, isUploading, isSubmitting, onRefresh, onSubmitGames }) {
+export default function SubsPage({ phpsessid, gamesResponse, loading, error, isUploading, isSubmitting, onRefresh, onSubmitGames, demoMode, setDemoMode, showToast }) {
   const [draftSelections, setDraftSelections] = useState({});
   const [denseMode, setDenseMode] = useState(getSavedDenseMode);
   const [viewMode, setViewMode] = useState(getSavedViewMode);
@@ -109,11 +108,9 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
   const [submittedSelections, setSubmittedSelections] = useState({});
   const [pendingExpanded, setPendingExpanded] = useState(false);
   const [jerseyGuideOpen, setJerseyGuideOpen] = useState(false);
-  const [demoMode, setDemoMode] = useState(true);
   const [hideMyGames, setHideMyGames] = useState(false);
   const [pendingUpdates, setPendingUpdates] = useState({});
   const [submitError, setSubmitError] = useState(null);
-  const [toastMessage, setToastMessage] = useState(null);
 
   const rawGames = useMemo(() => normalizeGames(gamesResponse), [gamesResponse]);
 
@@ -412,7 +409,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
 
       setSubmittedSelections(cloneSelections(draftSelections));
       setPendingExpanded(false);
-      setToastMessage({ type: "success", text: "Games updated successfully (Demo Mode)" });
+      showToast({ type: "success", text: "Games updated successfully (Demo Mode)" });
       return;
     }
 
@@ -444,7 +441,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
 
       setSubmittedSelections(cloneSelections(draftSelections));
       setPendingExpanded(false);
-      setToastMessage({ type: "success", text: "Games updated successfully!" });
+      showToast({ type: "success", text: "Games updated successfully!" });
     } else if (result && !result.success) {
       const errorMessage = result.error || "An unknown error occurred while submitting.";
       setSubmitError(errorMessage);
@@ -771,12 +768,6 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
         open={jerseyGuideOpen}
         onClose={() => setJerseyGuideOpen(false)}
         chart={jerseyChart}
-      />
-
-      <Toast 
-        message={toastMessage?.text} 
-        type={toastMessage?.type} 
-        onClose={() => setToastMessage(null)} 
       />
     </div>
   );

@@ -7,6 +7,7 @@ import LandingPage from "./pages/LandingPage";
 import SubsPage from "./pages/SubsPage";
 import SchedulePage from "./pages/SchedulePage";
 import ProfilePage from "./pages/ProfilePage";
+import Toast from "./components/Toast";
 
 const SAVED_SESSION_KEY = "legacy-phpsessid";
 const SAVED_EMAIL_KEY = "legacy-user-email";
@@ -55,6 +56,9 @@ export default function App() {
   const [gamesError, setGamesError] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [demoMode, setDemoMode] = useState(true);
+  const [toastMessage, setToastMessage] = useState(null);
 
   const isLoggedIn = Boolean(phpsessid);
 
@@ -244,6 +248,9 @@ export default function App() {
                   isSubmitting={isSubmitting}
                   onRefresh={() => fetchGames(phpsessid)}
                   onSubmitGames={submitGames}
+                  demoMode={demoMode}
+                  setDemoMode={setDemoMode}
+                  showToast={setToastMessage}
                 />
               ) : (
                 <LandingPage onOpenLogin={() => setLoginModalOpen(true)} />
@@ -258,6 +265,9 @@ export default function App() {
                 <ProfilePage 
                   userEmail={userEmail} 
                   profilePath={gamesResponse?.profilePath} 
+                  demoMode={demoMode}
+                  setDemoMode={setDemoMode}
+                  showToast={setToastMessage}
                 />
               ) : (
                 <Navigate to="/" replace />
@@ -280,6 +290,12 @@ export default function App() {
         onPasswordChange={setLoginPassword}
         onRememberChange={setLoginRemember}
         onSubmit={handleLoginSubmit}
+      />
+
+      <Toast 
+        message={toastMessage?.text} 
+        type={toastMessage?.type} 
+        onClose={() => setToastMessage(null)} 
       />
     </div>
   );

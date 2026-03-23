@@ -2,7 +2,6 @@ import { useState, useMemo, useEffect } from "react";
 import SafetyFooter from "../components/SafetyFooter";
 import PendingChangesBar from "../components/PendingChangesBar";
 import TelegramInstructionsModal from "../components/TelegramInstructionsModal";
-import Toast from "../components/Toast";
 
 const PENDING_PROFILE_KEY = "twin-rinks-pending-profile";
 const MAX_PENDING_AGE = 20 * 60 * 1000; // 20 minutes
@@ -28,12 +27,10 @@ const FIELD_LABELS = {
   test_mail: "Test Email Message"
 };
 
-export default function ProfilePage({ userEmail, profilePath }) {
-  const [demoMode, setDemoMode] = useState(true);
+export default function ProfilePage({ userEmail, profilePath, demoMode, setDemoMode, showToast }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
-  const [submitMessage, setSubmitMessage] = useState(null);
   const [telegramModalOpen, setTelegramModalOpen] = useState(false);
   const [pendingExpanded, setPendingExpanded] = useState(false);
 
@@ -236,7 +233,6 @@ export default function ProfilePage({ userEmail, profilePath }) {
 
   const handleTestSubmit = async (type) => {
     setIsSubmitting(true);
-    setSubmitMessage(null);
 
     const testPayload = {
       ...initialFormData,
@@ -251,7 +247,7 @@ export default function ProfilePage({ userEmail, profilePath }) {
       
       setTimeout(() => {
         setIsSubmitting(false);
-        setSubmitMessage({ type: "success", text: `Test ${type === "telegram" ? "Telegram" : "Email"} requested! It will be sent in the next 5-10 minutes. (Demo Mode)` });
+        showToast({ type: "success", text: `Test ${type === "telegram" ? "Telegram" : "Email"} requested! It will be sent in the next 5-10 minutes. (Demo Mode)` });
       }, 800);
       return;
     }
@@ -277,22 +273,21 @@ export default function ProfilePage({ userEmail, profilePath }) {
       }
 
       setIsSubmitting(false);
-      setSubmitMessage({ type: "success", text: `Test ${type === "telegram" ? "Telegram" : "Email"} requested! It will be sent in the next 5-10 minutes.` });
+      showToast({ type: "success", text: `Test ${type === "telegram" ? "Telegram" : "Email"} requested! It will be sent in the next 5-10 minutes.` });
     } catch (err) {
       setIsSubmitting(false);
-      setSubmitMessage({ type: "error", text: err.message || `Failed to send test ${type === "telegram" ? "Telegram" : "Email"}.` });
+      showToast({ type: "error", text: err.message || `Failed to send test ${type === "telegram" ? "Telegram" : "Email"}.` });
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setSubmitMessage(null);
 
     if (window.__FAKE_SUB_FAILURE) {
       window.__FAKE_SUB_FAILURE = false;
       setIsSubmitting(false);
-      setSubmitMessage({ type: "error", text: "Simulated submission failure from fake_sub_failure()" });
+      showToast({ type: "error", text: "Simulated submission failure from fake_sub_failure()" });
       return;
     }
 
@@ -311,7 +306,7 @@ export default function ProfilePage({ userEmail, profilePath }) {
         if (formData.test_text || formData.test_mail) {
           msg = "Profile updated! Test message(s) will be sent in the next 5-10 minutes. (Demo Mode)";
         }
-        setSubmitMessage({ type: "success", text: msg });
+        showToast({ type: "success", text: msg });
       }, 800);
       return;
     }
@@ -353,11 +348,11 @@ export default function ProfilePage({ userEmail, profilePath }) {
       if (formData.test_text || formData.test_mail) {
         msg = "Profile updated! Test message(s) will be sent in the next 5-10 minutes.";
       }
-      setSubmitMessage({ type: "success", text: msg });
+      showToast({ type: "success", text: msg });
       
     } catch (err) {
       setIsSubmitting(false);
-      setSubmitMessage({ type: "error", text: err.message || "Failed to submit profile." });
+      showToast({ type: "error", text: err.message || "Failed to submit profile." });
     }
   };
 
@@ -788,12 +783,6 @@ export default function ProfilePage({ userEmail, profilePath }) {
       <TelegramInstructionsModal 
         open={telegramModalOpen} 
         onClose={() => setTelegramModalOpen(false)} 
-      />
-
-      <Toast 
-        message={submitMessage?.text} 
-        type={submitMessage?.type} 
-        onClose={() => setSubmitMessage(null)} 
       />
     </div>
   );
