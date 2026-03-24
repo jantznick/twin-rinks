@@ -263,6 +263,37 @@ function getSetCookieHeaders(headers) {
   return single ? [single] : [];
 }
 
+function looksLikeAuthenticatedGamesPage(html) {
+  const text = String(html || "");
+  if (!text) {
+    return false;
+  }
+
+  // Common legacy markers we only expect after a successful login.
+  if (/Games you can sub in:/i.test(text)) {
+    return true;
+  }
+  if (/Click here to update your profile information/i.test(text)) {
+    return true;
+  }
+  if (/name=["']profile["']/i.test(text)) {
+    return true;
+  }
+  if (/name=["']g\d+i?["']/i.test(text)) {
+    return true;
+  }
+
+  // Common login failure markers.
+  if (/name=["']subs_data1["']/i.test(text) || /name=["']subs_data2["']/i.test(text)) {
+    return false;
+  }
+  if (/invalid\s+(user(name)?|login|password|credentials)/i.test(text)) {
+    return false;
+  }
+
+  return false;
+}
+
 app.get("/health", (_req, res) => {
   res.json({ ok: true });
 });
@@ -356,6 +387,34 @@ app.post("/login", async (req, res) => {
       username,
       phpsessid: maskSessionId(phpsessid)
     });
+
+    // The legacy system can return a PHPSESSID even when credentials are invalid.
+    // Verify the session can access authenticated content before reporting success.
+    const gamesUrl = new URL(LEGACY_GAMES_PATH, LEGACY_BASE_URL).toString();
+    const verifyResponse = await fetch(gamesUrl, {
+      method: "GET",
+      headers: {
+        Cookie: `PHPSESSID=${phpsessid}`
+      }
+    });
+    const verifyHtml = await verifyResponse.text();
+    const verifyParsed = parseSubsHtml(verifyHtml);
+    const authenticated =
+      verifyResponse.status < 400 &&
+      (verifyParsed.gameCount > 0 || looksLikeAuthenticatedGamesPage(verifyHtml));
+
+    if (!authenticated) {
+      logInfo("Login rejected after session verification", {
+        username,
+        status: verifyResponse.status,
+        session: maskSessionId(phpsessid),
+        bodyPreview: buildBodyPreview(verifyHtml)
+      });
+      return res.status(401).json({
+        ok: false,
+        error: "Invalid username or password"
+      });
+    }
 
     return res.json({
       ok: true,
