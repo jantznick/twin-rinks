@@ -38,6 +38,15 @@ export default function TopNav({ isLoggedIn, userEmail, onLogout, onOpenLogin })
             >
               Schedule
             </NavLink>
+            <NavLink
+              to="/profile"
+              className={({ isActive }) =>
+                `rounded-md px-3 py-2 text-sm font-medium transition md:hidden ${
+                  isActive ? "bg-slate-100 text-slate-900" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                }`
+              }
+            >
+              Profile</NavLink>
           </nav>
         </div>
         <div className="flex items-center gap-4">
