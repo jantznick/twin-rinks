@@ -11,11 +11,48 @@ import Toast from "./components/Toast";
 
 const SAVED_SESSION_KEY = "legacy-phpsessid";
 const SAVED_EMAIL_KEY = "legacy-user-email";
+const GAMES_UPLOAD_POLL_MS = 20000;
+const GAMES_UPLOAD_POLL_SEC = Math.ceil(GAMES_UPLOAD_POLL_MS / 1000);
 
 // Expose a global function for testing submission failures
 window.fake_sub_failure = () => {
   window.__FAKE_SUB_FAILURE = true;
   console.log("Next submission will fail!");
+};
+
+/**
+ * Simulate get-games API outcomes from the browser console (dev / QA).
+ *
+ * One-shot (next fetch only):
+ *   fake_games_next_failure()           → generic error UI
+ *   fake_games_next_failure("timeout")  → custom message
+ *   fake_games_next_uploading()         → uploading + countdown (then real API on later polls unless sticky)
+ *
+ * Sticky (every poll until cleared — good for testing the countdown):
+ *   fake_games_uploading_sticky()
+ *   clear_fake_games_simulation()       → stop sticky + cancel pending one-shot
+ */
+window.fake_games_next_failure = (message = "Simulated get-games failure") => {
+  window.__FAKE_GAMES_NEXT = { type: "error", message };
+  console.log("Next get-games call will fail:", message);
+};
+
+window.fake_games_next_uploading = () => {
+  window.__FAKE_GAMES_NEXT = { type: "uploading" };
+  console.log("Next get-games call will simulate legacy “uploading” state.");
+};
+
+window.fake_games_uploading_sticky = () => {
+  window.__FAKE_GAMES_UPLOADING_STICKY = true;
+  console.log(
+    "Every get-games call will simulate “uploading” until you run clear_fake_games_simulation()"
+  );
+};
+
+window.clear_fake_games_simulation = () => {
+  delete window.__FAKE_GAMES_NEXT;
+  delete window.__FAKE_GAMES_UPLOADING_STICKY;
+  console.log("Games API simulation cleared. Refresh or use “Refresh” on subs if needed.");
 };
 
 function getSavedSession() {
@@ -59,6 +96,7 @@ export default function App() {
 
   const [demoMode, setDemoMode] = useState(true);
   const [toastMessage, setToastMessage] = useState(null);
+  const [uploadRefreshCountdownSec, setUploadRefreshCountdownSec] = useState(null);
 
   const isLoggedIn = Boolean(phpsessid);
 
@@ -68,6 +106,18 @@ export default function App() {
       setGamesLoading(true);
     }
     try {
+      if (window.__FAKE_GAMES_UPLOADING_STICKY) {
+        throw new Error("uploading");
+      }
+      if (window.__FAKE_GAMES_NEXT) {
+        const next = window.__FAKE_GAMES_NEXT;
+        window.__FAKE_GAMES_NEXT = null;
+        if (next.type === "uploading") {
+          throw new Error("uploading");
+        }
+        throw new Error(next.message || "Simulated get-games failure");
+      }
+
       const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
       const response = await fetch(`${API_BASE}/get-games`, {
         method: "POST",
@@ -87,7 +137,11 @@ export default function App() {
     } catch (err) {
       if (err.message === "uploading") {
         setIsUploading(true);
-        setGamesError("Games in process of being uploaded, we'll keep refreshing in the background and update games when they're ready.");
+        setUploadRefreshCountdownSec(GAMES_UPLOAD_POLL_SEC);
+        const pollUnit = GAMES_UPLOAD_POLL_SEC === 1 ? "second" : "seconds";
+        setGamesError(
+          `Games in process of being uploaded, we'll keep refreshing in the background and update games when they're ready. Next refresh in ${GAMES_UPLOAD_POLL_SEC} ${pollUnit}.`
+        );
       } else {
         setGamesResponse(null);
         setGamesError(err.message || "Unable to load games");
@@ -111,10 +165,32 @@ export default function App() {
     if (isUploading && phpsessid) {
       interval = setInterval(() => {
         fetchGames(phpsessid, true);
-      }, 20000);
+      }, GAMES_UPLOAD_POLL_MS);
     }
     return () => clearInterval(interval);
   }, [isUploading, phpsessid]);
+
+  useEffect(() => {
+    if (!isUploading) {
+      setUploadRefreshCountdownSec(null);
+      return;
+    }
+    const ticker = setInterval(() => {
+      setUploadRefreshCountdownSec((s) => {
+        if (s == null) return GAMES_UPLOAD_POLL_SEC;
+        return s <= 1 ? GAMES_UPLOAD_POLL_SEC : s - 1;
+      });
+    }, 1000);
+    return () => clearInterval(ticker);
+  }, [isUploading]);
+
+  useEffect(() => {
+    if (!isUploading || uploadRefreshCountdownSec == null) return;
+    const unit = uploadRefreshCountdownSec === 1 ? "second" : "seconds";
+    setGamesError(
+      `Games in process of being uploaded, we'll keep refreshing in the background and update games when they're ready. Next refresh in ${uploadRefreshCountdownSec} ${unit}.`
+    );
+  }, [isUploading, uploadRefreshCountdownSec]);
 
   const submitGames = async (profile, updates) => {
     setIsSubmitting(true);
