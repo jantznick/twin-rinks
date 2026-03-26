@@ -2,7 +2,8 @@ import {
   buildUpcomingWeekBuckets,
   getLeagueLabel,
   getTimeText,
-  getGameStartDate
+  getGameStartDate,
+  getSubSpotState
 } from "../lib/gameUtils";
 import GameCard from "./GameCard";
 
@@ -117,12 +118,17 @@ function WeekDayColumn({ bucket, draftSelections, isMyGamesTab, onSelectGame }) 
           {bucket.games.map((game, index) => {
             const selection = draftSelections?.[game.gameId];
             const isPlaying = game?.stage === "selected" || game?.stage === "confirmed-in" || game?.stage === "sub-requested" || selection?.attendance === "IN";
+            const subSpotState = getSubSpotState(game);
+            const isSubRequestedFilled = game?.stage === "sub-requested" && subSpotState === "filled";
             const isGameToday = isDateToday(bucket.date);
             
             let borderClass = "border-slate-200";
             let bgClass = "bg-slate-50";
             
-            if (isPlaying && !isMyGamesTab) {
+            if (isSubRequestedFilled && !isMyGamesTab) {
+              borderClass = "border-sky-500";
+              bgClass = "bg-sky-50/50";
+            } else if (isPlaying && !isMyGamesTab) {
               borderClass = "border-emerald-500";
               bgClass = "bg-emerald-50/50";
             } else if (isGameToday && !isMyGamesTab) {

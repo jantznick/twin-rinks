@@ -29,6 +29,7 @@ export default function GamesListView({
           const status = getStatusLabel(game, selection);
           const isPlaying = game?.stage === "selected" || game?.stage === "confirmed-in" || game?.stage === "sub-requested" || selection?.attendance === "IN";
           const subSpotState = getSubSpotState(game);
+          const isSubRequestedFilled = game?.stage === "sub-requested" && subSpotState === "filled";
           const jerseyGuide = isMyGamesTab || isPlaying ? getSubJerseyGuide(game) : null;
           const isGameToday = game?.schedule?.date === formatDateKey(new Date());
           
@@ -42,6 +43,9 @@ export default function GamesListView({
           if (pendingGameIds?.has(game.gameId)) {
             borderClass = "border-l-4 border-l-amber-400 border-b border-b-amber-200 last:border-b-0";
             bgClass = "bg-amber-50/50";
+          } else if (isSubRequestedFilled && !isMyGamesTab) {
+            borderClass = "border-l-4 border-l-sky-500 border-b border-b-sky-200 last:border-b-0";
+            bgClass = "bg-sky-50/40";
           } else if (isPlaying && !isMyGamesTab) {
             borderClass = "border-l-4 border-l-emerald-500 border-b border-b-emerald-200 last:border-b-0";
             bgClass = "bg-emerald-50/30";

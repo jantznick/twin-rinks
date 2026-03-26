@@ -33,6 +33,7 @@ export default function GameCard({
   const scheduleLabel =
     timeOnly && getTimeText(game) ? getTimeText(game) : getScheduleText(game);
   const isPlaying = game?.stage === "selected" || game?.stage === "confirmed-in" || game?.stage === "sub-requested" || selection?.attendance === "IN";
+  const isSubRequestedFilled = game?.stage === "sub-requested" && subSpotState === "filled";
   const jerseyGuide = isMyGamesTab || isPlaying ? getSubJerseyGuide(game) : null;
   const isGameToday = game?.schedule?.date === formatDateKey(new Date());
 
@@ -41,6 +42,8 @@ export default function GameCard({
       className={`rounded-xl ${
         pending
           ? "border border-amber-300 bg-amber-50/70 ring-1 ring-amber-200 shadow-lg shadow-amber-200/50"
+          : isSubRequestedFilled && !isMyGamesTab
+          ? "border-2 border-sky-500 bg-sky-50/40 shadow-lg shadow-sky-200/40"
           : isPlaying && !isMyGamesTab
           ? "border-2 border-emerald-600 bg-emerald-50/30 shadow-lg shadow-emerald-200/40"
           : isGameToday && !isMyGamesTab
