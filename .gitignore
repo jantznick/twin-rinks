@@ -6,6 +6,7 @@ frontend/node_modules
 frontend/dist
 
 subs_page.html
+sub_filled.html
 utility.js
 profile_update.html
 telegram_instructions.html
