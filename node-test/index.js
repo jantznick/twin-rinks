@@ -299,10 +299,14 @@ function looksLikeLegacyLoginPage(html) {
   if (!text) {
     return false;
   }
+  // If authenticated markers are present, this is not a login page.
+  if (looksLikeAuthenticatedGamesPage(text)) {
+    return false;
+  }
   if (/name=["']subs_data1["']/i.test(text) && /name=["']subs_data2["']/i.test(text)) {
     return true;
   }
-  if (/subs_entry\.html\?state=(?:invalid_login|logout)/i.test(text)) {
+  if (/subs_entry\.html\?state=invalid_login/i.test(text)) {
     return true;
   }
   return false;
