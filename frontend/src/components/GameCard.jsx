@@ -114,7 +114,11 @@ export default function GameCard({
                 : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
             }`}
           >
-            {game?.stage === "sub-requested" && selection?.sub ? "Sub requested" : "I can sub"}
+            {game?.stage === "sub-requested" && selection?.sub
+              ? subSpotState === "filled"
+                ? "Sub requested (filled)"
+                : "Sub requested"
+              : "I can sub"}
           </button>
         ) : null}
 

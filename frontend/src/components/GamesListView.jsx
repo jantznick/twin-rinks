@@ -8,7 +8,8 @@ import {
   formatDateKey,
   getStatusPillClasses,
   getRinkPillClasses,
-  getGameNote
+  getGameNote,
+  getSubSpotState
 } from "../lib/gameUtils";
 
 export default function GamesListView({
@@ -27,6 +28,7 @@ export default function GamesListView({
           const options = getOptionValues(game);
           const status = getStatusLabel(game, selection);
           const isPlaying = game?.stage === "selected" || game?.stage === "confirmed-in" || game?.stage === "sub-requested" || selection?.attendance === "IN";
+          const subSpotState = getSubSpotState(game);
           const jerseyGuide = isMyGamesTab || isPlaying ? getSubJerseyGuide(game) : null;
           const isGameToday = game?.schedule?.date === formatDateKey(new Date());
           
@@ -97,7 +99,11 @@ export default function GamesListView({
                           : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
                       }`}
                     >
-                      {game?.stage === "sub-requested" && selection?.sub ? "Sub requested" : "I can sub"}
+                      {game?.stage === "sub-requested" && selection?.sub
+                        ? subSpotState === "filled"
+                          ? "Sub requested (filled)"
+                          : "Sub requested"
+                        : "I can sub"}
                     </button>
                   ) : null}
                   

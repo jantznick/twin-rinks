@@ -71,6 +71,27 @@ function getSavedEmail() {
   }
 }
 
+function isLegacySessionExpiredResponse(response, data) {
+  if (!response) {
+    return false;
+  }
+  if (String(data?.code || "").toLowerCase() === "session_expired") {
+    return true;
+  }
+  if (response.status === 401) {
+    return true;
+  }
+  const errorText = String(data?.error || "").toLowerCase();
+  const hintText = String(data?.hint || "").toLowerCase();
+  if (errorText.includes("session")) {
+    return true;
+  }
+  if (hintText.includes("session may be invalid")) {
+    return true;
+  }
+  return false;
+}
+
 export default function App() {
   const [siteUnlocked, setSiteUnlocked] = useState(() => {
     try {
@@ -100,6 +121,39 @@ export default function App() {
 
   const isLoggedIn = Boolean(phpsessid);
 
+  const clearSession = (preserveEmail = false) => {
+    const savedEmail = preserveEmail ? userEmail || getSavedEmail() : "";
+    setPhpsessid("");
+    setGamesResponse(null);
+    setGamesError("");
+    setIsUploading(false);
+    setUploadRefreshCountdownSec(null);
+    setUserEmail(savedEmail);
+
+    try {
+      localStorage.removeItem(SAVED_SESSION_KEY);
+      sessionStorage.removeItem(SAVED_SESSION_KEY);
+      if (preserveEmail && savedEmail) {
+        localStorage.setItem(SAVED_EMAIL_KEY, savedEmail);
+        sessionStorage.removeItem(SAVED_EMAIL_KEY);
+      } else {
+        localStorage.removeItem(SAVED_EMAIL_KEY);
+        sessionStorage.removeItem(SAVED_EMAIL_KEY);
+      }
+    } catch {
+      // Ignore localStorage/sessionStorage failures
+    }
+  };
+
+  const promptReauth = (message) => {
+    const emailForRelogin = userEmail || getSavedEmail();
+    clearSession(true);
+    setLoginUsername(emailForRelogin);
+    setLoginPassword("");
+    setLoginError(message || "Your session expired. Please sign in again.");
+    setLoginModalOpen(true);
+  };
+
   const fetchGames = async (sessionId, isBackground = false) => {
     if (!isBackground) {
       setGamesError("");
@@ -128,6 +182,10 @@ export default function App() {
       if (!response.ok || !data.ok) {
         if (data.error === "uploading") {
           throw new Error("uploading");
+        }
+        if (isLegacySessionExpiredResponse(response, data)) {
+          promptReauth("Session expired on Twin Rinks. Please sign in again.");
+          return;
         }
         throw new Error(data.error || "Unable to load games");
       }
@@ -207,6 +265,10 @@ export default function App() {
       });
       const data = await response.json();
       if (!response.ok || !data.ok) {
+        if (isLegacySessionExpiredResponse(response, data)) {
+          promptReauth("Session expired before submit. Please sign in again.");
+          return { success: false, error: "Session expired. Please sign in again." };
+        }
         throw new Error(data.error || "Failed to submit games");
       }
       // Refresh games to get the latest state from the server
@@ -272,19 +334,7 @@ export default function App() {
   };
 
   const handleLogout = () => {
-    setPhpsessid("");
-    setUserEmail("");
-    setGamesResponse(null);
-    setGamesError("");
-    setIsUploading(false);
-    try {
-      localStorage.removeItem(SAVED_SESSION_KEY);
-      localStorage.removeItem(SAVED_EMAIL_KEY);
-      sessionStorage.removeItem(SAVED_SESSION_KEY);
-      sessionStorage.removeItem(SAVED_EMAIL_KEY);
-    } catch {
-      // Ignore localStorage failures
-    }
+    clearSession(false);
   };
 
   const handleUnlock = () => {

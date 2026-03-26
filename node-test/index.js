@@ -294,6 +294,34 @@ function looksLikeAuthenticatedGamesPage(html) {
   return false;
 }
 
+function looksLikeLegacyLoginPage(html) {
+  const text = String(html || "");
+  if (!text) {
+    return false;
+  }
+  if (/name=["']subs_data1["']/i.test(text) && /name=["']subs_data2["']/i.test(text)) {
+    return true;
+  }
+  if (/subs_entry\.html\?state=(?:invalid_login|logout)/i.test(text)) {
+    return true;
+  }
+  return false;
+}
+
+function isLegacyLoginRedirect(response) {
+  if (!response) {
+    return false;
+  }
+  const location = String(response.headers?.get("location") || "");
+  const finalUrl = String(response.url || "");
+  return (
+    /subs_entry\.html(?:\?[^"'\s]*)?/i.test(location) ||
+    /subs_entry\.html(?:\?[^"'\s]*)?/i.test(finalUrl) ||
+    /state=invalid_login/i.test(location) ||
+    /state=invalid_login/i.test(finalUrl)
+  );
+}
+
 app.get("/health", (_req, res) => {
   res.json({ ok: true });
 });
@@ -489,7 +517,23 @@ async function handleGetGames(req, res) {
     if (response.status >= 400) {
       return res.status(401).json({
         ok: false,
-        error: `Legacy games request failed with status ${response.status}`
+        error: `Legacy games request failed with status ${response.status}`,
+        code: "session_expired"
+      });
+    }
+
+    if (isLegacyLoginRedirect(response) || looksLikeLegacyLoginPage(html)) {
+      logInfo("Legacy games request hit login page (session expired)", {
+        status: response.status,
+        responseUrl: response.url,
+        location: response.headers.get("location"),
+        session: maskSessionId(phpsessid),
+        bodyPreview
+      });
+      return res.status(401).json({
+        ok: false,
+        error: "Legacy session expired",
+        code: "session_expired"
       });
     }
 
@@ -504,6 +548,7 @@ async function handleGetGames(req, res) {
       return res.status(422).json({
         ok: false,
         error: "Games table not found in response",
+        code: "legacy_games_parse_failed",
         hint: "Session may be invalid or page layout changed"
       });
     }
@@ -592,7 +637,23 @@ async function handleGetProfile(req, res) {
     if (response.status >= 400) {
       return res.status(401).json({
         ok: false,
-        error: `Legacy profile request failed with status ${response.status}`
+        error: `Legacy profile request failed with status ${response.status}`,
+        code: "session_expired"
+      });
+    }
+
+    if (isLegacyLoginRedirect(response) || looksLikeLegacyLoginPage(html)) {
+      logInfo("Legacy profile request hit login page (session expired)", {
+        status: response.status,
+        responseUrl: response.url,
+        location: response.headers.get("location"),
+        session: maskSessionId(phpsessid),
+        bodyPreview
+      });
+      return res.status(401).json({
+        ok: false,
+        error: "Legacy session expired",
+        code: "session_expired"
       });
     }
 
@@ -719,7 +780,23 @@ app.post("/update-games", async (req, res) => {
     if (response.status >= 400) {
       return res.status(401).json({
         ok: false,
-        error: `Legacy submit request failed with status ${response.status}`
+        error: `Legacy submit request failed with status ${response.status}`,
+        code: "session_expired"
+      });
+    }
+
+    if (isLegacyLoginRedirect(response) || looksLikeLegacyLoginPage(responseBody)) {
+      logInfo("Legacy submit request redirected to login (session expired)", {
+        status: response.status,
+        responseUrl: response.url,
+        location: response.headers.get("location"),
+        session: maskSessionId(phpsessid),
+        bodyPreview
+      });
+      return res.status(401).json({
+        ok: false,
+        error: "Legacy session expired",
+        code: "session_expired"
       });
     }
 
@@ -844,7 +921,23 @@ app.post("/update-profile", async (req, res) => {
     if (response.status >= 400) {
       return res.status(401).json({
         ok: false,
-        error: `Legacy profile submit request failed with status ${response.status}`
+        error: `Legacy profile submit request failed with status ${response.status}`,
+        code: "session_expired"
+      });
+    }
+
+    if (isLegacyLoginRedirect(response) || looksLikeLegacyLoginPage(responseBody)) {
+      logInfo("Legacy profile submit redirected to login (session expired)", {
+        status: response.status,
+        responseUrl: response.url,
+        location: response.headers.get("location"),
+        session: maskSessionId(phpsessid),
+        bodyPreview
+      });
+      return res.status(401).json({
+        ok: false,
+        error: "Legacy session expired",
+        code: "session_expired"
       });
     }
 

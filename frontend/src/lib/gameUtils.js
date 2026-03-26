@@ -351,6 +351,7 @@ export function getSubSpotState(game) {
 }
 
 export function getStatusLabel(game, selection) {
+  const subSpotState = getSubSpotState(game);
   if (selection?.attendance === "IN") {
     return "IN - playing";
   }
@@ -369,6 +370,9 @@ export function getStatusLabel(game, selection) {
     case "out":
       return "OUT - not attending";
     case "sub-requested":
+      if (subSpotState === "filled") {
+        return "Sub requested (currently filled)";
+      }
       return "Sub requested";
     case "selected":
       return "Action Required: Mark IN";
@@ -399,6 +403,9 @@ export function getStatusPillClasses(statusLabel) {
     return "bg-slate-100 text-slate-700 ring-slate-200";
   }
   if (statusLabel.toLowerCase().includes("sub")) {
+    if (statusLabel.toLowerCase().includes("filled")) {
+      return "bg-slate-100 text-slate-700 ring-slate-200";
+    }
     return "bg-sky-100 text-sky-800 ring-sky-200";
   }
   if (statusLabel.startsWith("Action Required")) {
