@@ -115,7 +115,7 @@ export default function App() {
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [demoMode, setDemoMode] = useState(true);
+  const [demoMode, setDemoMode] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
   const [uploadRefreshCountdownSec, setUploadRefreshCountdownSec] = useState(null);
 
