@@ -11,6 +11,7 @@ import {
   getGameNote,
   getSubSpotState
 } from "../lib/gameUtils";
+import LeagueSourceBadge from "./LeagueSourceBadge";
 
 export default function GamesListView({
   games,
@@ -33,7 +34,7 @@ export default function GamesListView({
           const jerseyGuide = isMyGamesTab || isPlaying ? getSubJerseyGuide(game) : null;
           const isGameToday = game?.schedule?.date === formatDateKey(new Date());
           
-          const statusPill = getStatusPillClasses(status);
+          const statusPill = status ? getStatusPillClasses(status) : "";
           const rink = getRink(game);
           const rinkPillClasses = getRinkPillClasses(rink);
 
@@ -77,9 +78,12 @@ export default function GamesListView({
                   <p className="text-sm font-semibold text-slate-800">
                     {getGameHeadline(game)}
                   </p>
-                  <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 whitespace-nowrap ${statusPill}`}>
-                    {status}
-                  </span>
+                  <LeagueSourceBadge game={game} />
+                  {status ? (
+                    <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 whitespace-nowrap ${statusPill}`}>
+                      {status}
+                    </span>
+                  ) : null}
                 </div>
                 
                 {getGameNote(game) ? (

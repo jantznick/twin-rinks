@@ -1,5 +1,4 @@
 import { useState, useMemo, useEffect } from "react";
-import SafetyFooter from "../components/SafetyFooter";
 import PendingChangesBar from "../components/PendingChangesBar";
 import TelegramInstructionsModal from "../components/TelegramInstructionsModal";
 
@@ -726,8 +725,6 @@ export default function ProfilePage({ userEmail, profilePath, demoMode, setDemoM
           <button type="submit" disabled={isSubmitting}>Save</button>
         </div>
       </form>
-
-      <SafetyFooter />
 
       <PendingChangesBar
         isExpanded={pendingExpanded}

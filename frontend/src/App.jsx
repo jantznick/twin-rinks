@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
 import TopNav from "./components/TopNav";
 import LoginModal from "./components/LoginModal";
@@ -8,6 +8,7 @@ import SubsPage from "./pages/SubsPage";
 import SchedulePage from "./pages/SchedulePage";
 import ProfilePage from "./pages/ProfilePage";
 import Toast from "./components/Toast";
+import { normalizeRosemontScheduleGames } from "./lib/gameUtils";
 
 const SAVED_SESSION_KEY = "legacy-phpsessid";
 const SAVED_EMAIL_KEY = "legacy-user-email";
@@ -110,6 +111,7 @@ export default function App() {
   const [loginError, setLoginError] = useState("");
 
   const [gamesResponse, setGamesResponse] = useState(null);
+  const [rosemontSchedule, setRosemontSchedule] = useState(null);
   const [gamesLoading, setGamesLoading] = useState(false);
   const [gamesError, setGamesError] = useState("");
   const [isUploading, setIsUploading] = useState(false);
@@ -121,10 +123,41 @@ export default function App() {
 
   const isLoggedIn = Boolean(phpsessid);
 
+  const fetchRosemontSchedule = useCallback(async () => {
+    try {
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      const response = await fetch(`${API_BASE}/sportsengine/team-schedule`);
+      const data = await response.json();
+      if (data.ok) {
+        setRosemontSchedule(data);
+      } else {
+        setRosemontSchedule(null);
+      }
+    } catch {
+      setRosemontSchedule(null);
+    }
+  }, []);
+
+  const combinedGamesResponse = useMemo(() => {
+    if (!gamesResponse?.ok) {
+      return gamesResponse;
+    }
+    const roseGames = normalizeRosemontScheduleGames(
+      rosemontSchedule?.games,
+      rosemontSchedule?.teamName
+    );
+    const baseGames = Array.isArray(gamesResponse.games) ? gamesResponse.games : [];
+    return {
+      ...gamesResponse,
+      games: [...baseGames, ...roseGames]
+    };
+  }, [gamesResponse, rosemontSchedule]);
+
   const clearSession = (preserveEmail = false) => {
     const savedEmail = preserveEmail ? userEmail || getSavedEmail() : "";
     setPhpsessid("");
     setGamesResponse(null);
+    setRosemontSchedule(null);
     setGamesError("");
     setIsUploading(false);
     setUploadRefreshCountdownSec(null);
@@ -202,6 +235,7 @@ export default function App() {
         );
       } else {
         setGamesResponse(null);
+        setRosemontSchedule(null);
         setGamesError(err.message || "Unable to load games");
         setIsUploading(false);
       }
@@ -217,6 +251,14 @@ export default function App() {
       fetchGames(phpsessid);
     }
   }, [phpsessid, gamesResponse, gamesLoading, gamesError, isUploading]);
+
+  useEffect(() => {
+    if (!phpsessid) {
+      setRosemontSchedule(null);
+      return;
+    }
+    fetchRosemontSchedule();
+  }, [phpsessid, fetchRosemontSchedule]);
 
   useEffect(() => {
     let interval;
@@ -367,12 +409,15 @@ export default function App() {
               isLoggedIn ? (
                 <SubsPage
                   phpsessid={phpsessid}
-                  gamesResponse={gamesResponse}
+                  gamesResponse={combinedGamesResponse}
                   loading={gamesLoading}
                   error={gamesError}
                   isUploading={isUploading}
                   isSubmitting={isSubmitting}
-                  onRefresh={() => fetchGames(phpsessid)}
+                  onRefresh={() => {
+                    fetchGames(phpsessid);
+                    fetchRosemontSchedule();
+                  }}
                   onSubmitGames={submitGames}
                   demoMode={demoMode}
                   setDemoMode={setDemoMode}

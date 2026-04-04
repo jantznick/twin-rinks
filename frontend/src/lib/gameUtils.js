@@ -1,5 +1,137 @@
 import seasonCalendar from "../data/seasonCalendar.json";
 
+export const ROSEMONT_LEAGUE_LABEL = "Rosemont AHL";
+
+function stripRosemontTimezoneSuffix(timeStr) {
+  return String(timeStr || "")
+    .replace(/\s+[A-Z]{2,5}$/i, "")
+    .trim();
+}
+
+function formatRosemontMatchupLine(isAway, opponentName, rosterTeamName) {
+  const opp = String(opponentName || "Opponent").trim() || "Opponent";
+  const us = String(rosterTeamName || "").trim();
+  if (!us) {
+    return isAway ? `@ ${opp}` : `vs ${opp}`;
+  }
+  return isAway ? `${us} @ ${opp}` : `${opp} @ ${us}`;
+}
+
+function parseRosemontDateRawToDate(dateRaw) {
+  const cleaned = String(dateRaw || "").replace(/\s+/g, " ").trim();
+  const m = cleaned.match(/\b([A-Za-z]{3})\s+([A-Za-z]{3})\s+(\d{1,2})\b/);
+  if (!m) {
+    return null;
+  }
+  const mon = m[2];
+  const dayNum = Number(m[3]);
+  const now = new Date();
+  let year = now.getFullYear();
+  let candidate = new Date(`${mon} ${dayNum}, ${year}`);
+  if (Number.isNaN(candidate.getTime())) {
+    return null;
+  }
+  const twoWeeksMs = 14 * 86400000;
+  if (candidate.getTime() < now.getTime() - twoWeeksMs) {
+    year += 1;
+    candidate = new Date(`${mon} ${dayNum}, ${year}`);
+  }
+  return candidate;
+}
+
+function rosemontStatusTimeToLegacyTime(statusTime) {
+  const m = String(statusTime || "")
+    .trim()
+    .match(/^(\d{1,2}):(\d{2})\s*([AP])M/i);
+  if (!m) {
+    return "";
+  }
+  const h = Number(m[1]);
+  const min = m[2];
+  const ap = m[3].toUpperCase();
+  return `${h}:${min}${ap}`;
+}
+
+function formatLegacyScheduleDateFromDate(d) {
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  const yyyy = String(d.getFullYear());
+  return `${mm}/${dd}/${yyyy}`;
+}
+
+/** e.g. "Rosemont Ice Arena - West Rink" → "West" (pill shows "WEST rink"). */
+function rinkShortLabelFromRosemontLocation(location) {
+  const s = String(location || "").trim();
+  if (!s) {
+    return "";
+  }
+  const segments = s.split(/\s*-\s*/).map((p) => p.trim()).filter(Boolean);
+  const tail = segments.length > 1 ? segments[segments.length - 1] : s;
+  return tail.replace(/\s+rink$/i, "").trim() || tail;
+}
+
+/**
+ * Maps SportsEngine / Rosemont schedule API rows into the same game shape the subs UI expects.
+ * @param {Array} apiGames
+ * @param {string} [rosterTeamName] From API `teamName` (page title); used for "Team A @ Team B" lines.
+ */
+export function normalizeRosemontScheduleGames(apiGames, rosterTeamName) {
+  if (!Array.isArray(apiGames)) {
+    return [];
+  }
+  const myTeam = String(rosterTeamName || "").trim();
+  return apiGames.map((row) => {
+    const parsedDate = parseRosemontDateRawToDate(row.dateRaw);
+    const legacyTime = rosemontStatusTimeToLegacyTime(row.statusTime);
+    const dateStr = parsedDate ? formatLegacyScheduleDateFromDate(parsedDate) : "";
+    const dayAbbrev = parsedDate
+      ? parsedDate.toLocaleDateString(undefined, { weekday: "short" })
+      : "";
+    const headline = formatRosemontMatchupLine(
+      Boolean(row.isAway),
+      row.opponentName,
+      myTeam
+    );
+    const timeForDisplay = stripRosemontTimezoneSuffix(row.statusTime);
+    const rinkShort = rinkShortLabelFromRosemontLocation(row.location);
+    const dateTimeRink = [row.dateRaw, timeForDisplay, row.location]
+      .filter(Boolean)
+      .join(" · ");
+
+    return {
+      gameId: `rose-${row.gameId}`,
+      source: "rosemont",
+      rosterTeamName: myTeam,
+      leagueLabel: ROSEMONT_LEAGUE_LABEL,
+      dateRaw: row.dateRaw,
+      statusTime: row.statusTime,
+      statusTimeDisplay: timeForDisplay,
+      resultRaw: row.resultRaw,
+      isAway: Boolean(row.isAway),
+      opponentName: row.opponentName,
+      opponentUrl: row.opponentUrl,
+      location: row.location,
+      gameUrl: row.gameUrl,
+      dateTimeRink,
+      schedule: {
+        raw: dateTimeRink,
+        date: dateStr,
+        day: dayAbbrev,
+        time: legacyTime,
+        rink: rinkShort
+      },
+      details: {
+        kind: "text",
+        summary: headline
+      },
+      infoText: "",
+      options: [],
+      selected: "",
+      stage: "external-league"
+    };
+  });
+}
+
 export function normalizeGames(gamesResponse) {
   if (!gamesResponse || !gamesResponse.games) {
     return [];
@@ -77,7 +209,50 @@ export function hasDraftChanges(games, initialDraft, draftSelections, hiddenGame
   return false;
 }
 
+function formatScheduleDisplayFromDate(d) {
+  if (!d || Number.isNaN(d.getTime())) {
+    return "";
+  }
+  const dayName = d.toLocaleDateString(undefined, { weekday: "short" });
+  const mon = d.toLocaleDateString(undefined, { month: "short" });
+  const dom = d.getDate();
+  let hours = d.getHours();
+  const minutes = d.getMinutes();
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12;
+  hours = hours === 0 ? 12 : hours;
+  const mm = String(minutes).padStart(2, "0");
+  return `${dayName} ${mon} ${dom} · ${hours}:${mm} ${ampm}`;
+}
+
+function formatTimeOnlyFromDate(d) {
+  if (!d || Number.isNaN(d.getTime())) {
+    return "";
+  }
+  let hours = d.getHours();
+  const minutes = d.getMinutes();
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12;
+  hours = hours === 0 ? 12 : hours;
+  const mm = String(minutes).padStart(2, "0");
+  return `${hours}:${mm} ${ampm}`;
+}
+
 export function getScheduleText(game) {
+  const parsed = parseGameDate(game);
+  if (parsed) {
+    const line = formatScheduleDisplayFromDate(parsed);
+    if (line) {
+      return line;
+    }
+  }
+  if (game?.source === "rosemont" && (game.dateRaw || game.statusTime)) {
+    const timeLine =
+      game.statusTimeDisplay ||
+      stripRosemontTimezoneSuffix(game.statusTime);
+    const parts = [game.dateRaw, timeLine].filter(Boolean);
+    return parts.length ? parts.join(" · ") : "Schedule unavailable";
+  }
   const schedule = game?.schedule || {};
   if (schedule.date && schedule.day && schedule.time) {
     return `${schedule.date} ${schedule.day} ${schedule.time}`;
@@ -86,6 +261,10 @@ export function getScheduleText(game) {
 }
 
 export function getTimeText(game) {
+  const parsed = parseGameDate(game);
+  if (parsed) {
+    return formatTimeOnlyFromDate(parsed);
+  }
   return game?.schedule?.time || "";
 }
 
@@ -94,6 +273,13 @@ export function getRink(game) {
 }
 
 export function getGameHeadline(game) {
+  if (game?.source === "rosemont") {
+    return formatRosemontMatchupLine(
+      Boolean(game.isAway),
+      game.opponentName,
+      game.rosterTeamName
+    );
+  }
   if (game?.details?.kind === "matchup") {
     return `${game.details.league}: ${game.details.teamA} vs ${game.details.teamB}`;
   }
@@ -110,6 +296,9 @@ export function getGameHeadline(game) {
 }
 
 export function getLeagueLabel(game) {
+  if (game?.source === "rosemont") {
+    return game.leagueLabel || ROSEMONT_LEAGUE_LABEL;
+  }
   if (game?.details?.kind === "matchup" && game?.details?.league) {
     return game.details.league;
   }
@@ -120,6 +309,9 @@ export function getLeagueLabel(game) {
 }
 
 export function getGameNote(game) {
+  if (game?.source === "rosemont") {
+    return "";
+  }
   let note = "";
   if (game?.details?.kind === "matchup" && game?.details?.note) {
     note = game.details.note;
@@ -351,6 +543,9 @@ export function getSubSpotState(game) {
 }
 
 export function getStatusLabel(game, selection) {
+  if (game?.source === "rosemont") {
+    return null;
+  }
   const subSpotState = getSubSpotState(game);
   if (selection?.attendance === "IN") {
     return "IN - playing";
@@ -390,6 +585,9 @@ export function getStatusLabel(game, selection) {
 }
 
 export function getStatusPillClasses(statusLabel) {
+  if (statusLabel == null || statusLabel === "") {
+    return "bg-slate-100 text-slate-700 ring-slate-200";
+  }
   if (statusLabel === "GAME TODAY: SUB NEEDED") {
     return "bg-rose-100 text-rose-800 ring-rose-200";
   }
@@ -466,11 +664,18 @@ export function groupGamesByDate(games) {
       }
       return aTs - bTs;
     })
-    .map(([key, groupedGames]) => ({
-      key,
-      label: formatDateLabel(groupedGames[0]),
-      games: groupedGames
-    }));
+    .map(([key, groupedGames]) => {
+      const sorted = [...groupedGames].sort((a, b) => {
+        const aTs = getGameTimestamp(a) || 0;
+        const bTs = getGameTimestamp(b) || 0;
+        return aTs - bTs;
+      });
+      return {
+        key,
+        label: formatDateLabel(sorted[0]),
+        games: sorted
+      };
+    });
 }
 
 export function buildUpcomingWeekBuckets(games, totalDays = 14) {
@@ -559,10 +764,21 @@ export function buildPlannerBuckets(games, maxDays = 14) {
 }
 
 function getGameDateKey(game) {
+  const parsed = parseGameDate(game);
+  if (parsed) {
+    return formatDateKey(parsed);
+  }
   return game?.schedule?.date || "unknown-date";
 }
 
 function formatDateLabel(game) {
+  const d = parseGameDate(game);
+  if (d && !Number.isNaN(d.getTime())) {
+    const dayName = d.toLocaleDateString(undefined, { weekday: "short" });
+    const mon = d.toLocaleDateString(undefined, { month: "short" });
+    const dom = d.getDate();
+    return `${dayName} ${mon} ${dom}`;
+  }
   const date = game?.schedule?.date;
   const day = game?.schedule?.day;
   if (date && day) {
@@ -675,16 +891,9 @@ function formatPlannerLabel(date) {
   return `${dayName} ${month}/${day}`;
 }
 
-function parseGameDate(game) {
-  const schedule = game?.schedule || {};
-  const datePart = schedule.date;
-  const timePart = schedule.time;
-  if (!datePart || !timePart) {
-    return null;
-  }
-
+function parseDateAndTimeParts(datePart, timePart) {
   const dateMatch = String(datePart).match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  const timeMatch = String(timePart).match(/^(\d{1,2}):(\d{2})([AP])$/i);
+  const timeMatch = String(timePart).match(/^(\d{1,2}):(\d{2})\s*([AP])M?$/i);
   if (!dateMatch || !timeMatch) {
     return null;
   }
@@ -709,6 +918,47 @@ function parseGameDate(game) {
   return parsed;
 }
 
+function parseSubsDateTimeRinkRaw(raw) {
+  const s = String(raw || "").replace(/\s+/g, " ").trim();
+  const m = s.match(
+    /^(\d{1,2}\/\d{1,2}\/\d{4})\s+[A-Za-z]{3}\s+(\d{1,2}:\d{2})\s*([AP])M?\b/i
+  );
+  if (!m) {
+    return null;
+  }
+  return { date: m[1], time: `${m[2]}${m[3]}` };
+}
+
+function parseGameDate(game) {
+  const schedule = game?.schedule || {};
+  let datePart = schedule.date;
+  let timePart = schedule.time;
+
+  let parsed = parseDateAndTimeParts(datePart, timePart);
+  if (parsed) {
+    return parsed;
+  }
+
+  if (game?.source !== "rosemont" && game?.dateTimeRink) {
+    const extracted = parseSubsDateTimeRinkRaw(game.dateTimeRink);
+    if (extracted) {
+      parsed = parseDateAndTimeParts(extracted.date, extracted.time);
+      if (parsed) {
+        return parsed;
+      }
+    }
+  }
+
+  if (!datePart || !timePart) {
+    if (game?.source === "rosemont") {
+      return parseRosemontDateRawToDate(game.dateRaw);
+    }
+    return null;
+  }
+
+  return null;
+}
+
 export function getRinkPillClasses(rink) {
   if (!rink) return "bg-slate-100 text-slate-700";
   const r = rink.toLowerCase();
@@ -717,6 +967,8 @@ export function getRinkPillClasses(rink) {
   if (r.includes("green")) return "bg-emerald-100 text-emerald-800";
   if (r.includes("south")) return "bg-amber-100 text-amber-800";
   if (r.includes("north")) return "bg-sky-100 text-sky-800";
+  if (r.includes("west")) return "bg-sky-100 text-sky-800";
+  if (r.includes("east")) return "bg-indigo-100 text-indigo-900";
   return "bg-slate-100 text-slate-700";
 }
 

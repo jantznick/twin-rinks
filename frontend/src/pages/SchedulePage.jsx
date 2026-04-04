@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import seasonCalendar from "../data/seasonCalendar.json";
-import SafetyFooter from "../components/SafetyFooter";
 
 const RAW_GAMES = Array.isArray(seasonCalendar)
   ? seasonCalendar
@@ -260,7 +259,6 @@ export default function SchedulePage() {
         onClose={() => setDayModalOpen(false)}
       />
 
-      <SafetyFooter />
     </div>
   );
 }

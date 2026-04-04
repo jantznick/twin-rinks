@@ -173,9 +173,11 @@ function GameDetailsModal({
               If you will miss this game, email <a href="mailto:subs@twinrinks.com" className="font-medium text-indigo-600 hover:underline">subs@twinrinks.com</a>.
             </p>
           ) : null}
-          <p className="text-xs text-slate-600">
-            Current status: <span className="font-semibold">{status}</span>
-          </p>
+          {status ? (
+            <p className="text-xs text-slate-600">
+              Current status: <span className="font-semibold">{status}</span>
+            </p>
+          ) : null}
 
           <div className="mt-3 flex flex-wrap items-center gap-2">
             {options.has("SUB") ? (

@@ -4,7 +4,6 @@ import GamesGrid from "../components/GamesGrid";
 import GamesListView from "../components/GamesListView";
 import JerseyGuideModal from "../components/JerseyGuideModal";
 import PendingChangesBar from "../components/PendingChangesBar";
-import SafetyFooter from "../components/SafetyFooter";
 import {
   buildDraftSelections,
   getJerseyChart,
@@ -149,13 +148,29 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
   }, [rawGames, gamesResponse?.profile]);
 
   const games = useMemo(() => {
-    if (!Object.keys(pendingUpdates).length) return rawGames;
-    return rawGames.map((game) => {
-      const pending = pendingUpdates[game.gameId];
-      if (pending) {
-        return applyPendingUpdate(game, pending.selection);
+    const withPending =
+      !Object.keys(pendingUpdates).length
+        ? rawGames
+        : rawGames.map((game) => {
+            const pending = pendingUpdates[game.gameId];
+            if (pending) {
+              return applyPendingUpdate(game, pending.selection);
+            }
+            return game;
+          });
+    return [...withPending].sort((a, b) => {
+      const ta = getGameStartDate(a)?.getTime();
+      const tb = getGameStartDate(b)?.getTime();
+      if (ta == null && tb == null) {
+        return 0;
       }
-      return game;
+      if (ta == null) {
+        return 1;
+      }
+      if (tb == null) {
+        return -1;
+      }
+      return ta - tb;
     });
   }, [rawGames, pendingUpdates]);
 
@@ -198,7 +213,10 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
   const subsGames = useMemo(
     () =>
       games.filter(
-        (game) => !outGameIds.has(game.gameId) && (!hideMyGames || !submittedGameIds.has(game.gameId))
+        (game) =>
+          game.source !== "rosemont" &&
+          !outGameIds.has(game.gameId) &&
+          (!hideMyGames || !submittedGameIds.has(game.gameId))
       ),
     [games, outGameIds, hideMyGames, submittedGameIds]
   );
@@ -206,7 +224,9 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
   const myGames = useMemo(
     () =>
       games.filter(
-        (game) => submittedGameIds.has(game.gameId) && !outGameIds.has(game.gameId)
+        (game) =>
+          !outGameIds.has(game.gameId) &&
+          (submittedGameIds.has(game.gameId) || game.source === "rosemont")
       ),
     [games, submittedGameIds, outGameIds]
   );
@@ -358,14 +378,16 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
       return;
     }
 
-    const updates = games.map((game) => {
-      const draft = normalizeSelection(draftSelections[game.gameId]);
-      return {
-        gameId: game.gameId,
-        dateTimeRink: game.dateTimeRink || game.schedule?.raw || "",
-        selection: draft.sub ? "SUB" : draft.attendance
-      };
-    });
+    const updates = games
+      .filter((game) => game.source !== "rosemont")
+      .map((game) => {
+        const draft = normalizeSelection(draftSelections[game.gameId]);
+        return {
+          gameId: game.gameId,
+          dateTimeRink: game.dateTimeRink || game.schedule?.raw || "",
+          selection: draft.sub ? "SUB" : draft.attendance
+        };
+      });
 
     if (demoMode) {
       console.group("🚀 [DEMO MODE] Simulated Submission Payload");
@@ -749,8 +771,6 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
         ) : null}
 
       </section>
-
-      <SafetyFooter />
 
       <PendingChangesBar
         isExpanded={pendingExpanded}

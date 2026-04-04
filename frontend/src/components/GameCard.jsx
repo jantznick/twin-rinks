@@ -10,8 +10,10 @@ import {
   getStatusPillClasses,
   getSubSpotState,
   getSubJerseyGuide,
-  formatDateKey
+  formatDateKey,
+  getRinkPillClasses
 } from "../lib/gameUtils";
+import LeagueSourceBadge from "./LeagueSourceBadge";
 
 export default function GameCard({
   game,
@@ -65,18 +67,21 @@ export default function GameCard({
             {countdown ? <span className="text-slate-500">{countdown}</span> : null}
           </div>
         </div>
-        <div className="shrink-0 max-w-[45%] text-right flex items-start justify-end">
-          <span
-            className={`inline-block rounded-full px-2 py-0.5 text-[11px] leading-tight font-medium ring-1 text-center ${statusPill}`}
-          >
-            {statusLabel}
-          </span>
-        </div>
+        {statusLabel ? (
+          <div className="shrink-0 max-w-[45%] flex items-start justify-end text-right">
+            <span
+              className={`inline-block rounded-full px-2 py-0.5 text-[11px] leading-tight font-medium ring-1 text-center ${statusPill}`}
+            >
+              {statusLabel}
+            </span>
+          </div>
+        ) : null}
       </div>
 
-      <p className={`mt-2 font-medium text-slate-800 ${denseMode ? "text-[13px]" : "text-sm"}`}>
-        {getGameHeadline(game)}
-      </p>
+      <div className={`mt-2 flex flex-wrap items-center gap-2 ${denseMode ? "text-[13px]" : "text-sm"}`}>
+        <p className="font-medium text-slate-800">{getGameHeadline(game)}</p>
+        <LeagueSourceBadge game={game} />
+      </div>
 
       {subSpotState === "needed" ? (
         <p className="mt-1 inline-block rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-800">
@@ -86,6 +91,19 @@ export default function GameCard({
       {subSpotState === "filled" ? (
         <p className="mt-1 inline-block rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">
           Sub spot filled
+        </p>
+      ) : null}
+      {game?.source === "rosemont" && game.gameUrl ? (
+        <p className="mt-1 text-xs">
+          <a
+            href={game.gameUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-violet-700 hover:text-violet-900 hover:underline"
+            onClick={(e) => e.stopPropagation()}
+          >
+            Open on league site
+          </a>
         </p>
       ) : null}
       {subSpotState === null && getGameNote(game) ? (
@@ -166,14 +184,4 @@ export default function GameCard({
       </div>
     </article>
   );
-}
-
-function getRinkPillClasses(rink) {
-  if (rink === "RED") {
-    return "bg-rose-100 text-rose-800";
-  }
-  if (rink === "BLUE") {
-    return "bg-sky-100 text-sky-800";
-  }
-  return "bg-slate-100 text-slate-600";
 }
