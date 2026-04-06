@@ -20,7 +20,7 @@ export default function GamesPlannerBoard({
   denseMode,
   onToggleSub,
   onToggleAttendance,
-  isMyGamesTab
+  isMyGame
 }) {
   const [collapsedDays, setCollapsedDays] = useState({});
 
@@ -85,7 +85,7 @@ export default function GamesPlannerBoard({
                   pending={pendingGameIds?.has(game.gameId)}
                   denseMode={denseMode}
                   timeOnly
-                  isMyGamesTab={isMyGamesTab}
+                  isMyGame={isMyGame?.(game)}
                   onToggleSub={() => onToggleSub(game.gameId)}
                   onToggleAttendance={(value) => onToggleAttendance(game.gameId, value)}
                 />

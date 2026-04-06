@@ -24,7 +24,7 @@ export default function JerseyGuideModal({ open, onClose, chart }) {
       >
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900">Subs Jersey Guide</h2>
+            <h2 className="text-lg font-semibold text-slate-900">Twin Rinks Subs Jersey Guide</h2>
             <p className="text-xs text-slate-600">
               Subs: if you don't have a jersey the color of your team, higher team color in chart wears white, lower wears black.
             </p>

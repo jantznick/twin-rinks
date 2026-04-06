@@ -19,7 +19,7 @@ export default function GamesListView({
   pendingGameIds,
   onToggleSub,
   onToggleAttendance,
-  isMyGamesTab
+  isMyGame
 }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -31,7 +31,8 @@ export default function GamesListView({
           const isPlaying = game?.stage === "selected" || game?.stage === "confirmed-in" || game?.stage === "sub-requested" || selection?.attendance === "IN";
           const subSpotState = getSubSpotState(game);
           const isSubRequestedFilled = game?.stage === "sub-requested" && subSpotState === "filled";
-          const jerseyGuide = isMyGamesTab || isPlaying ? getSubJerseyGuide(game) : null;
+          const myRow = isMyGame?.(game);
+          const jerseyGuide = myRow || isPlaying ? getSubJerseyGuide(game) : null;
           const isGameToday = game?.schedule?.date === formatDateKey(new Date());
           
           const statusPill = status ? getStatusPillClasses(status) : "";
@@ -44,13 +45,17 @@ export default function GamesListView({
           if (pendingGameIds?.has(game.gameId)) {
             borderClass = "border-l-4 border-l-amber-400 border-b border-b-amber-200 last:border-b-0";
             bgClass = "bg-amber-50/50";
-          } else if (isSubRequestedFilled && !isMyGamesTab) {
+          } else if (myRow) {
+            borderClass =
+              "border-l-4 border-l-blue-600 border-b border-b-slate-200 last:border-b-0";
+            bgClass = "bg-blue-50/40 hover:bg-blue-50/55";
+          } else if (isSubRequestedFilled) {
             borderClass = "border-l-4 border-l-sky-500 border-b border-b-sky-200 last:border-b-0";
             bgClass = "bg-sky-50/40";
-          } else if (isPlaying && !isMyGamesTab) {
+          } else if (isPlaying) {
             borderClass = "border-l-4 border-l-emerald-500 border-b border-b-emerald-200 last:border-b-0";
             bgClass = "bg-emerald-50/30";
-          } else if (isGameToday && !isMyGamesTab) {
+          } else if (isGameToday) {
             borderClass = "border-l-4 border-l-rose-500 border-b border-b-rose-200 last:border-b-0";
             bgClass = "bg-rose-50/30";
           }
@@ -97,7 +102,10 @@ export default function GamesListView({
                 ) : null}
 
                 <div className="mt-3 flex flex-wrap items-center gap-2">
-                  {options.has("SUB") && game?.stage !== "selected" && game?.stage !== "confirmed-in" && game?.stage !== "sub-requested" ? (
+                  {options.has("SUB") &&
+                  game?.stage !== "selected" &&
+                  game?.stage !== "confirmed-in" &&
+                  game?.stage !== "sub-requested" ? (
                     <button
                       type="button"
                       onClick={() => onToggleSub(game.gameId)}
@@ -114,7 +122,7 @@ export default function GamesListView({
                         : "I can sub"}
                     </button>
                   ) : null}
-                  
+
                   {options.has("IN") ? (
                     <button
                       type="button"
@@ -128,7 +136,7 @@ export default function GamesListView({
                       IN
                     </button>
                   ) : null}
-                  
+
                   {selection?.attendance === "OUT" ? (
                     <button
                       type="button"
@@ -140,10 +148,19 @@ export default function GamesListView({
                   ) : options.has("OUT") ? (
                     <button
                       type="button"
-                      onClick={() => onToggleAttendance(game.gameId, game?.stage === "sub-requested" || selection?.sub ? "" : "OUT")}
+                      onClick={() =>
+                        onToggleAttendance(
+                          game.gameId,
+                          game?.stage === "sub-requested" || selection?.sub
+                            ? ""
+                            : "OUT"
+                        )
+                      }
                       className="rounded-lg px-3 py-1.5 text-xs font-medium transition border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
                     >
-                      {game?.stage === "sub-requested" || selection?.sub ? "Cancel Sub" : "OUT"}
+                      {game?.stage === "sub-requested" || selection?.sub
+                        ? "Cancel Sub"
+                        : "OUT"}
                     </button>
                   ) : null}
                 </div>

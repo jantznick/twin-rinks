@@ -12,7 +12,7 @@ export default function GamesWeekBoard({
   draftSelections,
   pendingGameIds,
   denseMode,
-  isMyGamesTab,
+  isMyGame,
   onToggleSub,
   onToggleAttendance,
   onSelectGame
@@ -49,7 +49,7 @@ export default function GamesWeekBoard({
         </p>
         <div className="grid min-w-[980px] grid-cols-7 gap-3">
           {firstWeek.map((bucket) => (
-            <WeekDayColumn key={bucket.key} bucket={bucket} draftSelections={draftSelections} isMyGamesTab={isMyGamesTab} onSelectGame={onSelectGame} />
+            <WeekDayColumn key={bucket.key} bucket={bucket} draftSelections={draftSelections} isMyGame={isMyGame} onSelectGame={onSelectGame} />
           ))}
         </div>
       </div>
@@ -59,7 +59,7 @@ export default function GamesWeekBoard({
         </p>
         <div className="grid min-w-[980px] grid-cols-7 gap-3">
           {secondWeek.map((bucket) => (
-            <WeekDayColumn key={bucket.key} bucket={bucket} draftSelections={draftSelections} isMyGamesTab={isMyGamesTab} onSelectGame={onSelectGame} />
+            <WeekDayColumn key={bucket.key} bucket={bucket} draftSelections={draftSelections} isMyGame={isMyGame} onSelectGame={onSelectGame} />
           ))}
         </div>
       </div>
@@ -77,7 +77,7 @@ export default function GamesWeekBoard({
                 selection={draftSelections[game.gameId] || {}}
                 pending={pendingGameIds?.has(game.gameId)}
                 denseMode={denseMode}
-                isMyGamesTab={isMyGamesTab}
+                isMyGame={isMyGame?.(game)}
                 onToggleSub={() => onToggleSub(game.gameId)}
                 onToggleAttendance={(value) => onToggleAttendance(game.gameId, value)}
               />
@@ -89,7 +89,7 @@ export default function GamesWeekBoard({
   );
 }
 
-function WeekDayColumn({ bucket, draftSelections, isMyGamesTab, onSelectGame }) {
+function WeekDayColumn({ bucket, draftSelections, isMyGame, onSelectGame }) {
   const isToday = isDateToday(bucket.date);
 
   return (
@@ -125,23 +125,26 @@ function WeekDayColumn({ bucket, draftSelections, isMyGamesTab, onSelectGame }) 
             let borderClass = "border-slate-200";
             let bgClass = "bg-slate-50";
             
-            if (isSubRequestedFilled && !isMyGamesTab) {
+            const myRow = isMyGame?.(game);
+            if (isSubRequestedFilled && !myRow) {
               borderClass = "border-sky-500";
               bgClass = "bg-sky-50/50";
-            } else if (isPlaying && !isMyGamesTab) {
+            } else if (isPlaying && !myRow) {
               borderClass = "border-emerald-500";
               bgClass = "bg-emerald-50/50";
-            } else if (isGameToday && !isMyGamesTab) {
+            } else if (isGameToday && !myRow) {
               borderClass = "border-rose-500";
               bgClass = "bg-rose-50/50";
             }
+
+            const myGameRing = myRow ? "ring-1 ring-blue-600 ring-offset-0" : "";
 
             return (
               <button
                 key={game.gameId || `${bucket.key}-${index}`}
                 type="button"
                 onClick={() => onSelectGame(game)}
-                className={`w-full rounded-lg border px-2 py-1.5 text-left hover:bg-slate-100 ${borderClass} ${bgClass}`}
+                className={`w-full rounded-lg border px-2 py-1.5 text-left hover:bg-slate-100 ${borderClass} ${bgClass} ${myGameRing}`}
               >
                 <p className="text-[11px] font-medium text-slate-700">
                   {getTimeText(game) || "Time TBA"}

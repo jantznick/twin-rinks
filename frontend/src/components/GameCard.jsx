@@ -23,7 +23,7 @@ export default function GameCard({
   timeOnly,
   onToggleSub,
   onToggleAttendance,
-  isMyGamesTab
+  isMyGame = false
 }) {
   const statusLabel = getStatusLabel(game, selection);
   const statusPill = getStatusPillClasses(statusLabel);
@@ -36,22 +36,25 @@ export default function GameCard({
     timeOnly && getTimeText(game) ? getTimeText(game) : getScheduleText(game);
   const isPlaying = game?.stage === "selected" || game?.stage === "confirmed-in" || game?.stage === "sub-requested" || selection?.attendance === "IN";
   const isSubRequestedFilled = game?.stage === "sub-requested" && subSpotState === "filled";
-  const jerseyGuide = isMyGamesTab || isPlaying ? getSubJerseyGuide(game) : null;
+  const jerseyGuide = isMyGame || isPlaying ? getSubJerseyGuide(game) : null;
   const isGameToday = game?.schedule?.date === formatDateKey(new Date());
+
+  const myGameRing =
+    isMyGame && !pending ? "ring-1 ring-blue-600 ring-offset-0" : "";
 
   return (
     <article
       className={`rounded-xl ${
         pending
           ? "border border-amber-300 bg-amber-50/70 ring-1 ring-amber-200 shadow-lg shadow-amber-200/50"
-          : isSubRequestedFilled && !isMyGamesTab
+          : isSubRequestedFilled && !isMyGame
           ? "border-2 border-sky-500 bg-sky-50/40 shadow-lg shadow-sky-200/40"
-          : isPlaying && !isMyGamesTab
+          : isPlaying && !isMyGame
           ? "border-2 border-emerald-600 bg-emerald-50/30 shadow-lg shadow-emerald-200/40"
-          : isGameToday && !isMyGamesTab
+          : isGameToday && !isMyGame
           ? "border-2 border-rose-600 bg-rose-50/30 shadow-lg shadow-rose-200/40"
           : "border border-slate-200 bg-white shadow-lg shadow-slate-300/55"
-      } ${denseMode ? "p-2.5" : "p-3"}`}
+      } ${myGameRing} ${denseMode ? "p-2.5" : "p-3"}`}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
@@ -123,7 +126,9 @@ export default function GameCard({
       ) : null}
 
       <div className={`mt-3 flex flex-wrap items-center gap-1.5 ${denseMode ? "text-[11px]" : ""}`}>
-        {optionValues.has("SUB") && game?.stage !== "selected" && game?.stage !== "confirmed-in" ? (
+        {optionValues.has("SUB") &&
+        game?.stage !== "selected" &&
+        game?.stage !== "confirmed-in" ? (
           <button
             type="button"
             onClick={onToggleSub}
@@ -172,7 +177,11 @@ export default function GameCard({
         ) : optionValues.has("OUT") ? (
           <button
             type="button"
-            onClick={() => onToggleAttendance(game?.stage === "sub-requested" || selection?.sub ? "" : "OUT")}
+            onClick={() =>
+              onToggleAttendance(
+                game?.stage === "sub-requested" || selection?.sub ? "" : "OUT"
+              )
+            }
             className={`rounded-lg font-medium transition ${
               denseMode ? "px-2 py-1 text-[11px]" : "px-2.5 py-1 text-xs"
             } border border-slate-300 bg-white text-slate-700 hover:bg-slate-50`}
@@ -180,7 +189,6 @@ export default function GameCard({
             {game?.stage === "sub-requested" || selection?.sub ? "Cancel Sub" : "OUT"}
           </button>
         ) : null}
-
       </div>
     </article>
   );

@@ -39,13 +39,6 @@ function getSavedViewMode() {
   }
 }
 
-function isMyGameSelection(selection) {
-  if (!selection) {
-    return false;
-  }
-  return Boolean(selection.sub) || selection.attendance === "IN";
-}
-
 function normalizeSelection(selection) {
   const attendance =
     selection?.attendance === "IN" || selection?.attendance === "OUT"
@@ -103,11 +96,12 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
   const [denseMode, setDenseMode] = useState(getSavedDenseMode);
   const [viewMode, setViewMode] = useState(getSavedViewMode);
   const [calendarLayoutMode, setCalendarLayoutMode] = useState("planner");
-  const [activeTab, setActiveTab] = useState("subs");
+  const [activeTab, setActiveTab] = useState("games");
   const [submittedSelections, setSubmittedSelections] = useState({});
   const [pendingExpanded, setPendingExpanded] = useState(false);
   const [jerseyGuideOpen, setJerseyGuideOpen] = useState(false);
-  const [hideMyGames, setHideMyGames] = useState(false);
+  const [showMyGames, setShowMyGames] = useState(true);
+  const [showSubOptions, setShowSubOptions] = useState(true);
   const [pendingUpdates, setPendingUpdates] = useState({});
   const [submitError, setSubmitError] = useState(null);
 
@@ -210,15 +204,20 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
     return ids;
   }, [games, submittedSelections]);
 
-  const subsGames = useMemo(
+  const combinedMainGames = useMemo(
     () =>
-      games.filter(
-        (game) =>
-          game.source !== "rosemont" &&
-          !outGameIds.has(game.gameId) &&
-          (!hideMyGames || !submittedGameIds.has(game.gameId))
-      ),
-    [games, outGameIds, hideMyGames, submittedGameIds]
+      games.filter((game) => {
+        if (outGameIds.has(game.gameId)) {
+          return false;
+        }
+        const myGameRow =
+          submittedGameIds.has(game.gameId) || game.source === "rosemont";
+        const subOptionsRow = game.source !== "rosemont";
+        return (
+          (myGameRow && showMyGames) || (subOptionsRow && showSubOptions)
+        );
+      }),
+    [games, outGameIds, showMyGames, showSubOptions, submittedGameIds]
   );
 
   const myGames = useMemo(
@@ -257,12 +256,17 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
 
   const activeTabGames = useMemo(
     () =>
-      activeTab === "my-games"
-        ? myGames
-        : activeTab === "hidden"
-        ? hiddenTabGames
-        : subsGames,
-    [activeTab, myGames, hiddenTabGames, subsGames]
+      activeTab === "hidden" ? hiddenTabGames : combinedMainGames,
+    [activeTab, hiddenTabGames, combinedMainGames]
+  );
+
+  const isMyGameFn = useMemo(
+    () => (game) =>
+      Boolean(
+        game &&
+          (submittedGameIds.has(game.gameId) || game.source === "rosemont")
+      ),
+    [submittedGameIds]
   );
 
   const visibleGames = useMemo(() => {
@@ -505,25 +509,14 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
           <div className="flex w-full items-center gap-1 overflow-x-auto rounded-xl border border-slate-200 bg-white p-1 shadow-sm sm:w-auto sm:inline-flex sm:overflow-visible">
             <button
               type="button"
-              onClick={() => setActiveTab("subs")}
+              onClick={() => setActiveTab("games")}
               className={`flex-1 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition sm:flex-none ${
-                activeTab === "subs"
+                activeTab === "games"
                   ? "bg-indigo-600 text-white"
                   : "text-slate-700 hover:bg-slate-50"
               }`}
             >
-              Subs ({subsGames.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("my-games")}
-              className={`flex-1 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition sm:flex-none ${
-                activeTab === "my-games"
-                  ? "bg-indigo-600 text-white"
-                  : "text-slate-700 hover:bg-slate-50"
-              }`}
-            >
-              My Games ({myGames.length})
+              Games ({combinedMainGames.length})
             </button>
             <button
               type="button"
@@ -560,7 +553,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
               onClick={() => setJerseyGuideOpen(true)}
               className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-indigo-700 shadow-sm transition hover:bg-slate-50 hover:text-indigo-900 sm:flex-none"
             >
-              Subs Jersey guide
+              Twin Rinks Subs Jersey guide
             </button>
           </div>
         </div>
@@ -713,17 +706,28 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
                   Small
                 </button>
               </div>
-              {activeTab === "subs" && (
-                <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-700">
-                  <input
-                    type="checkbox"
-                    checked={hideMyGames}
-                    onChange={(e) => setHideMyGames(e.target.checked)}
-                    className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600"
-                  />
-                  Hide my games
-                </label>
-              )}
+              {activeTab === "games" ? (
+                <>
+                  <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={showMyGames}
+                      onChange={(e) => setShowMyGames(e.target.checked)}
+                      className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600"
+                    />
+                    Show my games
+                  </label>
+                  <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={showSubOptions}
+                      onChange={(e) => setShowSubOptions(e.target.checked)}
+                      className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600"
+                    />
+                    Show sub options
+                  </label>
+                </>
+              ) : null}
             </div>
           </div>
         </div>
@@ -737,7 +741,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
             layoutMode={calendarLayoutMode}
             onToggleSub={handleToggleSub}
             onToggleAttendance={handleToggleAttendance}
-            isMyGamesTab={activeTab === "my-games"}
+            isMyGame={isMyGameFn}
           />
         ) : viewMode === "list" ? (
           <GamesListView
@@ -746,7 +750,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
             pendingGameIds={pendingGameIds}
             onToggleSub={handleToggleSub}
             onToggleAttendance={handleToggleAttendance}
-            isMyGamesTab={activeTab === "my-games"}
+            isMyGame={isMyGameFn}
           />
         ) : (
           <GamesGrid
@@ -756,7 +760,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
             denseMode={denseMode}
             onToggleSub={handleToggleSub}
             onToggleAttendance={handleToggleAttendance}
-            isMyGamesTab={activeTab === "my-games"}
+            isMyGame={isMyGameFn}
           />
         )}
 
@@ -765,7 +769,9 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
             <p className="text-sm font-medium text-slate-900">
               {activeTab === "hidden"
                 ? "No hidden games right now."
-                : "No games in this tab right now."}
+                : games.some((g) => !outGameIds.has(g.gameId))
+                ? "No games match your filters. Try enabling Show my games and/or Show sub options."
+                : "No upcoming games right now."}
             </p>
           </div>
         ) : null}

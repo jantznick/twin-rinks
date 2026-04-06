@@ -22,7 +22,7 @@ export default function GamesCalendarView({
   layoutMode,
   onToggleSub,
   onToggleAttendance,
-  isMyGamesTab
+  isMyGame
 }) {
   const groups = groupGamesByDate(games);
   const plannerBuckets = useMemo(() => buildPlannerBuckets(games, 14), [games]);
@@ -46,7 +46,7 @@ export default function GamesCalendarView({
           denseMode={denseMode}
           onToggleSub={onToggleSub}
           onToggleAttendance={onToggleAttendance}
-          isMyGamesTab={isMyGamesTab}
+          isMyGame={isMyGame}
         />
       ) : layoutMode === "week" ? (
         <GamesWeekBoard
@@ -54,7 +54,7 @@ export default function GamesCalendarView({
           draftSelections={draftSelections}
           pendingGameIds={pendingGameIds}
           denseMode={denseMode}
-          isMyGamesTab={isMyGamesTab}
+          isMyGame={isMyGame}
           onToggleSub={onToggleSub}
           onToggleAttendance={onToggleAttendance}
           onSelectGame={setSelectedGame}
@@ -98,7 +98,7 @@ export default function GamesCalendarView({
                     pending={pendingGameIds?.has(game.gameId)}
                     denseMode={denseMode}
                     timeOnly
-                    isMyGamesTab={isMyGamesTab}
+                    isMyGame={isMyGame?.(game)}
                     onToggleSub={() => onToggleSub(game.gameId)}
                     onToggleAttendance={(value) => onToggleAttendance(game.gameId, value)}
                   />
@@ -190,7 +190,9 @@ function GameDetailsModal({
                     : "border border-slate-300 bg-white text-slate-700"
                 }`}
               >
-                {game?.stage === "sub-requested" && selection?.sub ? "Sub requested" : "I can sub"}
+                {game?.stage === "sub-requested" && selection?.sub
+                  ? "Sub requested"
+                  : "I can sub"}
               </button>
             ) : null}
             {options.has("IN") ? (
@@ -217,10 +219,18 @@ function GameDetailsModal({
             ) : options.has("OUT") ? (
               <button
                 type="button"
-                onClick={() => onToggleAttendance(game?.stage === "sub-requested" || selection?.sub ? "" : "OUT")}
+                onClick={() =>
+                  onToggleAttendance(
+                    game?.stage === "sub-requested" || selection?.sub
+                      ? ""
+                      : "OUT"
+                  )
+                }
                 className="rounded-lg px-2.5 py-1 text-xs font-medium border border-slate-300 bg-white text-slate-700"
               >
-                {game?.stage === "sub-requested" || selection?.sub ? "Cancel Sub" : "OUT"}
+                {game?.stage === "sub-requested" || selection?.sub
+                  ? "Cancel Sub"
+                  : "OUT"}
               </button>
             ) : null}
           </div>

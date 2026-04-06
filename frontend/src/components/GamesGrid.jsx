@@ -7,7 +7,7 @@ export default function GamesGrid({
   denseMode,
   onToggleSub,
   onToggleAttendance,
-  isMyGamesTab
+  isMyGame
 }) {
   return (
     <div
@@ -24,7 +24,7 @@ export default function GamesGrid({
           selection={draftSelections[game.gameId] || {}}
           pending={pendingGameIds?.has(game.gameId)}
           denseMode={denseMode}
-          isMyGamesTab={isMyGamesTab}
+          isMyGame={isMyGame?.(game)}
           onToggleSub={() => onToggleSub(game.gameId)}
           onToggleAttendance={(value) => onToggleAttendance(game.gameId, value)}
         />
