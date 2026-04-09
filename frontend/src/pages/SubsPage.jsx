@@ -219,7 +219,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
         }
         const myGameRow =
           submittedGameIds.has(game.gameId) ||
-          game.source === "rosemont" ||
+          game.source === "sportsengine" ||
           isTwinRinksLeagueGame(game);
         const subOptionsRow = isSubListingGame(game);
         return (
@@ -235,7 +235,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
         (game) =>
           !outGameIds.has(game.gameId) &&
           (submittedGameIds.has(game.gameId) ||
-            game.source === "rosemont" ||
+            game.source === "sportsengine" ||
             isTwinRinksLeagueGame(game))
       ),
     [games, submittedGameIds, outGameIds]
@@ -276,7 +276,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
       Boolean(
         game &&
           (submittedGameIds.has(game.gameId) ||
-            game.source === "rosemont" ||
+            game.source === "sportsengine" ||
             isTwinRinksLeagueGame(game))
       ),
     [submittedGameIds]
@@ -396,7 +396,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
     }
 
     const updates = games
-      .filter((game) => game.source !== "rosemont")
+      .filter((game) => game.source !== "sportsengine")
       .map((game) => {
         const draft = normalizeSelection(draftSelections[game.gameId]);
         return {

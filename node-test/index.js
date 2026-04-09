@@ -13,6 +13,7 @@ const {
 const { logInfo } = require("./utils/logger");
 const registerLegacyRoutes = require("./routes/legacy");
 const registerSportsengineScheduleRoutes = require("./routes/sportsengine-schedule");
+const registerUserSettingsRoutes = require("./routes/user-settings");
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.get("/health", (_req, res) => {
 });
 
 registerSportsengineScheduleRoutes(app);
+registerUserSettingsRoutes(app);
 registerLegacyRoutes(app);
 
 app.listen(PORT, () => {

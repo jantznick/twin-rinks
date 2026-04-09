@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import PendingChangesBar from "../components/PendingChangesBar";
 import TelegramInstructionsModal from "../components/TelegramInstructionsModal";
+import { normalizeCalendarUrlInput } from "../lib/sportsengineCalendars";
 
 const PENDING_PROFILE_KEY = "twin-rinks-pending-profile";
 const MAX_PENDING_AGE = 20 * 60 * 1000; // 20 minutes
@@ -26,12 +27,23 @@ const FIELD_LABELS = {
   test_mail: "Test Email Message"
 };
 
-export default function ProfilePage({ userEmail, profilePath, demoMode, setDemoMode, showToast }) {
+export default function ProfilePage({
+  userEmail,
+  profilePath,
+  demoMode,
+  setDemoMode,
+  showToast,
+  sportsengineCalendarUrls = [],
+  onSportsengineCalendarUrlsChange = () => {},
+  sportsengineScheduleResults = [],
+  onRefreshSportsengineSchedules
+}) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
   const [telegramModalOpen, setTelegramModalOpen] = useState(false);
   const [pendingExpanded, setPendingExpanded] = useState(false);
+  const [newCalendarUrl, setNewCalendarUrl] = useState("");
 
   // Initial state for diffing
   const [initialFormData, setInitialFormData] = useState({
@@ -360,6 +372,26 @@ export default function ProfilePage({ userEmail, profilePath, demoMode, setDemoM
     setPendingExpanded(false);
   };
 
+  const handleAddSportsengineCalendar = async () => {
+    const normalized = normalizeCalendarUrlInput(newCalendarUrl);
+    if (!normalized) {
+      showToast({ type: "error", text: "Paste a valid team schedule URL (https://…/schedule/team_instance/…?subseason=…)." });
+      return;
+    }
+    if (sportsengineCalendarUrls.includes(normalized)) {
+      showToast({ type: "error", text: "That calendar is already in your list." });
+      return;
+    }
+    await onSportsengineCalendarUrlsChange([...sportsengineCalendarUrls, normalized]);
+    setNewCalendarUrl("");
+    showToast({ type: "success", text: "Calendar added." });
+  };
+
+  const handleRemoveSportsengineCalendar = async (url) => {
+    await onSportsengineCalendarUrlsChange(sportsengineCalendarUrls.filter((u) => u !== url));
+    showToast({ type: "success", text: "Calendar removed." });
+  };
+
   const handleRemoveChange = (fieldKey) => {
     setFormData((prev) => ({ ...prev, [fieldKey]: initialFormData[fieldKey] }));
   };
@@ -409,6 +441,95 @@ export default function ProfilePage({ userEmail, profilePath, demoMode, setDemoM
           Manage your contact information and notification preferences.
         </p>
       </div>
+
+      <section className="mb-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-base font-semibold text-slate-900">SportsEngine team calendars</h2>
+          {onRefreshSportsengineSchedules ? (
+            <button
+              type="button"
+              onClick={() => onRefreshSportsengineSchedules()}
+              className="text-sm font-medium text-indigo-600 hover:text-indigo-800 hover:underline"
+            >
+              Refresh schedules
+            </button>
+          ) : null}
+        </div>
+        <p className="mt-1 text-sm text-slate-600">
+          Add public team schedule pages (SportsEngine / Sports NGIN). Games appear alongside Twin Rinks subs on{" "}
+          <a href="/" className="font-medium text-indigo-600 hover:text-indigo-800 hover:underline">
+            My Games &amp; Subs
+          </a>
+          .
+        </p>
+        <p className="mt-2 rounded-lg bg-slate-50 px-3 py-2 font-mono text-[11px] text-slate-700 break-all">
+          Example:{" "}
+          <span className="text-slate-900">
+            rosemontahl.com/schedule/team_instance/10537221?subseason=961098
+          </span>
+        </p>
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-end">
+          <div className="min-w-0 flex-1">
+            <label htmlFor="new-se-calendar" className="block text-sm font-medium text-slate-700">
+              Schedule URL
+            </label>
+            <input
+              id="new-se-calendar"
+              type="url"
+              autoComplete="off"
+              placeholder="https://yoursite.com/schedule/team_instance/…?subseason=…"
+              value={newCalendarUrl}
+              onChange={(e) => setNewCalendarUrl(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={handleAddSportsengineCalendar}
+            className="shrink-0 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-700"
+          >
+            Add calendar
+          </button>
+        </div>
+        {sportsengineCalendarUrls.length > 0 ? (
+          <ul className="mt-4 divide-y divide-slate-100 rounded-lg border border-slate-200">
+            {sportsengineCalendarUrls.map((url) => {
+              const status = sportsengineScheduleResults.find((r) => r.requestedUrl === url);
+              const ok = status?.ok;
+              const errMsg = status && !status.ok ? status.error || status.details || "Failed" : null;
+              return (
+                <li key={url} className="flex flex-wrap items-start justify-between gap-2 px-3 py-2.5 text-sm">
+                  <div className="min-w-0 flex-1">
+                    <p className="break-all font-mono text-xs text-slate-800">{url}</p>
+                    {status ? (
+                      <p
+                        className={`mt-0.5 text-xs ${
+                          ok ? "text-emerald-700" : "text-amber-800"
+                        }`}
+                      >
+                        {ok
+                          ? `${status.gameCount ?? 0} games loaded`
+                          : String(errMsg || "Could not load")}
+                      </p>
+                    ) : (
+                      <p className="mt-0.5 text-xs text-slate-500">Not loaded yet</p>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveSportsengineCalendar(url)}
+                    className="shrink-0 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50"
+                  >
+                    Remove
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <p className="mt-4 text-sm text-slate-500">No extra calendars yet. Add a URL above or keep the default from first visit.</p>
+        )}
+      </section>
 
       {demoMode ? (
         <div className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">

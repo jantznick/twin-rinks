@@ -5,15 +5,22 @@
   "scripts": {
     "start": "node index.js",
     "parse:sample": "node parse-subs-sample.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down",
+    "db:generate": "docker compose run --rm api npx prisma generate",
+    "db:migrate": "docker compose run --rm api npx prisma migrate deploy",
+    "db:migrate:dev": "docker compose run --rm -v ./prisma:/app/prisma api npx prisma migrate dev"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@prisma/client": "^6.19.0",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "prisma": "^6.19.0"
   }
 }

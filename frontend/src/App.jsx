@@ -8,7 +8,12 @@ import SubsPage from "./pages/SubsPage";
 import SchedulePage from "./pages/SchedulePage";
 import ProfilePage from "./pages/ProfilePage";
 import Toast from "./components/Toast";
-import { normalizeRosemontScheduleGames } from "./lib/gameUtils";
+import { normalizeSportsengineScheduleGames } from "./lib/gameUtils";
+import {
+  loadSportsengineCalendarsFromApi,
+  saveSportsengineCalendarsToApi,
+  shortUrlKey
+} from "./lib/sportsengineCalendars";
 
 const SAVED_SESSION_KEY = "legacy-phpsessid";
 const SAVED_EMAIL_KEY = "legacy-user-email";
@@ -111,7 +116,8 @@ export default function App() {
   const [loginError, setLoginError] = useState("");
 
   const [gamesResponse, setGamesResponse] = useState(null);
-  const [rosemontSchedule, setRosemontSchedule] = useState(null);
+  const [sportsengineCalendarUrls, setSportsengineCalendarUrls] = useState([]);
+  const [sportsengineScheduleResults, setSportsengineScheduleResults] = useState([]);
   const [gamesLoading, setGamesLoading] = useState(false);
   const [gamesError, setGamesError] = useState("");
   const [isUploading, setIsUploading] = useState(false);
@@ -123,41 +129,127 @@ export default function App() {
 
   const isLoggedIn = Boolean(phpsessid);
 
-  const fetchRosemontSchedule = useCallback(async () => {
-    try {
-      const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-      const response = await fetch(`${API_BASE}/sportsengine/team-schedule`);
-      const data = await response.json();
-      if (data.ok) {
-        setRosemontSchedule(data);
-      } else {
-        setRosemontSchedule(null);
-      }
-    } catch {
-      setRosemontSchedule(null);
+  useEffect(() => {
+    if (!phpsessid || !String(userEmail || "").trim()) {
+      setSportsengineCalendarUrls([]);
+      return;
     }
-  }, []);
+    let cancelled = false;
+    const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    (async () => {
+      try {
+        const urls = await loadSportsengineCalendarsFromApi(
+          API_BASE,
+          phpsessid,
+          userEmail
+        );
+        if (!cancelled) {
+          setSportsengineCalendarUrls(urls);
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setSportsengineCalendarUrls([]);
+          if (e.code === "database_unavailable") {
+            setToastMessage({
+              type: "error",
+              text: "Calendar settings need a configured database on the server (DATABASE_URL)."
+            });
+          }
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [phpsessid, userEmail]);
+
+  const updateSportsengineCalendarUrls = useCallback(
+    async (urls) => {
+      setSportsengineCalendarUrls(urls);
+      if (!phpsessid || !String(userEmail || "").trim()) {
+        return;
+      }
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      try {
+        const saved = await saveSportsengineCalendarsToApi(
+          API_BASE,
+          phpsessid,
+          userEmail,
+          urls
+        );
+        setSportsengineCalendarUrls(saved);
+      } catch (e) {
+        console.error(e);
+        setToastMessage({
+          type: "error",
+          text: e.message || "Could not save SportsEngine calendars."
+        });
+      }
+    },
+    [phpsessid, userEmail]
+  );
+
+  const fetchSportsengineSchedules = useCallback(async () => {
+    const urls = sportsengineCalendarUrls.filter(Boolean);
+    if (urls.length === 0) {
+      setSportsengineScheduleResults([]);
+      return;
+    }
+    const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const results = await Promise.all(
+      urls.map(async (requestedUrl) => {
+        try {
+          const response = await fetch(
+            `${API_BASE}/sportsengine/team-schedule?url=${encodeURIComponent(requestedUrl)}`
+          );
+          const data = await response.json();
+          return { requestedUrl, ...data };
+        } catch (e) {
+          return {
+            ok: false,
+            requestedUrl,
+            error: e.message || "Request failed"
+          };
+        }
+      })
+    );
+    setSportsengineScheduleResults(results);
+  }, [sportsengineCalendarUrls]);
+
+  const combinedSportsengineGames = useMemo(() => {
+    const merged = [];
+    for (const r of sportsengineScheduleResults) {
+      if (!r.ok || !Array.isArray(r.games)) {
+        continue;
+      }
+      const key = shortUrlKey(r.requestedUrl || r.sourceUrl || "");
+      const teamName = r.teamName || "";
+      merged.push(
+        ...normalizeSportsengineScheduleGames(r.games, teamName, {
+          sourceKey: key,
+          leagueLabel: teamName || "League schedule"
+        })
+      );
+    }
+    return merged;
+  }, [sportsengineScheduleResults]);
 
   const combinedGamesResponse = useMemo(() => {
     if (!gamesResponse?.ok) {
       return gamesResponse;
     }
-    const roseGames = normalizeRosemontScheduleGames(
-      rosemontSchedule?.games,
-      rosemontSchedule?.teamName
-    );
     const baseGames = Array.isArray(gamesResponse.games) ? gamesResponse.games : [];
     return {
       ...gamesResponse,
-      games: [...baseGames, ...roseGames]
+      games: [...baseGames, ...combinedSportsengineGames]
     };
-  }, [gamesResponse, rosemontSchedule]);
+  }, [gamesResponse, combinedSportsengineGames]);
 
   const clearSession = (preserveEmail = false) => {
     const savedEmail = preserveEmail ? userEmail || getSavedEmail() : "";
     setPhpsessid("");
     setGamesResponse(null);
-    setRosemontSchedule(null);
+    setSportsengineScheduleResults([]);
     setGamesError("");
     setIsUploading(false);
     setUploadRefreshCountdownSec(null);
@@ -235,7 +327,7 @@ export default function App() {
         );
       } else {
         setGamesResponse(null);
-        setRosemontSchedule(null);
+        setSportsengineScheduleResults([]);
         setGamesError(err.message || "Unable to load games");
         setIsUploading(false);
       }
@@ -254,11 +346,11 @@ export default function App() {
 
   useEffect(() => {
     if (!phpsessid) {
-      setRosemontSchedule(null);
+      setSportsengineScheduleResults([]);
       return;
     }
-    fetchRosemontSchedule();
-  }, [phpsessid, fetchRosemontSchedule]);
+    fetchSportsengineSchedules();
+  }, [phpsessid, fetchSportsengineSchedules]);
 
   useEffect(() => {
     let interval;
@@ -416,7 +508,7 @@ export default function App() {
                   isSubmitting={isSubmitting}
                   onRefresh={() => {
                     fetchGames(phpsessid);
-                    fetchRosemontSchedule();
+                    fetchSportsengineSchedules();
                   }}
                   onSubmitGames={submitGames}
                   demoMode={demoMode}
@@ -439,6 +531,10 @@ export default function App() {
                   demoMode={demoMode}
                   setDemoMode={setDemoMode}
                   showToast={setToastMessage}
+                  sportsengineCalendarUrls={sportsengineCalendarUrls}
+                  onSportsengineCalendarUrlsChange={updateSportsengineCalendarUrls}
+                  sportsengineScheduleResults={sportsengineScheduleResults}
+                  onRefreshSportsengineSchedules={fetchSportsengineSchedules}
                 />
               ) : (
                 <Navigate to="/" replace />

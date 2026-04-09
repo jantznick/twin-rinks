@@ -1,0 +1,46 @@
+# Twin Rinks API + PostgreSQL. Run all Prisma commands only inside these containers.
+#
+# From this directory (node-test):
+#   docker compose up --build
+#
+# One-off Prisma (examples):
+#   docker compose run --rm api npx prisma generate
+#   docker compose run --rm api npx prisma migrate deploy
+#   docker compose run --rm api npx prisma migrate dev
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: twinrinks
+      POSTGRES_PASSWORD: twinrinks
+      POSTGRES_DB: twin_rinks
+    ports:
+      - "5432:5432"
+    volumes:
+      - twin_rinks_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U twinrinks -d twin_rinks"]
+      interval: 3s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      # Always target the compose Postgres service (overrides DATABASE_URL in .env if present)
+      DATABASE_URL: postgresql://twinrinks:twinrinks@db:5432/twin_rinks?schema=public
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  twin_rinks_pg:
