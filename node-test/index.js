@@ -11,9 +11,9 @@ const {
   LOG_SENSITIVE
 } = require("./config");
 const { logInfo } = require("./utils/logger");
-const registerLegacyRoutes = require("./routes/legacy");
-const registerSportsengineScheduleRoutes = require("./routes/sportsengine-schedule");
-const registerUserSettingsRoutes = require("./routes/user-settings");
+const sportsengineScheduleRoutes = require("./routes/sportsengine-schedule");
+const userSettingsRoutes = require("./routes/user-settings");
+const legacyRoutes = require("./routes/legacy");
 
 const app = express();
 
@@ -34,9 +34,9 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true });
 });
 
-registerSportsengineScheduleRoutes(app);
-registerUserSettingsRoutes(app);
-registerLegacyRoutes(app);
+app.use("/sportsengine", sportsengineScheduleRoutes);
+app.use("/user", userSettingsRoutes);
+app.use(legacyRoutes);
 
 app.listen(PORT, () => {
   logInfo(`Legacy middleware listening on http://localhost:${PORT}`, {

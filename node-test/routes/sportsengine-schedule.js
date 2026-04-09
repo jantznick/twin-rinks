@@ -1,5 +1,6 @@
 "use strict";
 
+const express = require("express");
 const {
   parseSportsengineTeamScheduleHtml
 } = require("../sportsengine-schedule-parser");
@@ -12,9 +13,10 @@ const {
   resolveSportsengineTeamScheduleFetchUrl
 } = require("../utils/sportsengine-schedule-url");
 
-async function handleTeamScheduleRequest(req, res) {
-  const rawUrl =
-    req.body?.url !== undefined ? req.body.url : req.query?.url;
+const router = express.Router();
+
+/** Shared implementation; URL source differs by HTTP method (query vs body). */
+async function respondTeamSchedule(rawUrl, res) {
   const resolved = resolveSportsengineTeamScheduleFetchUrl(rawUrl);
   if (resolved.error) {
     return res.status(400).json({
@@ -65,14 +67,12 @@ async function handleTeamScheduleRequest(req, res) {
 
     logInfo("SportsEngine team schedule parsed", {
       gameCount: parsed.gameCount,
-      teamName: parsed.teamName || null,
       parserVersion: parsed.parserVersion
     });
 
     return res.json({
       ok: true,
       sourceUrl: scheduleUrl,
-      teamName: parsed.teamName || null,
       gameCount: parsed.gameCount,
       parserVersion: parsed.parserVersion,
       games: parsed.games
@@ -89,9 +89,14 @@ async function handleTeamScheduleRequest(req, res) {
   }
 }
 
-function registerSportsengineScheduleRoutes(app) {
-  app.get("/sportsengine/team-schedule", handleTeamScheduleRequest);
-  app.post("/sportsengine/team-schedule", handleTeamScheduleRequest);
-}
+router.get("/team-schedule", async (req, res) => {
+  await respondTeamSchedule(req.query?.url, res);
+});
 
-module.exports = registerSportsengineScheduleRoutes;
+router.post("/team-schedule", async (req, res) => {
+  const rawUrl =
+    req.body?.url !== undefined ? req.body.url : req.query?.url;
+  await respondTeamSchedule(rawUrl, res);
+});
+
+module.exports = router;

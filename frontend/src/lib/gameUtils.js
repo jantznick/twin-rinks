@@ -73,18 +73,18 @@ function rinkShortLabelFromRosemontLocation(location) {
 
 /**
  * Maps SportsEngine team schedule API rows into the same game shape the subs UI expects.
+ * Labels come from user settings (Postgres), not from the schedule page HTML.
  * @param {Array} apiGames
- * @param {string} [rosterTeamName] From API `teamName` (page title); used for matchup lines.
- * @param {{ sourceKey?: string, leagueLabel?: string }} [meta] `sourceKey` disambiguates game ids when multiple calendars are merged.
+ * @param {{ sourceKey?: string, leagueLabel?: string, teamDisplayName?: string }} [meta]
  */
-export function normalizeSportsengineScheduleGames(apiGames, rosterTeamName, meta = {}) {
+export function normalizeSportsengineScheduleGames(apiGames, meta = {}) {
   if (!Array.isArray(apiGames)) {
     return [];
   }
-  const myTeam = String(rosterTeamName || "").trim();
+  const myTeam = String(meta.teamDisplayName || "").trim();
   const sourceKey = String(meta.sourceKey || "se").replace(/[^a-zA-Z0-9_-]/g, "") || "se";
   const leagueLabel =
-    String(meta.leagueLabel || "").trim() || myTeam || ROSEMONT_LEAGUE_LABEL;
+    String(meta.leagueLabel || "").trim() || "League schedule";
 
   return apiGames.map((row) => {
     const parsedDate = parseRosemontDateRawToDate(row.dateRaw);
@@ -138,8 +138,13 @@ export function normalizeSportsengineScheduleGames(apiGames, rosterTeamName, met
   });
 }
 
-/** @deprecated Use `normalizeSportsengineScheduleGames`. */
-export const normalizeRosemontScheduleGames = normalizeSportsengineScheduleGames;
+/** @deprecated Use `normalizeSportsengineScheduleGames` with `{ leagueLabel, teamDisplayName, sourceKey }`. */
+export function normalizeRosemontScheduleGames(apiGames, rosterTeamName, meta = {}) {
+  return normalizeSportsengineScheduleGames(apiGames, {
+    ...meta,
+    teamDisplayName: meta.teamDisplayName ?? rosterTeamName
+  });
+}
 
 export function normalizeGames(gamesResponse) {
   if (!gamesResponse || !gamesResponse.games) {
@@ -306,7 +311,7 @@ export function getGameHeadline(game) {
 
 export function getLeagueLabel(game) {
   if (game?.source === "sportsengine") {
-    return game.leagueLabel || ROSEMONT_LEAGUE_LABEL;
+    return game.leagueLabel || "League schedule";
   }
   if (game?.source === "twin-rinks-league") {
     const lt = String(game.leagueTeam || "").trim();

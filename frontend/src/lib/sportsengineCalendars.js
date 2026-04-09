@@ -1,6 +1,5 @@
 /**
- * Helpers for SportsEngine team schedule URLs (merged into My Games & Subs).
- * Canonical storage is the API + PostgreSQL (`User.sportsengineCalendarUrls`), not localStorage.
+ * SportsEngine calendars: user-defined labels are stored in Postgres via the API.
  */
 
 export function normalizeCalendarUrlInput(raw) {
@@ -29,6 +28,43 @@ export function shortUrlKey(url) {
   return `k${(h >>> 0).toString(36)}`;
 }
 
+/** Normalize one calendar entry from API or legacy shapes. */
+export function normalizeCalendarEntry(raw) {
+  if (typeof raw === "string") {
+    const url = String(raw).trim();
+    if (!url) {
+      return null;
+    }
+    return {
+      url,
+      leagueLabel: "League schedule",
+      teamDisplayName: ""
+    };
+  }
+  if (raw && typeof raw === "object") {
+    const url = String(raw.url ?? "").trim();
+    if (!url) {
+      return null;
+    }
+    return {
+      url,
+      leagueLabel: String(raw.leagueLabel ?? "").trim() || "League schedule",
+      teamDisplayName: String(raw.teamDisplayName ?? "").trim()
+    };
+  }
+  return null;
+}
+
+export function normalizeCalendarsPayload(data) {
+  if (data?.sportsengineCalendars && Array.isArray(data.sportsengineCalendars)) {
+    return data.sportsengineCalendars.map(normalizeCalendarEntry).filter(Boolean);
+  }
+  if (Array.isArray(data?.sportsengineCalendarUrls)) {
+    return data.sportsengineCalendarUrls.map(normalizeCalendarEntry).filter(Boolean);
+  }
+  return [];
+}
+
 export async function loadSportsengineCalendarsFromApi(apiBase, phpsessid, email) {
   const response = await fetch(`${apiBase}/user/sportsengine-calendars`, {
     method: "POST",
@@ -41,19 +77,17 @@ export async function loadSportsengineCalendarsFromApi(apiBase, phpsessid, email
     err.code = data.code;
     throw err;
   }
-  return Array.isArray(data.sportsengineCalendarUrls)
-    ? data.sportsengineCalendarUrls
-    : [];
+  return normalizeCalendarsPayload(data);
 }
 
-export async function saveSportsengineCalendarsToApi(apiBase, phpsessid, email, urls) {
+export async function saveSportsengineCalendarsToApi(apiBase, phpsessid, email, calendars) {
   const response = await fetch(`${apiBase}/user/sportsengine-calendars`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       phpsessid,
       email: String(email || "").trim(),
-      sportsengineCalendarUrls: urls
+      sportsengineCalendars: calendars
     })
   });
   const data = await response.json();
@@ -62,7 +96,5 @@ export async function saveSportsengineCalendarsToApi(apiBase, phpsessid, email, 
     err.code = data.code;
     throw err;
   }
-  return Array.isArray(data.sportsengineCalendarUrls)
-    ? data.sportsengineCalendarUrls
-    : urls;
+  return normalizeCalendarsPayload(data);
 }

@@ -33,8 +33,9 @@ export default function ProfilePage({
   demoMode,
   setDemoMode,
   showToast,
-  sportsengineCalendarUrls = [],
-  onSportsengineCalendarUrlsChange = () => {},
+  sportsengineCalendars = [],
+  applyProfileSaveResponse = () => {},
+  syncDemoSportsengineCalendars = () => {},
   sportsengineScheduleResults = [],
   onRefreshSportsengineSchedules
 }) {
@@ -44,6 +45,13 @@ export default function ProfilePage({
   const [telegramModalOpen, setTelegramModalOpen] = useState(false);
   const [pendingExpanded, setPendingExpanded] = useState(false);
   const [newCalendarUrl, setNewCalendarUrl] = useState("");
+  const [newCalendarLeagueLabel, setNewCalendarLeagueLabel] = useState("");
+  const [newCalendarTeamName, setNewCalendarTeamName] = useState("");
+  const [draftSportsengineCalendars, setDraftSportsengineCalendars] = useState([]);
+
+  useEffect(() => {
+    setDraftSportsengineCalendars(sportsengineCalendars);
+  }, [sportsengineCalendars]);
 
   // Initial state for diffing
   const [initialFormData, setInitialFormData] = useState({
@@ -169,8 +177,13 @@ export default function ProfilePage({
     fetchProfile();
   }, [profilePath]);
 
+  const calendarsDirty = useMemo(
+    () => JSON.stringify(draftSportsengineCalendars) !== JSON.stringify(sportsengineCalendars),
+    [draftSportsengineCalendars, sportsengineCalendars]
+  );
+
   const pendingChanges = useMemo(() => {
-    return Object.keys(formData)
+    const formChanges = Object.keys(formData)
       .filter((key) => key !== "test_text" && key !== "test_mail")
       .filter((key) => formData[key] !== initialFormData[key])
       .map((key) => {
@@ -179,7 +192,7 @@ export default function ProfilePage({
         if (typeof formData[key] === "boolean") {
           summary = formData[key] ? "Enabled" : "Disabled";
         }
-        
+
         return {
           gameId: key, // Reusing gameId as the generic key for PendingChangesBar
           headline: FIELD_LABELS[key] || key,
@@ -187,9 +200,23 @@ export default function ProfilePage({
           summary
         };
       });
-  }, [formData, initialFormData]);
+    if (calendarsDirty) {
+      formChanges.push({
+        gameId: "__sportsengine_calendars__",
+        headline: "SportsEngine calendars",
+        schedule: "",
+        summary: "Team schedule URLs or display names changed"
+      });
+    }
+    return formChanges;
+  }, [formData, initialFormData, calendarsDirty]);
 
   const hasPendingChanges = pendingChanges.length > 0;
+
+  const formHasPendingChanges = useMemo(
+    () => pendingChanges.some((c) => c.gameId !== "__sportsengine_calendars__"),
+    [pendingChanges]
+  );
 
   const changedFields = useMemo(() => {
     const changes = new Set();
@@ -292,7 +319,7 @@ export default function ProfilePage({
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e?.preventDefault?.();
     setIsSubmitting(true);
 
     if (window.__FAKE_SUB_FAILURE) {
@@ -305,19 +332,33 @@ export default function ProfilePage({
     if (demoMode) {
       console.group("🚀 [DEMO MODE] Simulated Profile Submission");
       console.log("Form Data:", formData);
+      if (calendarsDirty) {
+        console.log("SportsEngine calendars (draft):", draftSportsengineCalendars);
+      }
       console.groupEnd();
-      
-      setTimeout(() => {
-        setIsSubmitting(false);
-        setInitialFormData({ ...formData, test_text: false, test_mail: false });
-        setFormData(prev => ({ ...prev, test_text: false, test_mail: false }));
-        setPendingExpanded(false);
-        
-        let msg = "Profile updated successfully (Demo Mode)";
-        if (formData.test_text || formData.test_mail) {
-          msg = "Profile updated! Test message(s) will be sent in the next 5-10 minutes. (Demo Mode)";
+
+      setTimeout(async () => {
+        try {
+          if (calendarsDirty) {
+            syncDemoSportsengineCalendars(draftSportsengineCalendars);
+          }
+          setIsSubmitting(false);
+          setInitialFormData({ ...formData, test_text: false, test_mail: false });
+          setFormData((prev) => ({ ...prev, test_text: false, test_mail: false }));
+          setPendingExpanded(false);
+
+          let msg = "Profile updated successfully (Demo Mode)";
+          if (formData.test_text || formData.test_mail) {
+            msg = "Profile updated! Test message(s) will be sent in the next 5-10 minutes. (Demo Mode)";
+          }
+          showToast({ type: "success", text: msg });
+        } catch (err) {
+          setIsSubmitting(false);
+          showToast({
+            type: "error",
+            text: err.message || "Could not save SportsEngine calendars."
+          });
         }
-        showToast({ type: "success", text: msg });
       }, 800);
       return;
     }
@@ -325,22 +366,53 @@ export default function ProfilePage({
     try {
       const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
       const phpsessid = localStorage.getItem("legacy-phpsessid") || sessionStorage.getItem("legacy-phpsessid") || "";
-      
+
+      const payload = {
+        phpsessid,
+        email: String(userEmail || "").trim()
+      };
+      if (formHasPendingChanges) {
+        payload.twinRinksProfile = {
+          profile: formData.profile,
+          player: formData.player,
+          email: payload.email,
+          pass: formData.password,
+          position: formData.position,
+          cell: formData.cell,
+          carrier: formData.carrier,
+          chatid: formData.chatid,
+          t_enabled: formData.t_enabled,
+          t_day: formData.t_day,
+          t_hou: formData.t_hou,
+          t_min: formData.t_min,
+          e_enabled: formData.e_enabled,
+          e_day: formData.e_day,
+          e_hou: formData.e_hou,
+          e_min: formData.e_min,
+          s_day: formData.s_day,
+          s_hou: formData.s_hou,
+          s_min: formData.s_min,
+          test_text: formData.test_text,
+          test_mail: formData.test_mail
+        };
+      }
+      if (calendarsDirty) {
+        payload.sportsengineCalendars = draftSportsengineCalendars;
+      }
+
       const response = await fetch(`${API_BASE}/update-profile`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          email: userEmail,
-          phpsessid
-        })
+        body: JSON.stringify(payload)
       });
-      
+
       const data = await response.json();
-      
+
       if (!response.ok || !data.ok) {
         throw new Error(data.error || "Failed to submit profile");
       }
+
+      applyProfileSaveResponse(data);
 
       // Save to local storage for optimistic UI
       try {
@@ -352,15 +424,14 @@ export default function ProfilePage({
 
       setIsSubmitting(false);
       setInitialFormData({ ...formData, test_text: false, test_mail: false });
-      setFormData(prev => ({ ...prev, test_text: false, test_mail: false }));
+      setFormData((prev) => ({ ...prev, test_text: false, test_mail: false }));
       setPendingExpanded(false);
-      
+
       let msg = "Profile updated successfully!";
       if (formData.test_text || formData.test_mail) {
         msg = "Profile updated! Test message(s) will be sent in the next 5-10 minutes.";
       }
       showToast({ type: "success", text: msg });
-      
     } catch (err) {
       setIsSubmitting(false);
       showToast({ type: "error", text: err.message || "Failed to submit profile." });
@@ -369,30 +440,53 @@ export default function ProfilePage({
 
   const handleCancel = () => {
     setFormData({ ...initialFormData });
+    setDraftSportsengineCalendars(sportsengineCalendars);
     setPendingExpanded(false);
   };
 
-  const handleAddSportsengineCalendar = async () => {
+  const handleAddSportsengineCalendar = () => {
     const normalized = normalizeCalendarUrlInput(newCalendarUrl);
     if (!normalized) {
       showToast({ type: "error", text: "Paste a valid team schedule URL (https://…/schedule/team_instance/…?subseason=…)." });
       return;
     }
-    if (sportsengineCalendarUrls.includes(normalized)) {
+    const label = newCalendarLeagueLabel.trim();
+    if (!label) {
+      showToast({ type: "error", text: "Enter a display name for this calendar (e.g. league name). It appears on game cards." });
+      return;
+    }
+    if (draftSportsengineCalendars.some((c) => c.url === normalized)) {
       showToast({ type: "error", text: "That calendar is already in your list." });
       return;
     }
-    await onSportsengineCalendarUrlsChange([...sportsengineCalendarUrls, normalized]);
+    setDraftSportsengineCalendars((prev) => [
+      ...prev,
+      {
+        url: normalized,
+        leagueLabel: label,
+        teamDisplayName: newCalendarTeamName.trim()
+      }
+    ]);
     setNewCalendarUrl("");
-    showToast({ type: "success", text: "Calendar added." });
+    setNewCalendarLeagueLabel("");
+    setNewCalendarTeamName("");
   };
 
-  const handleRemoveSportsengineCalendar = async (url) => {
-    await onSportsengineCalendarUrlsChange(sportsengineCalendarUrls.filter((u) => u !== url));
-    showToast({ type: "success", text: "Calendar removed." });
+  const handleRemoveSportsengineCalendar = (url) => {
+    setDraftSportsengineCalendars((prev) => prev.filter((c) => c.url !== url));
+  };
+
+  const patchSportsengineCalendar = (url, patch) => {
+    setDraftSportsengineCalendars((prev) =>
+      prev.map((c) => (c.url === url ? { ...c, ...patch } : c))
+    );
   };
 
   const handleRemoveChange = (fieldKey) => {
+    if (fieldKey === "__sportsengine_calendars__") {
+      setDraftSportsengineCalendars(sportsengineCalendars);
+      return;
+    }
     setFormData((prev) => ({ ...prev, [fieldKey]: initialFormData[fieldKey] }));
   };
 
@@ -456,7 +550,8 @@ export default function ProfilePage({
           ) : null}
         </div>
         <p className="mt-1 text-sm text-slate-600">
-          Add public team schedule pages (SportsEngine / Sports NGIN). Games appear alongside Twin Rinks subs on{" "}
+          Add public team schedule pages (SportsEngine / Sports NGIN). You choose the <strong>display name</strong> for each
+          calendar (shown on game cards). Games appear alongside Twin Rinks subs on{" "}
           <a href="/" className="font-medium text-indigo-600 hover:text-indigo-800 hover:underline">
             My Games &amp; Subs
           </a>
@@ -468,8 +563,8 @@ export default function ProfilePage({
             rosemontahl.com/schedule/team_instance/10537221?subseason=961098
           </span>
         </p>
-        <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-end">
-          <div className="min-w-0 flex-1">
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <div className="sm:col-span-2">
             <label htmlFor="new-se-calendar" className="block text-sm font-medium text-slate-700">
               Schedule URL
             </label>
@@ -483,27 +578,82 @@ export default function ProfilePage({
               className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             />
           </div>
+          <div>
+            <label htmlFor="new-se-league" className="block text-sm font-medium text-slate-700">
+              Display name <span className="text-rose-600">*</span>
+            </label>
+            <input
+              id="new-se-league"
+              type="text"
+              autoComplete="off"
+              placeholder="e.g. Rosemont AHL"
+              value={newCalendarLeagueLabel}
+              onChange={(e) => setNewCalendarLeagueLabel(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+            <p className="mt-1 text-xs text-slate-500">Shown on the purple badge on each game card.</p>
+          </div>
+          <div>
+            <label htmlFor="new-se-team" className="block text-sm font-medium text-slate-700">
+              Your team name <span className="text-slate-400">(optional)</span>
+            </label>
+            <input
+              id="new-se-team"
+              type="text"
+              autoComplete="off"
+              placeholder="e.g. NASA — for matchup lines"
+              value={newCalendarTeamName}
+              onChange={(e) => setNewCalendarTeamName(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+          </div>
+        </div>
+        <div className="mt-3">
           <button
             type="button"
             onClick={handleAddSportsengineCalendar}
-            className="shrink-0 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-700"
+            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-700"
           >
             Add calendar
           </button>
         </div>
-        {sportsengineCalendarUrls.length > 0 ? (
+        {draftSportsengineCalendars.length > 0 ? (
           <ul className="mt-4 divide-y divide-slate-100 rounded-lg border border-slate-200">
-            {sportsengineCalendarUrls.map((url) => {
-              const status = sportsengineScheduleResults.find((r) => r.requestedUrl === url);
+            {draftSportsengineCalendars.map((cal) => {
+              const status = sportsengineScheduleResults.find((r) => r.requestedUrl === cal.url);
               const ok = status?.ok;
               const errMsg = status && !status.ok ? status.error || status.details || "Failed" : null;
               return (
-                <li key={url} className="flex flex-wrap items-start justify-between gap-2 px-3 py-2.5 text-sm">
-                  <div className="min-w-0 flex-1">
-                    <p className="break-all font-mono text-xs text-slate-800">{url}</p>
+                <li key={cal.url} className="flex flex-col gap-3 px-3 py-3 text-sm sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <p className="break-all font-mono text-xs text-slate-800">{cal.url}</p>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      <div>
+                        <label className="text-xs font-medium text-slate-600">Display name</label>
+                        <input
+                          type="text"
+                          value={cal.leagueLabel}
+                          onChange={(e) =>
+                            patchSportsengineCalendar(cal.url, { leagueLabel: e.target.value })
+                          }
+                          className="mt-0.5 w-full rounded border border-slate-300 px-2 py-1 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-slate-600">Your team name</label>
+                        <input
+                          type="text"
+                          value={cal.teamDisplayName || ""}
+                          onChange={(e) =>
+                            patchSportsengineCalendar(cal.url, { teamDisplayName: e.target.value })
+                          }
+                          className="mt-0.5 w-full rounded border border-slate-300 px-2 py-1 text-sm"
+                        />
+                      </div>
+                    </div>
                     {status ? (
                       <p
-                        className={`mt-0.5 text-xs ${
+                        className={`text-xs ${
                           ok ? "text-emerald-700" : "text-amber-800"
                         }`}
                       >
@@ -512,13 +662,13 @@ export default function ProfilePage({
                           : String(errMsg || "Could not load")}
                       </p>
                     ) : (
-                      <p className="mt-0.5 text-xs text-slate-500">Not loaded yet</p>
+                      <p className="text-xs text-slate-500">Not loaded yet</p>
                     )}
                   </div>
                   <button
                     type="button"
-                    onClick={() => handleRemoveSportsengineCalendar(url)}
-                    className="shrink-0 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50"
+                    onClick={() => handleRemoveSportsengineCalendar(cal.url)}
+                    className="shrink-0 self-start rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50"
                   >
                     Remove
                   </button>
@@ -527,7 +677,7 @@ export default function ProfilePage({
             })}
           </ul>
         ) : (
-          <p className="mt-4 text-sm text-slate-500">No extra calendars yet. Add a URL above or keep the default from first visit.</p>
+          <p className="mt-4 text-sm text-slate-500">No extra calendars yet. Add a schedule URL and display name above.</p>
         )}
       </section>
 

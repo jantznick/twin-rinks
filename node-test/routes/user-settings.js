@@ -1,5 +1,6 @@
 "use strict";
 
+const express = require("express");
 const { getPrisma } = require("../lib/prisma");
 const { getSessionFromRequest } = require("../utils/legacy-session");
 const {
@@ -8,144 +9,171 @@ const {
   normalizeEmail
 } = require("../utils/twin-rinks-session-verify");
 const { logInfo } = require("../utils/logger");
+const {
+  sanitizeSportsengineCalendars
+} = require("../lib/sportsengine-calendars-sanitize");
+const { getEmailFromRequest } = require("../utils/email-from-request");
 
-function getEmailFromRequest(req) {
-  return (
-    req.body?.email ||
-    req.query?.email ||
-    req.headers["x-user-email"] ||
-    ""
-  );
-}
+const router = express.Router();
 
-function sanitizeUrls(raw) {
-  if (!Array.isArray(raw)) {
-    return [];
+router.get("/sportsengine-calendars", async (req, res) => {
+  const prisma = getPrisma();
+  if (!prisma) {
+    return res.status(503).json({
+      ok: false,
+      error: "Database is not configured (DATABASE_URL missing)",
+      code: "database_unavailable"
+    });
   }
-  const out = [];
-  const seen = new Set();
-  for (const item of raw) {
-    const s = String(item ?? "").trim();
-    if (!s || seen.has(s)) {
-      continue;
-    }
-    seen.add(s);
-    out.push(s);
+
+  const phpsessid = getSessionFromRequest(req);
+  const claimedEmail = getEmailFromRequest(req);
+  if (!phpsessid) {
+    return res.status(400).json({ ok: false, error: "phpsessid is required" });
   }
-  return out;
-}
+  if (!claimedEmail) {
+    return res.status(400).json({ ok: false, error: "email is required" });
+  }
 
-function registerUserSettingsRoutes(app) {
-  async function handleGetSportsengineCalendars(req, res) {
-    const prisma = getPrisma();
-    if (!prisma) {
-      return res.status(503).json({
-        ok: false,
-        error: "Database is not configured (DATABASE_URL missing)",
-        code: "database_unavailable"
-      });
-    }
+  const session = await verifyTwinRinksSessionAndGetEmail(phpsessid);
+  if (!session.ok) {
+    return res.status(401).json({
+      ok: false,
+      error: "Legacy session invalid or expired",
+      code: session.code || "session_expired"
+    });
+  }
+  if (!isEmailClaimValid(session.email, claimedEmail)) {
+    logInfo("SportsEngine calendar GET: email mismatch", {
+      sessionEmail: session.email
+    });
+    return res.status(403).json({
+      ok: false,
+      error: "email does not match Twin Rinks session",
+      code: "email_mismatch"
+    });
+  }
 
-    const phpsessid = getSessionFromRequest(req);
-    const claimedEmail = getEmailFromRequest(req);
-    if (!phpsessid) {
-      return res.status(400).json({ ok: false, error: "phpsessid is required" });
-    }
-    if (!claimedEmail) {
-      return res.status(400).json({ ok: false, error: "email is required" });
-    }
+  const key = normalizeEmail(session.email);
+  const row = await prisma.user.findUnique({ where: { email: key } });
+  const raw = row?.sportsengineCalendars;
+  const calendars = Array.isArray(raw) ? raw : [];
 
-    const session = await verifyTwinRinksSessionAndGetEmail(phpsessid);
-    if (!session.ok) {
-      return res.status(401).json({
-        ok: false,
-        error: "Legacy session invalid or expired",
-        code: session.code || "session_expired"
-      });
-    }
-    if (!isEmailClaimValid(session.email, claimedEmail)) {
-      logInfo("SportsEngine calendar GET: email mismatch", {
-        sessionEmail: session.email
-      });
-      return res.status(403).json({
-        ok: false,
-        error: "email does not match Twin Rinks session",
-        code: "email_mismatch"
-      });
-    }
+  return res.json({
+    ok: true,
+    email: key,
+    sportsengineCalendars: calendars
+  });
+});
 
-    const key = normalizeEmail(session.email);
-    const row = await prisma.user.findUnique({ where: { email: key } });
-    const urls = row?.sportsengineCalendarUrls ?? [];
+router.post("/sportsengine-calendars", async (req, res) => {
+  const prisma = getPrisma();
+  if (!prisma) {
+    return res.status(503).json({
+      ok: false,
+      error: "Database is not configured (DATABASE_URL missing)",
+      code: "database_unavailable"
+    });
+  }
 
-    return res.json({
-      ok: true,
+  const phpsessid = getSessionFromRequest(req);
+  const claimedEmail = getEmailFromRequest(req);
+  if (!phpsessid) {
+    return res.status(400).json({ ok: false, error: "phpsessid is required" });
+  }
+  if (!claimedEmail) {
+    return res.status(400).json({ ok: false, error: "email is required" });
+  }
+
+  const session = await verifyTwinRinksSessionAndGetEmail(phpsessid);
+  if (!session.ok) {
+    return res.status(401).json({
+      ok: false,
+      error: "Legacy session invalid or expired",
+      code: session.code || "session_expired"
+    });
+  }
+  if (!isEmailClaimValid(session.email, claimedEmail)) {
+    logInfo("SportsEngine calendar GET: email mismatch", {
+      sessionEmail: session.email
+    });
+    return res.status(403).json({
+      ok: false,
+      error: "email does not match Twin Rinks session",
+      code: "email_mismatch"
+    });
+  }
+
+  const key = normalizeEmail(session.email);
+  const row = await prisma.user.findUnique({ where: { email: key } });
+  const raw = row?.sportsengineCalendars;
+  const calendars = Array.isArray(raw) ? raw : [];
+
+  return res.json({
+    ok: true,
+    email: key,
+    sportsengineCalendars: calendars
+  });
+});
+
+router.put("/sportsengine-calendars", async (req, res) => {
+  const prisma = getPrisma();
+  if (!prisma) {
+    return res.status(503).json({
+      ok: false,
+      error: "Database is not configured (DATABASE_URL missing)",
+      code: "database_unavailable"
+    });
+  }
+
+  const phpsessid = getSessionFromRequest(req);
+  const claimedEmail = getEmailFromRequest(req);
+  const bodyCalendars =
+    req.body?.sportsengineCalendars ?? req.body?.sportsengineCalendarUrls;
+  const calendars = sanitizeSportsengineCalendars(bodyCalendars);
+
+  if (!phpsessid) {
+    return res.status(400).json({ ok: false, error: "phpsessid is required" });
+  }
+  if (!claimedEmail) {
+    return res.status(400).json({ ok: false, error: "email is required" });
+  }
+
+  const session = await verifyTwinRinksSessionAndGetEmail(phpsessid);
+  if (!session.ok) {
+    return res.status(401).json({
+      ok: false,
+      error: "Legacy session invalid or expired",
+      code: session.code || "session_expired"
+    });
+  }
+  if (!isEmailClaimValid(session.email, claimedEmail)) {
+    return res.status(403).json({
+      ok: false,
+      error: "email does not match Twin Rinks session",
+      code: "email_mismatch"
+    });
+  }
+
+  const key = normalizeEmail(session.email);
+  await prisma.user.upsert({
+    where: { email: key },
+    create: {
       email: key,
-      sportsengineCalendarUrls: urls
-    });
-  }
-
-  async function handlePutSportsengineCalendars(req, res) {
-    const prisma = getPrisma();
-    if (!prisma) {
-      return res.status(503).json({
-        ok: false,
-        error: "Database is not configured (DATABASE_URL missing)",
-        code: "database_unavailable"
-      });
+      sportsengineCalendars: calendars
+    },
+    update: {
+      sportsengineCalendars: calendars
     }
+  });
 
-    const phpsessid = getSessionFromRequest(req);
-    const claimedEmail = getEmailFromRequest(req);
-    const urls = sanitizeUrls(req.body?.sportsengineCalendarUrls);
+  logInfo("SportsEngine calendars saved", { email: key, count: calendars.length });
 
-    if (!phpsessid) {
-      return res.status(400).json({ ok: false, error: "phpsessid is required" });
-    }
-    if (!claimedEmail) {
-      return res.status(400).json({ ok: false, error: "email is required" });
-    }
+  return res.json({
+    ok: true,
+    email: key,
+    sportsengineCalendars: calendars
+  });
+});
 
-    const session = await verifyTwinRinksSessionAndGetEmail(phpsessid);
-    if (!session.ok) {
-      return res.status(401).json({
-        ok: false,
-        error: "Legacy session invalid or expired",
-        code: session.code || "session_expired"
-      });
-    }
-    if (!isEmailClaimValid(session.email, claimedEmail)) {
-      return res.status(403).json({
-        ok: false,
-        error: "email does not match Twin Rinks session",
-        code: "email_mismatch"
-      });
-    }
-
-    const key = normalizeEmail(session.email);
-    await prisma.user.upsert({
-      where: { email: key },
-      create: {
-        email: key,
-        sportsengineCalendarUrls: urls
-      },
-      update: {
-        sportsengineCalendarUrls: urls
-      }
-    });
-
-    logInfo("SportsEngine calendar URLs saved", { email: key, count: urls.length });
-
-    return res.json({
-      ok: true,
-      email: key,
-      sportsengineCalendarUrls: urls
-    });
-  }
-
-  app.get("/user/sportsengine-calendars", handleGetSportsengineCalendars);
-  app.post("/user/sportsengine-calendars", handleGetSportsengineCalendars);
-  app.put("/user/sportsengine-calendars", handlePutSportsengineCalendars);
-}
-
-module.exports = registerUserSettingsRoutes;
+module.exports = router;
