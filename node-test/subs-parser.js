@@ -37,19 +37,33 @@ function looksLikeScheduleValue(value) {
   );
 }
 
-function parseSubsHtml(html) {
-  // Split the HTML into the "Your Games" and "Games you can sub in" sections
-  // so we only parse the sub games and ignore their regular roster games.
-  const subGamesSection = String(html || "").split(/Games you can sub in:/i)[1] || html;
+/** Roster games use LEAGUE-COLOR before date, e.g. RECS-GOLD 04/13/2026 MON 07:30P blue rink */
+function looksLikeTeamScheduleValue(value) {
+  return /^[A-Z0-9]+-[A-Z]+\s+\d{2}\/\d{2}\/\d{4}\s+[A-Z]{3}\s+\d{1,2}:\d{2}[AP]/i.test(
+    String(value || "").trim()
+  );
+}
 
-  // Extract the profile code from the HTML
-  const profileMatch = String(html || "").match(/<input[^>]*name=["']profile["'][^>]*value=["']([^"']+)["']/i);
-  const profile = profileMatch ? profileMatch[1] : "";
+function parseTeamDateTimeRink(value) {
+  const s = String(value || "").trim();
+  const m = s.match(
+    /^([A-Z0-9]+-[A-Z]+)\s+(\d{2}\/\d{2}\/\d{4})\s+([A-Z]{3})\s+(\d{1,2}:\d{2}[AP])\s+(.+)$/i
+  );
+  if (!m) {
+    return { ...parseDateTimeRink(value), leagueTeam: "" };
+  }
+  return {
+    raw: value || "",
+    leagueTeam: m[1],
+    date: m[2],
+    day: m[3],
+    time: m[4],
+    rink: m[5].replace(/\s+/g, " ").trim()
+  };
+}
 
-  const profileLinkMatch = String(html || "").match(/<a[^>]*href=["']([^"']+\.php)["'][^>]*>Click here to update your profile information<\/a>/i);
-  const profilePath = profileLinkMatch ? profileLinkMatch[1] : "";
-
-  const rows = String(subGamesSection)
+function parseRowsIntoGames(sectionHtml, source) {
+  const rows = String(sectionHtml || "")
     .split(/<br\s*\/?>/gi)
     .map((row) => row.trim())
     .filter(Boolean);
@@ -72,7 +86,11 @@ function parseSubsHtml(html) {
 
     const detailInput = rowInputs.find((input) => {
       const type = String(input.attrs.type || "").toLowerCase();
-      return type === "text" && looksLikeScheduleValue(input.attrs.value || "");
+      if (type !== "text") {
+        return false;
+      }
+      const v = input.attrs.value || "";
+      return looksLikeScheduleValue(v) || looksLikeTeamScheduleValue(v);
     });
 
     if (!detailInput) {
@@ -99,8 +117,19 @@ function parseSubsHtml(html) {
         checked: Object.prototype.hasOwnProperty.call(input.attrs, "checked")
       }));
 
-    const selected = options.find((option) => option.checked)?.value || "UNSET";
-    const schedule = parseDateTimeRink(detailInput.attrs.value || "");
+    const rawValue = detailInput.attrs.value || "";
+    const isTeamRow = looksLikeTeamScheduleValue(rawValue);
+    const checkedOption = options.find((option) => option.checked);
+    let selected = "UNSET";
+    if (checkedOption) {
+      if (checkedOption.type === "radio") {
+        selected = checkedOption.value ? checkedOption.value : "UNSET";
+      } else if (checkedOption.type === "checkbox") {
+        const cv = String(checkedOption.value || "").toUpperCase();
+        selected = cv === "SUB" ? "SUB" : "OUT";
+      }
+    }
+    const schedule = isTeamRow ? parseTeamDateTimeRink(rawValue) : parseDateTimeRink(rawValue);
     const details = parseInfoText(infoText);
     const stage = deriveStage({
       selected,
@@ -108,17 +137,53 @@ function parseSubsHtml(html) {
       options
     });
 
-    games.push({
+    const game = {
+      source,
       gameId,
-      dateTimeRink: detailInput.attrs.value || "",
+      dateTimeRink: rawValue,
       infoText,
       selected,
       options,
       schedule,
       details,
       stage
-    });
+    };
+    if (isTeamRow && schedule.leagueTeam) {
+      game.leagueTeam = schedule.leagueTeam;
+    }
+    games.push(game);
   }
+
+  return games;
+}
+
+function parseSubsHtml(html) {
+  const full = String(html || "");
+
+  const profileMatch = full.match(/<input[^>]*name=["']profile["'][^>]*value=["']([^"']+)["']/i);
+  const profile = profileMatch ? profileMatch[1] : "";
+
+  const profileLinkMatch = full.match(
+    /<a[^>]*href=["']([^"']+\.php)["'][^>]*>Click here to update your profile information<\/a>/i
+  );
+  const profilePath = profileLinkMatch ? profileLinkMatch[1] : "";
+
+  const subSplit = full.split(/Games you can sub in:/i);
+  const beforeSubs = subSplit[0] || "";
+
+  let myTeamGames = [];
+  let subGames = [];
+  if (subSplit.length > 1) {
+    const yourGamesParts = beforeSubs.split(/Your Games:/i);
+    const yourGamesSection = yourGamesParts.length > 1 ? yourGamesParts[1] : "";
+    myTeamGames = parseRowsIntoGames(yourGamesSection, "twin-rinks-league");
+    subGames = parseRowsIntoGames(subSplit[1] || "", "subs");
+  } else {
+    // Legacy pages without the sub section marker: parse the full document once (previous behavior).
+    subGames = parseRowsIntoGames(full, "subs");
+  }
+
+  const games = [...myTeamGames, ...subGames];
 
   return {
     gameCount: games.length,
@@ -216,6 +281,15 @@ function deriveStage({ selected, infoText, options }) {
   const hasSubOption = options.some((option) => option.value === "SUB");
   if (hasSubOption) {
     return "available";
+  }
+
+  const hasAttendanceRadios = options.some(
+    (option) =>
+      option.type === "radio" &&
+      (option.value === "IN" || option.value === "OUT")
+  );
+  if (hasAttendanceRadios && (selectedValue === "UNSET" || selectedValue === "")) {
+    return "selected";
   }
 
   return "unknown";

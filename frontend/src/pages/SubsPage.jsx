@@ -204,6 +204,13 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
     return ids;
   }, [games, submittedSelections]);
 
+  const isTwinRinksLeagueGame = (game) => game?.source === "twin-rinks-league";
+  const isSubListingGame = (game) =>
+    game?.source === "subs" ||
+    game?.source === undefined ||
+    game?.source === null ||
+    game?.source === "";
+
   const combinedMainGames = useMemo(
     () =>
       games.filter((game) => {
@@ -211,8 +218,10 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
           return false;
         }
         const myGameRow =
-          submittedGameIds.has(game.gameId) || game.source === "rosemont";
-        const subOptionsRow = game.source !== "rosemont";
+          submittedGameIds.has(game.gameId) ||
+          game.source === "rosemont" ||
+          isTwinRinksLeagueGame(game);
+        const subOptionsRow = isSubListingGame(game);
         return (
           (myGameRow && showMyGames) || (subOptionsRow && showSubOptions)
         );
@@ -225,7 +234,9 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
       games.filter(
         (game) =>
           !outGameIds.has(game.gameId) &&
-          (submittedGameIds.has(game.gameId) || game.source === "rosemont")
+          (submittedGameIds.has(game.gameId) ||
+            game.source === "rosemont" ||
+            isTwinRinksLeagueGame(game))
       ),
     [games, submittedGameIds, outGameIds]
   );
@@ -264,7 +275,9 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
     () => (game) =>
       Boolean(
         game &&
-          (submittedGameIds.has(game.gameId) || game.source === "rosemont")
+          (submittedGameIds.has(game.gameId) ||
+            game.source === "rosemont" ||
+            isTwinRinksLeagueGame(game))
       ),
     [submittedGameIds]
   );

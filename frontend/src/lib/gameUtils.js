@@ -299,6 +299,13 @@ export function getLeagueLabel(game) {
   if (game?.source === "rosemont") {
     return game.leagueLabel || ROSEMONT_LEAGUE_LABEL;
   }
+  if (game?.source === "twin-rinks-league") {
+    const lt = String(game.leagueTeam || "").trim();
+    if (lt && lt.includes("-")) {
+      return lt.split("-")[0] || "Twin Rinks";
+    }
+    return "Twin Rinks league";
+  }
   if (game?.details?.kind === "matchup" && game?.details?.league) {
     return game.details.league;
   }
@@ -544,6 +551,24 @@ export function getSubSpotState(game) {
 
 export function getStatusLabel(game, selection) {
   if (game?.source === "rosemont") {
+    return null;
+  }
+  if (game?.source === "twin-rinks-league") {
+    if (selection?.attendance === "IN") {
+      return "IN - playing";
+    }
+    if (selection?.attendance === "OUT") {
+      return "OUT - not attending";
+    }
+    if (game?.stage === "out" && (!selection || selection.attendance === "")) {
+      return "OUT - not attending";
+    }
+    if (game?.stage === "confirmed-in") {
+      return "IN - playing";
+    }
+    if (game?.stage === "selected") {
+      return "Action required: mark IN or OUT";
+    }
     return null;
   }
   const subSpotState = getSubSpotState(game);
@@ -920,9 +945,14 @@ function parseDateAndTimeParts(datePart, timePart) {
 
 function parseSubsDateTimeRinkRaw(raw) {
   const s = String(raw || "").replace(/\s+/g, " ").trim();
-  const m = s.match(
+  let m = s.match(
     /^(\d{1,2}\/\d{1,2}\/\d{4})\s+[A-Za-z]{3}\s+(\d{1,2}:\d{2})\s*([AP])M?\b/i
   );
+  if (!m) {
+    m = s.match(
+      /(\d{1,2}\/\d{1,2}\/\d{4})\s+[A-Za-z]{3}\s+(\d{1,2}:\d{2})\s*([AP])M?\b/i
+    );
+  }
   if (!m) {
     return null;
   }

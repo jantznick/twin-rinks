@@ -9,6 +9,9 @@ function looksLikeAuthenticatedGamesPage(html) {
   if (/Games you can sub in:/i.test(text)) {
     return true;
   }
+  if (/Your Games:/i.test(text)) {
+    return true;
+  }
   if (/Click here to update your profile information/i.test(text)) {
     return true;
   }
