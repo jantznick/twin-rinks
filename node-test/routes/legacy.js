@@ -32,7 +32,7 @@ const {
 const { getPrisma } = require("../lib/prisma");
 const {
   sanitizeSportsengineCalendars
-} = require("../lib/sportsengine-calendars-sanitize");
+} = require("../utils/sportsengine-calendars-storage");
 const {
   verifyTwinRinksSessionAndGetEmail,
   isEmailClaimValid,

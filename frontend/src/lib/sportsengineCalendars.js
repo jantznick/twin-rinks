@@ -19,13 +19,20 @@ export function normalizeCalendarUrlInput(raw) {
   }
 }
 
-export function shortUrlKey(url) {
-  const s = String(url || "");
+export function shortUrlKey(urlOrId) {
+  const s = String(urlOrId || "");
   let h = 5381;
   for (let i = 0; i < s.length; i += 1) {
     h = (h * 33) ^ s.charCodeAt(i);
   }
   return `k${(h >>> 0).toString(36)}`;
+}
+
+/** UUID v4 (matches server-assigned `scheduleId` from saved settings). */
+export function isScheduleId(s) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    String(s ?? "").trim()
+  );
 }
 
 /** Normalize one calendar entry from API or legacy shapes. */
@@ -36,9 +43,9 @@ export function normalizeCalendarEntry(raw) {
       return null;
     }
     return {
+      scheduleId: "",
       url,
-      leagueLabel: "League schedule",
-      teamDisplayName: ""
+      leagueLabel: "League schedule"
     };
   }
   if (raw && typeof raw === "object") {
@@ -47,9 +54,9 @@ export function normalizeCalendarEntry(raw) {
       return null;
     }
     return {
+      scheduleId: String(raw.scheduleId ?? "").trim(),
       url,
-      leagueLabel: String(raw.leagueLabel ?? "").trim() || "League schedule",
-      teamDisplayName: String(raw.teamDisplayName ?? "").trim()
+      leagueLabel: String(raw.leagueLabel ?? "").trim() || "League schedule"
     };
   }
   return null;

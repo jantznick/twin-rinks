@@ -41,9 +41,8 @@ function parseRosemontDateRawToDate(dateRaw) {
 }
 
 function rosemontStatusTimeToLegacyTime(statusTime) {
-  const m = String(statusTime || "")
-    .trim()
-    .match(/^(\d{1,2}):(\d{2})\s*([AP])M/i);
+  const cleaned = stripRosemontTimezoneSuffix(String(statusTime || "").trim());
+  const m = cleaned.match(/(\d{1,2}):(\d{2})\s*([AP])M?/i);
   if (!m) {
     return "";
   }
@@ -73,15 +72,15 @@ function rinkShortLabelFromRosemontLocation(location) {
 
 /**
  * Maps SportsEngine team schedule API rows into the same game shape the subs UI expects.
- * Labels come from user settings (Postgres), not from the schedule page HTML.
+ * `teamName` comes from the schedule API (page title). `leagueLabel` is the purple badge from profile.
  * @param {Array} apiGames
- * @param {{ sourceKey?: string, leagueLabel?: string, teamDisplayName?: string }} [meta]
+ * @param {{ sourceKey?: string, leagueLabel?: string, teamName?: string, teamDisplayName?: string }} [meta]
  */
 export function normalizeSportsengineScheduleGames(apiGames, meta = {}) {
   if (!Array.isArray(apiGames)) {
     return [];
   }
-  const myTeam = String(meta.teamDisplayName || "").trim();
+  const myTeam = String(meta.teamName || meta.teamDisplayName || "").trim();
   const sourceKey = String(meta.sourceKey || "se").replace(/[^a-zA-Z0-9_-]/g, "") || "se";
   const leagueLabel =
     String(meta.leagueLabel || "").trim() || "League schedule";
@@ -138,10 +137,11 @@ export function normalizeSportsengineScheduleGames(apiGames, meta = {}) {
   });
 }
 
-/** @deprecated Use `normalizeSportsengineScheduleGames` with `{ leagueLabel, teamDisplayName, sourceKey }`. */
+/** @deprecated Use `normalizeSportsengineScheduleGames` with `{ leagueLabel, teamName, sourceKey }`. */
 export function normalizeRosemontScheduleGames(apiGames, rosterTeamName, meta = {}) {
   return normalizeSportsengineScheduleGames(apiGames, {
     ...meta,
+    teamName: meta.teamName ?? rosterTeamName,
     teamDisplayName: meta.teamDisplayName ?? rosterTeamName
   });
 }
@@ -981,6 +981,28 @@ function parseGameDate(game) {
   let parsed = parseDateAndTimeParts(datePart, timePart);
   if (parsed) {
     return parsed;
+  }
+
+  if (game?.source === "sportsengine") {
+    const altTime = rosemontStatusTimeToLegacyTime(
+      game.statusTime || game.statusTimeDisplay || ""
+    );
+    if (altTime) {
+      if (datePart) {
+        parsed = parseDateAndTimeParts(datePart, altTime);
+        if (parsed) {
+          return parsed;
+        }
+      }
+      const fromRaw = parseRosemontDateRawToDate(game.dateRaw);
+      if (fromRaw) {
+        const dp = formatLegacyScheduleDateFromDate(fromRaw);
+        parsed = parseDateAndTimeParts(dp, altTime);
+        if (parsed) {
+          return parsed;
+        }
+      }
+    }
   }
 
   if (game?.source !== "sportsengine" && game?.dateTimeRink) {

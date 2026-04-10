@@ -1,6 +1,8 @@
 "use strict";
 
-require("dotenv").config();
+const path = require("path");
+
+require("dotenv").config({ path: path.join(__dirname, ".env") });
 
 const PORT = process.env.PORT || 3001;
 const LEGACY_BASE_URL =
@@ -16,11 +18,6 @@ const LOG_SENSITIVE = process.env.LOG_SENSITIVE === "1";
 const SITE_ACCESS_PASSWORD = process.env.SITE_ACCESS_PASSWORD || "";
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
-/** Default team schedule when the client omits ?url= (backward compatible with Rosemont). */
-const DEFAULT_SPORTSENGINE_TEAM_SCHEDULE_URL =
-  process.env.DEFAULT_SPORTSENGINE_TEAM_SCHEDULE_URL ||
-  "https://www.rosemontahl.com/schedule/team_instance/10537221?subseason=961098";
-
 module.exports = {
   PORT,
   LEGACY_BASE_URL,
@@ -31,6 +28,5 @@ module.exports = {
   BODY_PREVIEW_LIMIT,
   LOG_SENSITIVE,
   SITE_ACCESS_PASSWORD,
-  FRONTEND_URL,
-  DEFAULT_SPORTSENGINE_TEAM_SCHEDULE_URL
+  FRONTEND_URL
 };
