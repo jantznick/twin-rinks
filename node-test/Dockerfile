@@ -1,11 +1,15 @@
 FROM node:22-bookworm-slim
 
+# Prisma needs OpenSSL libs on slim images; avoids openssl detection warnings at build/runtime.
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 COPY package.json package-lock.json ./
+# postinstall runs `prisma generate` — schema must exist before `npm ci`
+COPY prisma ./prisma
 RUN npm ci
 
-COPY prisma ./prisma
 COPY . .
 
 RUN chmod +x docker-entrypoint.sh && npx prisma generate
