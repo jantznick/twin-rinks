@@ -1,5 +1,6 @@
 import seasonCalendar from "../data/seasonCalendar.json";
 
+/** @deprecated Prefer `game.leagueLabel` on SportsEngine rows. */
 export const ROSEMONT_LEAGUE_LABEL = "Rosemont AHL";
 
 function stripRosemontTimezoneSuffix(timeStr) {
@@ -71,15 +72,20 @@ function rinkShortLabelFromRosemontLocation(location) {
 }
 
 /**
- * Maps SportsEngine / Rosemont schedule API rows into the same game shape the subs UI expects.
+ * Maps SportsEngine team schedule API rows into the same game shape the subs UI expects.
+ * Labels come from user settings (Postgres), not from the schedule page HTML.
  * @param {Array} apiGames
- * @param {string} [rosterTeamName] From API `teamName` (page title); used for "Team A @ Team B" lines.
+ * @param {{ sourceKey?: string, leagueLabel?: string, teamDisplayName?: string }} [meta]
  */
-export function normalizeRosemontScheduleGames(apiGames, rosterTeamName) {
+export function normalizeSportsengineScheduleGames(apiGames, meta = {}) {
   if (!Array.isArray(apiGames)) {
     return [];
   }
-  const myTeam = String(rosterTeamName || "").trim();
+  const myTeam = String(meta.teamDisplayName || "").trim();
+  const sourceKey = String(meta.sourceKey || "se").replace(/[^a-zA-Z0-9_-]/g, "") || "se";
+  const leagueLabel =
+    String(meta.leagueLabel || "").trim() || "League schedule";
+
   return apiGames.map((row) => {
     const parsedDate = parseRosemontDateRawToDate(row.dateRaw);
     const legacyTime = rosemontStatusTimeToLegacyTime(row.statusTime);
@@ -99,10 +105,10 @@ export function normalizeRosemontScheduleGames(apiGames, rosterTeamName) {
       .join(" · ");
 
     return {
-      gameId: `rose-${row.gameId}`,
-      source: "rosemont",
+      gameId: `se-${sourceKey}-${row.gameId}`,
+      source: "sportsengine",
       rosterTeamName: myTeam,
-      leagueLabel: ROSEMONT_LEAGUE_LABEL,
+      leagueLabel,
       dateRaw: row.dateRaw,
       statusTime: row.statusTime,
       statusTimeDisplay: timeForDisplay,
@@ -129,6 +135,14 @@ export function normalizeRosemontScheduleGames(apiGames, rosterTeamName) {
       selected: "",
       stage: "external-league"
     };
+  });
+}
+
+/** @deprecated Use `normalizeSportsengineScheduleGames` with `{ leagueLabel, teamDisplayName, sourceKey }`. */
+export function normalizeRosemontScheduleGames(apiGames, rosterTeamName, meta = {}) {
+  return normalizeSportsengineScheduleGames(apiGames, {
+    ...meta,
+    teamDisplayName: meta.teamDisplayName ?? rosterTeamName
   });
 }
 
@@ -246,7 +260,7 @@ export function getScheduleText(game) {
       return line;
     }
   }
-  if (game?.source === "rosemont" && (game.dateRaw || game.statusTime)) {
+  if (game?.source === "sportsengine" && (game.dateRaw || game.statusTime)) {
     const timeLine =
       game.statusTimeDisplay ||
       stripRosemontTimezoneSuffix(game.statusTime);
@@ -273,7 +287,7 @@ export function getRink(game) {
 }
 
 export function getGameHeadline(game) {
-  if (game?.source === "rosemont") {
+  if (game?.source === "sportsengine") {
     return formatRosemontMatchupLine(
       Boolean(game.isAway),
       game.opponentName,
@@ -296,8 +310,8 @@ export function getGameHeadline(game) {
 }
 
 export function getLeagueLabel(game) {
-  if (game?.source === "rosemont") {
-    return game.leagueLabel || ROSEMONT_LEAGUE_LABEL;
+  if (game?.source === "sportsengine") {
+    return game.leagueLabel || "League schedule";
   }
   if (game?.source === "twin-rinks-league") {
     const lt = String(game.leagueTeam || "").trim();
@@ -316,7 +330,7 @@ export function getLeagueLabel(game) {
 }
 
 export function getGameNote(game) {
-  if (game?.source === "rosemont") {
+  if (game?.source === "sportsengine") {
     return "";
   }
   let note = "";
@@ -550,7 +564,7 @@ export function getSubSpotState(game) {
 }
 
 export function getStatusLabel(game, selection) {
-  if (game?.source === "rosemont") {
+  if (game?.source === "sportsengine") {
     return null;
   }
   if (game?.source === "twin-rinks-league") {
@@ -969,7 +983,7 @@ function parseGameDate(game) {
     return parsed;
   }
 
-  if (game?.source !== "rosemont" && game?.dateTimeRink) {
+  if (game?.source !== "sportsengine" && game?.dateTimeRink) {
     const extracted = parseSubsDateTimeRinkRaw(game.dateTimeRink);
     if (extracted) {
       parsed = parseDateAndTimeParts(extracted.date, extracted.time);
@@ -980,7 +994,7 @@ function parseGameDate(game) {
   }
 
   if (!datePart || !timePart) {
-    if (game?.source === "rosemont") {
+    if (game?.source === "sportsengine") {
       return parseRosemontDateRawToDate(game.dateRaw);
     }
     return null;

@@ -1,0 +1,18 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Twin Rinks app user preferences keyed by login email (legacy subs login).
+/// Each entry: { url, leagueLabel, teamDisplayName? } — labels are user-defined, not scraped from SportsEngine.
+model User {
+  id                     String   @id @default(cuid())
+  email                  String   @unique
+  sportsengineCalendars  Json     @default("[]")
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+}

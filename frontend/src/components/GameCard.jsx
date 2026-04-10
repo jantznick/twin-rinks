@@ -96,7 +96,7 @@ export default function GameCard({
           Sub spot filled
         </p>
       ) : null}
-      {game?.source === "rosemont" && game.gameUrl ? (
+      {game?.source === "sportsengine" && game.gameUrl ? (
         <p className="mt-1 text-xs">
           <a
             href={game.gameUrl}

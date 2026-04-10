@@ -16,13 +16,9 @@ const LOG_SENSITIVE = process.env.LOG_SENSITIVE === "1";
 const SITE_ACCESS_PASSWORD = process.env.SITE_ACCESS_PASSWORD || "";
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
-const ROSEMONT_SCHEDULE_ALLOWED_HOSTS = new Set([
-  "rosemontahl.com",
-  "www.rosemontahl.com"
-]);
-const ROSEMONT_TEAM_SCHEDULE_PATH = "/schedule/team_instance/10537221";
-const ROSEMONT_TEAM_SCHEDULE_SUBSEASON = "961098";
-const ROSEMONT_TEAM_SCHEDULE_DEFAULT_URL =
+/** Default team schedule when the client omits ?url= (backward compatible with Rosemont). */
+const DEFAULT_SPORTSENGINE_TEAM_SCHEDULE_URL =
+  process.env.DEFAULT_SPORTSENGINE_TEAM_SCHEDULE_URL ||
   "https://www.rosemontahl.com/schedule/team_instance/10537221?subseason=961098";
 
 module.exports = {
@@ -36,8 +32,5 @@ module.exports = {
   LOG_SENSITIVE,
   SITE_ACCESS_PASSWORD,
   FRONTEND_URL,
-  ROSEMONT_SCHEDULE_ALLOWED_HOSTS,
-  ROSEMONT_TEAM_SCHEDULE_PATH,
-  ROSEMONT_TEAM_SCHEDULE_SUBSEASON,
-  ROSEMONT_TEAM_SCHEDULE_DEFAULT_URL
+  DEFAULT_SPORTSENGINE_TEAM_SCHEDULE_URL
 };
