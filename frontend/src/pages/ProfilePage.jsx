@@ -52,8 +52,9 @@ export default function ProfilePage({
   onRefreshSportsengineSchedules
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [fetchError, setFetchError] = useState(null);
+  /** Twin Rinks `/get-profile` only — does not block SportsEngine calendars above. */
+  const [twinRinksSettingsLoading, setTwinRinksSettingsLoading] = useState(true);
+  const [twinRinksSettingsError, setTwinRinksSettingsError] = useState(null);
   const [telegramModalOpen, setTelegramModalOpen] = useState(false);
   const [pendingExpanded, setPendingExpanded] = useState(false);
   const [newCalendarUrl, setNewCalendarUrl] = useState("");
@@ -118,13 +119,15 @@ export default function ProfilePage({
   useEffect(() => {
     async function fetchProfile() {
       if (!profilePath) {
-        setFetchError("Profile link not found. Please load your games first.");
-        setIsLoading(false);
+        setTwinRinksSettingsError(
+          "Twin Rinks profile link is not loaded yet. Open My Games & Subs once after signing in, or return when the games list has finished loading."
+        );
+        setTwinRinksSettingsLoading(false);
         return;
       }
 
-      setFetchError(null);
-      setIsLoading(true);
+      setTwinRinksSettingsError(null);
+      setTwinRinksSettingsLoading(true);
 
       try {
         const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
@@ -203,9 +206,9 @@ export default function ProfilePage({
         setInitialFormData(finalInitial);
         setFormData(finalInitial);
       } catch (err) {
-        setFetchError(err.message || "Failed to load profile data.");
+        setTwinRinksSettingsError(err.message || "Failed to load Twin Rinks profile data.");
       } finally {
-        setIsLoading(false);
+        setTwinRinksSettingsLoading(false);
       }
     }
 
@@ -531,39 +534,6 @@ export default function ProfilePage({
     setFormData((prev) => ({ ...prev, [fieldKey]: initialFormData[fieldKey] }));
   };
 
-  if (isLoading) {
-    return (
-      <div className="mx-auto w-full max-w-3xl px-4 py-16 text-center">
-        <div className="inline-flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-5 py-3 shadow-sm">
-          <svg className="h-5 w-5 animate-spin text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <span className="text-sm font-medium text-slate-700">Loading profile...</span>
-        </div>
-      </div>
-    );
-  }
-
-  if (fetchError) {
-    return (
-      <div className="mx-auto w-full max-w-3xl px-4 py-16">
-        <div className="rounded-xl border border-rose-200 bg-rose-50 p-6 text-center">
-          <p className="text-sm font-medium text-rose-800">{fetchError}</p>
-          <button 
-            onClick={() => {
-              // Instead of reloading the page, redirect to home to fetch games first
-              window.location.href = "/";
-            }}
-            className="mt-4 rounded-lg bg-rose-100 px-4 py-2 text-sm font-medium text-rose-800 hover:bg-rose-200"
-          >
-            Return to Games
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   const telegramTestDisabled = formData.chatid !== initialFormData.chatid || 
                                formData.cell !== initialFormData.cell || 
                                formData.carrier !== initialFormData.carrier;
@@ -712,8 +682,44 @@ export default function ProfilePage({
           </p>
         </div>
 
-        {/* Account Info */}
-        <section>
+        {twinRinksSettingsLoading ? (
+          <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-14">
+            <svg
+              className="h-8 w-8 animate-spin text-indigo-600"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              aria-hidden
+            >
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+            <span className="text-sm font-medium text-slate-700">Loading Twin Rinks settings…</span>
+            <p className="max-w-sm text-center text-xs text-slate-500">
+              SportsEngine calendars above are available while this loads.
+            </p>
+          </div>
+        ) : twinRinksSettingsError ? (
+          <div className="rounded-xl border border-rose-200 bg-rose-50 p-6 text-center">
+            <p className="text-sm font-medium text-rose-800">{twinRinksSettingsError}</p>
+            <button
+              type="button"
+              onClick={() => {
+                window.location.href = "/";
+              }}
+              className="mt-4 rounded-lg bg-rose-100 px-4 py-2 text-sm font-medium text-rose-800 transition hover:bg-rose-200"
+            >
+              Go to My Games &amp; Subs
+            </button>
+          </div>
+        ) : (
+          <>
+            {/* Account Info */}
+            <section>
           <h3 className="text-base font-semibold text-slate-900">Account Information</h3>
           <div className="mt-4 grid gap-6 sm:grid-cols-2">
             <div>
@@ -991,6 +997,9 @@ export default function ProfilePage({
             </div>
           </div>
         </section>
+
+          </>
+        )}
 
         <div className="hidden">
           {/* We hide the inline buttons since PendingChangesBar handles it, but keep form submit valid */}
