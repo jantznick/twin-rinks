@@ -9,24 +9,19 @@ const {
   headersToObject,
   buildBodyPreview
 } = require("../utils/http");
+const { getSessionFromRequest } = require("../utils/legacy-session");
+const { getEmailFromRequest } = require("../utils/email-from-request");
+const { getPrisma } = require("../lib/prisma");
 const {
-  resolveSportsengineTeamScheduleFetchUrl
-} = require("../utils/sportsengine-schedule-url");
+  verifyTwinRinksSessionAndGetEmail,
+  isEmailClaimValid,
+  normalizeEmail
+} = require("../utils/twin-rinks-session-verify");
+const { isUuid } = require("../utils/sportsengine-calendars-storage");
 
 const router = express.Router();
 
-/** Shared implementation; URL source differs by HTTP method (query vs body). */
-async function respondTeamSchedule(rawUrl, res) {
-  const resolved = resolveSportsengineTeamScheduleFetchUrl(rawUrl);
-  if (resolved.error) {
-    return res.status(400).json({
-      ok: false,
-      error: resolved.error,
-      code: "sportsengine_schedule_url_invalid"
-    });
-  }
-
-  const scheduleUrl = resolved.url;
+async function fetchScheduleForStoredUrl(scheduleUrl, res, requestedScheduleId) {
   try {
     logInfo("SportsEngine team schedule request", { url: scheduleUrl });
     const response = await fetch(scheduleUrl, {
@@ -67,12 +62,15 @@ async function respondTeamSchedule(rawUrl, res) {
 
     logInfo("SportsEngine team schedule parsed", {
       gameCount: parsed.gameCount,
+      teamName: parsed.teamName || null,
       parserVersion: parsed.parserVersion
     });
 
     return res.json({
       ok: true,
       sourceUrl: scheduleUrl,
+      requestedScheduleId: requestedScheduleId || undefined,
+      teamName: parsed.teamName || null,
       gameCount: parsed.gameCount,
       parserVersion: parsed.parserVersion,
       games: parsed.games
@@ -89,14 +87,71 @@ async function respondTeamSchedule(rawUrl, res) {
   }
 }
 
-router.get("/team-schedule", async (req, res) => {
-  await respondTeamSchedule(req.query?.url, res);
-});
-
+/**
+ * Fetches a schedule by opaque scheduleId only. URL is resolved from the signed-in user's
+ * stored calendar rows (validated when saved) — no arbitrary URL fetch (SSRF-safe).
+ */
 router.post("/team-schedule", async (req, res) => {
-  const rawUrl =
-    req.body?.url !== undefined ? req.body.url : req.query?.url;
-  await respondTeamSchedule(rawUrl, res);
+  const prisma = getPrisma();
+  if (!prisma) {
+    return res.status(503).json({
+      ok: false,
+      error: "Database is not configured (DATABASE_URL missing)",
+      code: "database_unavailable"
+    });
+  }
+
+  const scheduleId = String(req.body?.scheduleId ?? "").trim();
+  const phpsessid = getSessionFromRequest(req);
+  const claimedEmail = getEmailFromRequest(req);
+
+  if (!scheduleId || !isUuid(scheduleId)) {
+    return res.status(400).json({
+      ok: false,
+      error: "scheduleId (UUID) is required",
+      code: "sportsengine_schedule_id_required"
+    });
+  }
+  if (!phpsessid) {
+    return res.status(400).json({ ok: false, error: "phpsessid is required" });
+  }
+  if (!claimedEmail) {
+    return res.status(400).json({ ok: false, error: "email is required" });
+  }
+
+  const session = await verifyTwinRinksSessionAndGetEmail(phpsessid);
+  if (!session.ok) {
+    return res.status(401).json({
+      ok: false,
+      error: "Legacy session invalid or expired",
+      code: session.code || "session_expired"
+    });
+  }
+  if (!isEmailClaimValid(session.email, claimedEmail)) {
+    return res.status(403).json({
+      ok: false,
+      error: "email does not match Twin Rinks session",
+      code: "email_mismatch"
+    });
+  }
+
+  const key = normalizeEmail(session.email);
+  const row = await prisma.user.findUnique({ where: { email: key } });
+  const raw = row?.sportsengineCalendars;
+  const calendars = Array.isArray(raw) ? raw : [];
+  const entry = calendars.find(
+    (c) => c && typeof c === "object" && String(c.scheduleId || "").trim() === scheduleId
+  );
+  if (!entry || !entry.url) {
+    return res.status(404).json({
+      ok: false,
+      error: "Unknown scheduleId or calendar not saved for this account",
+      code: "sportsengine_schedule_not_found"
+    });
+  }
+
+  const scheduleUrl = String(entry.url).trim();
+  return fetchScheduleForStoredUrl(scheduleUrl, res, scheduleId);
 });
 
 module.exports = router;
