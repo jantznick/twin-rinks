@@ -1,7 +1,5 @@
 "use strict";
 
-const { DEFAULT_SPORTSENGINE_TEAM_SCHEDULE_URL } = require("../config");
-
 /** Matches SportsEngine / Sports NGIN public team schedule pages. */
 const TEAM_INSTANCE_PATH_RE = /^\/schedule\/team_instance\/(\d+)\/?$/;
 
@@ -84,7 +82,6 @@ function isValidSportsengineTeamScheduleUrl(urlString) {
 
 /**
  * Resolves a pasted or configured team schedule URL for server-side fetch.
- * Empty input falls back to DEFAULT_SPORTSENGINE_TEAM_SCHEDULE_URL from config.
  */
 function resolveSportsengineTeamScheduleFetchUrl(rawFromQuery) {
   const trimmed =
@@ -93,7 +90,7 @@ function resolveSportsengineTeamScheduleFetchUrl(rawFromQuery) {
       : "";
   const candidate = trimmed
     ? normalizePastedScheduleUrl(trimmed)
-    : DEFAULT_SPORTSENGINE_TEAM_SCHEDULE_URL;
+    : "";
 
   if (!isValidSportsengineTeamScheduleUrl(candidate)) {
     return {

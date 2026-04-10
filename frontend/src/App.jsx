@@ -9,7 +9,12 @@ import SchedulePage from "./pages/SchedulePage";
 import ProfilePage from "./pages/ProfilePage";
 import Toast from "./components/Toast";
 import { normalizeSportsengineScheduleGames } from "./lib/gameUtils";
-import { loadSportsengineCalendarsFromApi, shortUrlKey } from "./lib/sportsengineCalendars";
+import {
+  loadSportsengineCalendarsFromApi,
+  normalizeCalendarsPayload,
+  shortUrlKey,
+  isScheduleId
+} from "./lib/sportsengineCalendars";
 
 const SAVED_SESSION_KEY = "legacy-phpsessid";
 const SAVED_EMAIL_KEY = "legacy-user-email";
@@ -169,44 +174,55 @@ export default function App() {
   /** After successful POST /update-profile, apply returned calendar rows from our DB. */
   const applyProfileSaveResponse = useCallback((data) => {
     if (data?.sportsengineCalendars && Array.isArray(data.sportsengineCalendars)) {
-      setSportsengineCalendars(data.sportsengineCalendars);
+      setSportsengineCalendars(normalizeCalendarsPayload(data));
     }
   }, []);
 
   const fetchSportsengineSchedules = useCallback(async () => {
-    const list = sportsengineCalendars.filter((c) => String(c?.url || "").trim());
-    if (list.length === 0) {
+    const session = getSavedSession();
+    const email = String(userEmail || getSavedEmail() || "").trim();
+    const list = sportsengineCalendars.filter(
+      (c) => String(c?.url || "").trim() && isScheduleId(c?.scheduleId)
+    );
+    if (list.length === 0 || !session || !email) {
       setSportsengineScheduleResults([]);
       return;
     }
     const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     const results = await Promise.all(
       list.map(async (cal) => {
+        const requestedScheduleId = cal.scheduleId;
         const requestedUrl = cal.url;
         try {
-          const response = await fetch(
-            `${API_BASE}/sportsengine/team-schedule?url=${encodeURIComponent(requestedUrl)}`
-          );
+          const response = await fetch(`${API_BASE}/sportsengine/team-schedule`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              scheduleId: requestedScheduleId,
+              phpsessid: session,
+              email
+            })
+          });
           const data = await response.json();
           return {
+            ...data,
+            requestedScheduleId: data.requestedScheduleId ?? requestedScheduleId,
             requestedUrl,
-            leagueLabel: cal.leagueLabel,
-            teamDisplayName: cal.teamDisplayName,
-            ...data
+            leagueLabel: cal.leagueLabel
           };
         } catch (e) {
           return {
             ok: false,
+            requestedScheduleId,
             requestedUrl,
             leagueLabel: cal.leagueLabel,
-            teamDisplayName: cal.teamDisplayName,
             error: e.message || "Request failed"
           };
         }
       })
     );
     setSportsengineScheduleResults(results);
-  }, [sportsengineCalendars]);
+  }, [sportsengineCalendars, userEmail]);
 
   const combinedSportsengineGames = useMemo(() => {
     const merged = [];
@@ -214,13 +230,17 @@ export default function App() {
       if (!r.ok || !Array.isArray(r.games)) {
         continue;
       }
-      const key = shortUrlKey(r.requestedUrl || r.sourceUrl || "");
-      const cal = sportsengineCalendars.find((c) => c.url === r.requestedUrl);
+      const cal = sportsengineCalendars.find(
+        (c) => String(c.scheduleId || "") === String(r.requestedScheduleId || "")
+      );
+      const key = shortUrlKey(
+        r.requestedScheduleId || r.requestedUrl || r.sourceUrl || ""
+      );
       merged.push(
         ...normalizeSportsengineScheduleGames(r.games, {
           sourceKey: key,
           leagueLabel: cal?.leagueLabel || r.leagueLabel || "League schedule",
-          teamDisplayName: cal?.teamDisplayName ?? r.teamDisplayName ?? ""
+          teamName: r.teamName ?? ""
         })
       );
     }
@@ -228,14 +248,23 @@ export default function App() {
   }, [sportsengineScheduleResults, sportsengineCalendars]);
 
   const combinedGamesResponse = useMemo(() => {
-    if (!gamesResponse?.ok) {
-      return gamesResponse;
+    const se = combinedSportsengineGames;
+    if (gamesResponse?.ok) {
+      const baseGames = Array.isArray(gamesResponse.games) ? gamesResponse.games : [];
+      return {
+        ...gamesResponse,
+        games: [...baseGames, ...se]
+      };
     }
-    const baseGames = Array.isArray(gamesResponse.games) ? gamesResponse.games : [];
-    return {
-      ...gamesResponse,
-      games: [...baseGames, ...combinedSportsengineGames]
-    };
+    if (se.length > 0) {
+      return {
+        ok: true,
+        games: se,
+        profile: gamesResponse?.profile,
+        profilePath: gamesResponse?.profilePath
+      };
+    }
+    return gamesResponse;
   }, [gamesResponse, combinedSportsengineGames]);
 
   const clearSession = (preserveEmail = false) => {
@@ -317,11 +346,10 @@ export default function App() {
         setUploadRefreshCountdownSec(GAMES_UPLOAD_POLL_SEC);
         const pollUnit = GAMES_UPLOAD_POLL_SEC === 1 ? "second" : "seconds";
         setGamesError(
-          `Games in process of being uploaded, we'll keep refreshing in the background and update games when they're ready. Next refresh in ${GAMES_UPLOAD_POLL_SEC} ${pollUnit}.`
+          `Twin Rinks games in process of being uploaded, we'll keep refreshing in the background and update games when they're ready. Next refresh in ${GAMES_UPLOAD_POLL_SEC} ${pollUnit}.`
         );
       } else {
         setGamesResponse(null);
-        setSportsengineScheduleResults([]);
         setGamesError(err.message || "Unable to load games");
         setIsUploading(false);
       }
@@ -374,7 +402,7 @@ export default function App() {
     if (!isUploading || uploadRefreshCountdownSec == null) return;
     const unit = uploadRefreshCountdownSec === 1 ? "second" : "seconds";
     setGamesError(
-      `Games in process of being uploaded, we'll keep refreshing in the background and update games when they're ready. Next refresh in ${uploadRefreshCountdownSec} ${unit}.`
+      `Twin Rinks games in process of being uploaded, we'll keep refreshing in the background and update games when they're ready. Next refresh in ${uploadRefreshCountdownSec} ${unit}.`
     );
   }, [isUploading, uploadRefreshCountdownSec]);
 

@@ -1,7 +1,19 @@
 import { useState, useMemo, useEffect } from "react";
 import PendingChangesBar from "../components/PendingChangesBar";
 import TelegramInstructionsModal from "../components/TelegramInstructionsModal";
-import { normalizeCalendarUrlInput } from "../lib/sportsengineCalendars";
+import { normalizeCalendarUrlInput, isScheduleId } from "../lib/sportsengineCalendars";
+
+function scheduleFetchResultMatchesCalendar(cal, r) {
+  const sid = String(cal.scheduleId || "").trim();
+  if (sid && isScheduleId(sid) && r.requestedScheduleId && String(r.requestedScheduleId) === sid) {
+    return true;
+  }
+  const u1 = normalizeCalendarUrlInput(cal.url) || String(cal.url || "").trim();
+  const u2 =
+    normalizeCalendarUrlInput(r.requestedUrl || r.sourceUrl) ||
+    String(r.requestedUrl || r.sourceUrl || "").trim();
+  return u1 === u2;
+}
 
 const PENDING_PROFILE_KEY = "twin-rinks-pending-profile";
 const MAX_PENDING_AGE = 20 * 60 * 1000; // 20 minutes
@@ -46,12 +58,35 @@ export default function ProfilePage({
   const [pendingExpanded, setPendingExpanded] = useState(false);
   const [newCalendarUrl, setNewCalendarUrl] = useState("");
   const [newCalendarLeagueLabel, setNewCalendarLeagueLabel] = useState("");
-  const [newCalendarTeamName, setNewCalendarTeamName] = useState("");
   const [draftSportsengineCalendars, setDraftSportsengineCalendars] = useState([]);
+  /** `cal.url` of row whose detail modal is open */
+  const [calendarDetailUrl, setCalendarDetailUrl] = useState(null);
 
   useEffect(() => {
     setDraftSportsengineCalendars(sportsengineCalendars);
   }, [sportsengineCalendars]);
+
+  useEffect(() => {
+    if (!calendarDetailUrl) {
+      return undefined;
+    }
+    const onKey = (e) => {
+      if (e.key === "Escape") {
+        setCalendarDetailUrl(null);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [calendarDetailUrl]);
+
+  useEffect(() => {
+    if (
+      calendarDetailUrl &&
+      !draftSportsengineCalendars.some((c) => c.url === calendarDetailUrl)
+    ) {
+      setCalendarDetailUrl(null);
+    }
+  }, [calendarDetailUrl, draftSportsengineCalendars]);
 
   // Initial state for diffing
   const [initialFormData, setInitialFormData] = useState({
@@ -177,10 +212,18 @@ export default function ProfilePage({
     fetchProfile();
   }, [profilePath]);
 
-  const calendarsDirty = useMemo(
-    () => JSON.stringify(draftSportsengineCalendars) !== JSON.stringify(sportsengineCalendars),
-    [draftSportsengineCalendars, sportsengineCalendars]
-  );
+  const calendarsDirty = useMemo(() => {
+    if (
+      JSON.stringify(draftSportsengineCalendars) !== JSON.stringify(sportsengineCalendars)
+    ) {
+      return true;
+    }
+    // If draft and parent JSON match but rows still lack a server UUID, we must POST
+    // sportsengineCalendars again — otherwise update-profile omits them and IDs never get assigned.
+    return draftSportsengineCalendars.some(
+      (c) => !isScheduleId(String(c?.scheduleId ?? "").trim())
+    );
+  }, [draftSportsengineCalendars, sportsengineCalendars]);
 
   const pendingChanges = useMemo(() => {
     const formChanges = Object.keys(formData)
@@ -463,13 +506,11 @@ export default function ProfilePage({
       ...prev,
       {
         url: normalized,
-        leagueLabel: label,
-        teamDisplayName: newCalendarTeamName.trim()
+        leagueLabel: label
       }
     ]);
     setNewCalendarUrl("");
     setNewCalendarLeagueLabel("");
-    setNewCalendarTeamName("");
   };
 
   const handleRemoveSportsengineCalendar = (url) => {
@@ -551,7 +592,7 @@ export default function ProfilePage({
         </div>
         <p className="mt-1 text-sm text-slate-600">
           Add public team schedule pages (SportsEngine / Sports NGIN). You choose the <strong>display name</strong> for each
-          calendar (shown on game cards). Games appear alongside Twin Rinks subs on{" "}
+          calendar (purple badge on game cards). Your team name for matchup lines comes from the schedule page. Games appear alongside Twin Rinks subs on{" "}
           <a href="/" className="font-medium text-indigo-600 hover:text-indigo-800 hover:underline">
             My Games &amp; Subs
           </a>
@@ -578,7 +619,7 @@ export default function ProfilePage({
               className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             />
           </div>
-          <div>
+          <div className="sm:col-span-2">
             <label htmlFor="new-se-league" className="block text-sm font-medium text-slate-700">
               Display name <span className="text-rose-600">*</span>
             </label>
@@ -593,20 +634,6 @@ export default function ProfilePage({
             />
             <p className="mt-1 text-xs text-slate-500">Shown on the purple badge on each game card.</p>
           </div>
-          <div>
-            <label htmlFor="new-se-team" className="block text-sm font-medium text-slate-700">
-              Your team name <span className="text-slate-400">(optional)</span>
-            </label>
-            <input
-              id="new-se-team"
-              type="text"
-              autoComplete="off"
-              placeholder="e.g. NASA — for matchup lines"
-              value={newCalendarTeamName}
-              onChange={(e) => setNewCalendarTeamName(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-            />
-          </div>
         </div>
         <div className="mt-3">
           <button
@@ -618,64 +645,32 @@ export default function ProfilePage({
           </button>
         </div>
         {draftSportsengineCalendars.length > 0 ? (
-          <ul className="mt-4 divide-y divide-slate-100 rounded-lg border border-slate-200">
-            {draftSportsengineCalendars.map((cal) => {
-              const status = sportsengineScheduleResults.find((r) => r.requestedUrl === cal.url);
-              const ok = status?.ok;
-              const errMsg = status && !status.ok ? status.error || status.details || "Failed" : null;
-              return (
-                <li key={cal.url} className="flex flex-col gap-3 px-3 py-3 text-sm sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
-                  <div className="min-w-0 flex-1 space-y-2">
-                    <p className="break-all font-mono text-xs text-slate-800">{cal.url}</p>
-                    <div className="grid gap-2 sm:grid-cols-2">
-                      <div>
-                        <label className="text-xs font-medium text-slate-600">Display name</label>
-                        <input
-                          type="text"
-                          value={cal.leagueLabel}
-                          onChange={(e) =>
-                            patchSportsengineCalendar(cal.url, { leagueLabel: e.target.value })
-                          }
-                          className="mt-0.5 w-full rounded border border-slate-300 px-2 py-1 text-sm"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs font-medium text-slate-600">Your team name</label>
-                        <input
-                          type="text"
-                          value={cal.teamDisplayName || ""}
-                          onChange={(e) =>
-                            patchSportsengineCalendar(cal.url, { teamDisplayName: e.target.value })
-                          }
-                          className="mt-0.5 w-full rounded border border-slate-300 px-2 py-1 text-sm"
-                        />
-                      </div>
-                    </div>
-                    {status ? (
-                      <p
-                        className={`text-xs ${
-                          ok ? "text-emerald-700" : "text-amber-800"
-                        }`}
-                      >
-                        {ok
-                          ? `${status.gameCount ?? 0} games loaded`
-                          : String(errMsg || "Could not load")}
-                      </p>
-                    ) : (
-                      <p className="text-xs text-slate-500">Not loaded yet</p>
-                    )}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveSportsengineCalendar(cal.url)}
-                    className="shrink-0 self-start rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50"
-                  >
-                    Remove
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+          <div className="mt-6">
+            <h3 className="text-sm font-semibold text-slate-800">Loaded calendars</h3>
+            <p className="mt-0.5 text-xs text-slate-500">
+              Click a league for URL and games; Remove deletes it from your profile.
+            </p>
+            <ul className="mt-3 flex flex-col gap-2">
+            {draftSportsengineCalendars.map((cal) => (
+              <li key={cal.url} className="flex items-center gap-2 sm:gap-3">
+                <button
+                  type="button"
+                  onClick={() => setCalendarDetailUrl(cal.url)}
+                  className="min-w-0 flex-1 truncate rounded-lg border border-indigo-200 bg-white px-4 py-2.5 text-left text-sm font-semibold text-slate-900 shadow-sm transition hover:border-indigo-300 hover:bg-indigo-50/60 hover:cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400/45"
+                >
+                  {cal.leagueLabel?.trim() || "Untitled league"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveSportsengineCalendar(cal.url)}
+                  className="shrink-0 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-800 hover:cursor-pointer"
+                >
+                  Remove
+                </button>
+              </li>
+            ))}
+            </ul>
+          </div>
         ) : (
           <p className="mt-4 text-sm text-slate-500">No extra calendars yet. Add a schedule URL and display name above.</p>
         )}
@@ -710,10 +705,16 @@ export default function ProfilePage({
       )}
 
       <form onSubmit={handleSubmit} className="space-y-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        
+        <div>
+          <h2 className="text-base font-semibold text-slate-900">Twin Rinks settings</h2>
+          <p className="mt-1 text-sm text-slate-600">
+            Your Twin Rinks account, subs preferences, and reminders — separate from extra SportsEngine calendars above.
+          </p>
+        </div>
+
         {/* Account Info */}
         <section>
-          <h2 className="text-base font-semibold text-slate-900">Account Information</h2>
+          <h3 className="text-base font-semibold text-slate-900">Account Information</h3>
           <div className="mt-4 grid gap-6 sm:grid-cols-2">
             <div>
               <label className="block text-sm font-medium text-slate-700">Email Address</label>
@@ -745,7 +746,7 @@ export default function ProfilePage({
 
         {/* Player Preferences */}
         <section>
-          <h2 className="text-base font-semibold text-slate-900">Player Preferences</h2>
+          <h3 className="text-base font-semibold text-slate-900">Player Preferences</h3>
           <div className="mt-4">
             <label className="block text-sm font-medium text-slate-700 mb-3">What position do you prefer to play?</label>
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
@@ -781,7 +782,7 @@ export default function ProfilePage({
 
         {/* Contact Info */}
         <section>
-          <h2 className="text-base font-semibold text-slate-900">Contact & Messaging</h2>
+          <h3 className="text-base font-semibold text-slate-900">Contact & Messaging</h3>
           <div className="mt-4 grid gap-6 sm:grid-cols-2">
             <div>
               <label className="block text-sm font-medium text-slate-700">Cell Phone</label>
@@ -858,7 +859,7 @@ export default function ProfilePage({
 
         {/* Notifications */}
         <section>
-          <h2 className="text-base font-semibold text-slate-900">Reminder Notifications</h2>
+          <h3 className="text-base font-semibold text-slate-900">Reminder Notifications</h3>
           <p className="mt-1 text-xs text-slate-500 mb-4">Configure when you want to be notified before your games.</p>
           
           <div className="space-y-3">
@@ -1047,6 +1048,173 @@ export default function ProfilePage({
           ) : null
         }
       />
+
+      {calendarDetailUrl ? (
+        (() => {
+          const detailCal = draftSportsengineCalendars.find((c) => c.url === calendarDetailUrl);
+          if (!detailCal) {
+            return null;
+          }
+          const detailStatus = sportsengineScheduleResults.find((r) =>
+            scheduleFetchResultMatchesCalendar(detailCal, r)
+          );
+          const ok = detailStatus?.ok;
+          const games = ok && Array.isArray(detailStatus.games) ? detailStatus.games : [];
+          const needsSaveForId =
+            !String(detailCal.scheduleId || "").trim() || !isScheduleId(detailCal.scheduleId);
+
+          return (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm"
+              onClick={() => setCalendarDetailUrl(null)}
+              role="presentation"
+            >
+              <div
+                className="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="se-cal-modal-title"
+              >
+                <div className="flex items-start justify-between gap-3 border-b border-slate-200 px-5 py-4">
+                  <div className="min-w-0">
+                    <h2 id="se-cal-modal-title" className="text-lg font-semibold text-slate-900">
+                      Calendar details
+                    </h2>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCalendarDetailUrl(null)}
+                    className="shrink-0 rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+                    aria-label="Close"
+                  >
+                    <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path
+                        fillRule="evenodd"
+                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="space-y-5 overflow-y-auto px-5 py-4 text-sm text-slate-700">
+                  <div>
+                    <label
+                      htmlFor="se-cal-modal-label"
+                      className="block text-xs font-semibold uppercase tracking-wide text-slate-500"
+                    >
+                      Display name
+                    </label>
+                    <input
+                      id="se-cal-modal-label"
+                      type="text"
+                      value={detailCal.leagueLabel}
+                      onChange={(e) =>
+                        patchSportsengineCalendar(detailCal.url, { leagueLabel: e.target.value })
+                      }
+                      className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    />
+                  </div>
+
+                  <div>
+                    <span className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      Schedule URL
+                    </span>
+                    <p className="mt-1 break-all rounded-lg bg-slate-50 px-3 py-2 font-mono text-[11px] leading-relaxed text-slate-800 ring-1 ring-inset ring-slate-200/80">
+                      {detailCal.url}
+                    </p>
+                  </div>
+
+                  <dl className="grid grid-cols-1 gap-3 rounded-xl border border-slate-100 bg-slate-50/80 px-3 py-3 text-xs sm:grid-cols-2">
+                    <div>
+                      <dt className="font-medium text-slate-500">Team Name</dt>
+                      <dd className="mt-0.5 text-slate-800">
+                        {ok && detailStatus.teamName
+                          ? detailStatus.teamName
+                          : needsSaveForId
+                            ? "Save profile first"
+                            : detailStatus && !ok
+                              ? "—"
+                              : "Loading…"}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium text-slate-500">Games loaded</dt>
+                      <dd className="mt-0.5 text-slate-800">
+                        {ok
+                          ? `${detailStatus.gameCount ?? games.length ?? 0} games`
+                          : detailStatus && !ok
+                            ? "Could not load"
+                            : needsSaveForId
+                              ? "Save profile to fetch"
+                              : "Not loaded yet"}
+                      </dd>
+                    </div>
+                  </dl>
+
+                  {detailStatus && !ok ? (
+                    <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                      {String(detailStatus.error || detailStatus.details || "Schedule request failed")}
+                    </p>
+                  ) : null}
+
+                  {ok && games.length > 0 ? (
+                    <div>
+                      <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Games on this schedule
+                      </h3>
+                      <div className="mt-2 max-h-48 overflow-auto rounded-lg border border-slate-200">
+                        <table className="w-full min-w-[100%] border-collapse text-left text-[11px]">
+                          <thead className="sticky top-0 bg-slate-100 text-slate-600">
+                            <tr>
+                              <th className="px-2 py-1.5 font-medium">Date</th>
+                              <th className="px-2 py-1.5 font-medium">Opponent</th>
+                              <th className="px-2 py-1.5 font-medium">Time</th>
+                              <th className="hidden px-2 py-1.5 font-medium sm:table-cell">Rink</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100 bg-white">
+                            {games.map((g) => (
+                              <tr key={g.gameId} className="text-slate-800">
+                                <td className="whitespace-nowrap px-2 py-1.5 align-top text-slate-600">
+                                  {g.dateRaw}
+                                </td>
+                                <td className="px-2 py-1.5 align-top">
+                                  {g.isAway ? (
+                                    <span className="text-slate-500">@ </span>
+                                  ) : null}
+                                  {g.opponentName}
+                                </td>
+                                <td className="whitespace-nowrap px-2 py-1.5 align-top text-slate-600">
+                                  {g.statusTime}
+                                </td>
+                                <td className="hidden max-w-[8rem] truncate px-2 py-1.5 align-top text-slate-500 sm:table-cell">
+                                  {g.location}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="border-t border-slate-200 px-5 py-3">
+                  <button
+                    type="button"
+                    onClick={() => setCalendarDetailUrl(null)}
+                    className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-700"
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })()
+      ) : null}
 
       <TelegramInstructionsModal 
         open={telegramModalOpen} 

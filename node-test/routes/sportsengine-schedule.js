@@ -21,6 +21,29 @@ const { isUuid } = require("../utils/sportsengine-calendars-storage");
 
 const router = express.Router();
 
+/** SportsEngine cells only give strings like "Thu Apr 9" — resolve to a calendar day in server local time. */
+function gameDayFromDateRaw(dateRaw) {
+  const cleaned = String(dateRaw || "").replace(/\s+/g, " ").trim();
+  const m = cleaned.match(/\b([A-Za-z]{3})\s+([A-Za-z]{3})\s+(\d{1,2})\b/);
+  if (!m) {
+    return null;
+  }
+  const mon = m[2];
+  const dayNum = Number(m[3]);
+  const now = new Date();
+  let year = now.getFullYear();
+  let d = new Date(`${mon} ${dayNum}, ${year}`);
+  if (Number.isNaN(d.getTime())) {
+    return null;
+  }
+  if (d.getTime() < now.getTime() - 14 * 86400000) {
+    year += 1;
+    d = new Date(`${mon} ${dayNum}, ${year}`);
+  }
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
 async function fetchScheduleForStoredUrl(scheduleUrl, res, requestedScheduleId) {
   try {
     logInfo("SportsEngine team schedule request", { url: scheduleUrl });
@@ -60,8 +83,19 @@ async function fetchScheduleForStoredUrl(scheduleUrl, res, requestedScheduleId) 
       });
     }
 
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const games = parsed.games.filter((g) => {
+      const day = gameDayFromDateRaw(g.dateRaw);
+      if (!day) {
+        return true;
+      }
+      return day >= todayStart;
+    });
+
     logInfo("SportsEngine team schedule parsed", {
-      gameCount: parsed.gameCount,
+      gameCountParsed: parsed.gameCount,
+      gameCountReturned: games.length,
       teamName: parsed.teamName || null,
       parserVersion: parsed.parserVersion
     });
@@ -71,9 +105,9 @@ async function fetchScheduleForStoredUrl(scheduleUrl, res, requestedScheduleId) 
       sourceUrl: scheduleUrl,
       requestedScheduleId: requestedScheduleId || undefined,
       teamName: parsed.teamName || null,
-      gameCount: parsed.gameCount,
+      gameCount: games.length,
       parserVersion: parsed.parserVersion,
-      games: parsed.games
+      games
     });
   } catch (error) {
     logInfo("SportsEngine team schedule request failed", {
