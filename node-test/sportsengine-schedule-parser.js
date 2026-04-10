@@ -7,6 +7,21 @@ function stripTags(html) {
     .trim();
 }
 
+function parseScheduleTitleTeamName(html) {
+  const m = String(html).match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  if (!m) {
+    return "";
+  }
+  const title = decodeBasicEntities(stripTags(m[1]))
+    .replace(/\s+/g, " ")
+    .trim();
+  const segments = title
+    .split(/\s-\s/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return segments.length ? segments[segments.length - 1] : "";
+}
+
 function decodeBasicEntities(text) {
   return String(text || "")
     .replace(/&#39;/g, "'")
@@ -82,9 +97,10 @@ function parseSportsengineTeamScheduleHtml(html) {
   }
 
   return {
+    teamName: parseScheduleTitleTeamName(fullHtml),
     gameCount: games.length,
     games,
-    parserVersion: "sportsengine-team-schedule-v3"
+    parserVersion: "sportsengine-team-schedule-v2"
   };
 }
 
