@@ -1,4 +1,5 @@
 import seasonCalendar from "../data/seasonCalendar.json";
+import { expandTwinRinksLeagueCode } from "./twinRinksLeagueCodes";
 
 /** @deprecated Prefer `game.leagueLabel` on SportsEngine rows. */
 export const ROSEMONT_LEAGUE_LABEL = "Rosemont AHL";
@@ -295,7 +296,9 @@ export function getGameHeadline(game) {
     );
   }
   if (game?.details?.kind === "matchup") {
-    return `${game.details.league}: ${game.details.teamA} vs ${game.details.teamB}`;
+    const league =
+      expandTwinRinksLeagueCode(game.details.league) || game.details.league;
+    return `${league}: ${game.details.teamA} vs ${game.details.teamB}`;
   }
   if (game?.details?.summary) {
     return game.details.summary;
@@ -314,14 +317,18 @@ export function getLeagueLabel(game) {
     return game.leagueLabel || "League schedule";
   }
   if (game?.source === "twin-rinks-league") {
+    if (game?.details?.kind === "matchup" && game?.details?.league) {
+      return expandTwinRinksLeagueCode(game.details.league) || game.details.league;
+    }
     const lt = String(game.leagueTeam || "").trim();
     if (lt && lt.includes("-")) {
-      return lt.split("-")[0] || "Twin Rinks";
+      const code = lt.split("-")[0] || "";
+      return expandTwinRinksLeagueCode(code) || code || "Twin Rinks";
     }
     return "Twin Rinks league";
   }
   if (game?.details?.kind === "matchup" && game?.details?.league) {
-    return game.details.league;
+    return expandTwinRinksLeagueCode(game.details.league) || game.details.league;
   }
   if (game?.details?.kind === "playing") {
     return "Playing";

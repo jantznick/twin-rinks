@@ -1,5 +1,7 @@
 "use strict";
 
+const { expandTwinRinksLeagueCode } = require("./utils/twin-rinks-league-codes");
+
 function parseInputAttributes(inputTag) {
   const attributes = {};
   const attrRegex =
@@ -231,18 +233,22 @@ function parseInfoText(infoText) {
     };
   }
 
+  // Twin Rinks uses short league codes: "PLAT RED vs YELLOW" or "PLAT: RED vs YELLOW"
   const matchupMatch = normalized.match(
-    /^([A-Z]+)\s+([A-Z]+)\s+vs\s+([A-Z]+)\s*(.*)$/i
+    /^([A-Za-z][A-Za-z0-9]*)\s*(?::\s+|\s+)([A-Za-z]+)\s+vs\s+([A-Za-z]+)\s*(.*)$/i
   );
   if (matchupMatch) {
     const trailingNote = matchupMatch[4].trim();
+    const leagueDisplay = expandTwinRinksLeagueCode(matchupMatch[1]);
+    const teamA = matchupMatch[2].toUpperCase();
+    const teamB = matchupMatch[3].toUpperCase();
     return {
       kind: "matchup",
-      league: matchupMatch[1].toUpperCase(),
-      teamA: matchupMatch[2].toUpperCase(),
-      teamB: matchupMatch[3].toUpperCase(),
+      league: leagueDisplay,
+      teamA,
+      teamB,
       note: trailingNote,
-      summary: `${matchupMatch[2].toUpperCase()} vs ${matchupMatch[3].toUpperCase()}`
+      summary: `${teamA} vs ${teamB}`
     };
   }
 
