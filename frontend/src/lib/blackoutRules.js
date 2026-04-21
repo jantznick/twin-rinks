@@ -183,3 +183,94 @@ export function getBlackoutReasonLines(game, rules, resolveLeagueLabel) {
 export function isGameBlackout(game, rules) {
   return getMatchingBlackoutRules(game, rules).length > 0;
 }
+
+function importedLeagueSummary(entry, resolveLeagueLabel) {
+  const scopes = Array.isArray(entry?.leagueScopes) ? entry.leagueScopes : [];
+  if (scopes.length === 0) {
+    return "All leagues";
+  }
+  const r =
+    typeof resolveLeagueLabel === "function"
+      ? resolveLeagueLabel
+      : (id) => String(id || "");
+  return scopes.map((s) => (s === TWIN_RINKS_SCOPE ? "Twin Rinks" : r(s))).join(", ");
+}
+
+function importedAppliesToGame(entry, gameScope) {
+  const scopes = Array.isArray(entry?.leagueScopes) ? entry.leagueScopes : [];
+  if (scopes.length === 0) {
+    return true;
+  }
+  return scopes.includes(gameScope);
+}
+
+/**
+ * Calendar-import rows for a game date: `active` blocks subs; `purgatory` shows Tentative only.
+ */
+export function getImportedBlocklistMatches(game, entries) {
+  if (!Array.isArray(entries) || entries.length === 0) {
+    return { active: [], purgatory: [] };
+  }
+  const iso = getDateKeyIsoLocal(game);
+  if (!iso) {
+    return { active: [], purgatory: [] };
+  }
+  const scope = getGameLeagueScope(game);
+  const active = [];
+  const purgatory = [];
+  for (const e of entries) {
+    if (String(e.dateKeyChicago || "") !== iso) {
+      continue;
+    }
+    if (!importedAppliesToGame(e, scope)) {
+      continue;
+    }
+    if (e.status === "active") {
+      active.push(e);
+    } else if (e.status === "purgatory") {
+      purgatory.push(e);
+    }
+  }
+  return { active, purgatory };
+}
+
+export function getImportedReasonEntries(game, entries, resolveLeagueLabel) {
+  const { active } = getImportedBlocklistMatches(game, entries || []);
+  const resolver =
+    typeof resolveLeagueLabel === "function"
+      ? resolveLeagueLabel
+      : (id) => String(id || "");
+  return active.map((e) => {
+    const line = `${importedLeagueSummary(e, resolver)} — Calendar import · ${e.dateKeyChicago}`;
+    const note = String(e.note || "").trim();
+    return note ? { line, note } : { line };
+  });
+}
+
+export function getImportedActiveBlackoutLines(game, entries, resolveLeagueLabel) {
+  return getImportedReasonEntries(game, entries, resolveLeagueLabel).flatMap((e) =>
+    e.note ? [e.line, `Note: ${e.note}`] : [e.line]
+  );
+}
+
+export function getImportedTentativeBlackoutLines(game, entries, resolveLeagueLabel) {
+  const { purgatory } = getImportedBlocklistMatches(game, entries || []);
+  const resolver =
+    typeof resolveLeagueLabel === "function"
+      ? resolveLeagueLabel
+      : (id) => String(id || "");
+  return purgatory.map((e) => {
+    const scope = importedLeagueSummary(e, resolver);
+    const note = String(e.note || "").trim();
+    const base = `${scope} — Tentative · ${e.dateKeyChicago}`;
+    return note ? `${base} · ${note}` : base;
+  });
+}
+
+export function hasAnyBlackoutForGame(game, rules, calendarBlocklist) {
+  if (getMatchingBlackoutRules(game, rules).length > 0) {
+    return true;
+  }
+  const { active } = getImportedBlocklistMatches(game, calendarBlocklist || []);
+  return active.length > 0;
+}

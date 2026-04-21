@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import GamesCalendarView from "../components/GamesCalendarView";
 import GamesGrid from "../components/GamesGrid";
 import GamesListView from "../components/GamesListView";
@@ -10,9 +10,10 @@ import {
   getJerseyChart,
   getGameStartDate,
   getGameHeadline,
-  isPlayerPlaying,
+  countsAsPlayingForSubWarn,
   getPlayingTeamColor,
   getScheduleText,
+  getDateKeyIsoLocal,
   normalizeGames,
   checkIsProcessed,
   applyPendingUpdate
@@ -20,7 +21,10 @@ import {
 import {
   getBlackoutReasonEntries,
   getBlackoutReasonLines,
-  getMatchingBlackoutRules,
+  getImportedActiveBlackoutLines,
+  getImportedReasonEntries,
+  getImportedTentativeBlackoutLines,
+  hasAnyBlackoutForGame,
   TWIN_RINKS_SCOPE
 } from "../lib/blackoutRules";
 
@@ -28,6 +32,86 @@ const DENSE_MODE_KEY = "subs-dense-mode";
 const VIEW_MODE_KEY = "subs-view-mode";
 const PENDING_UPDATES_KEY = "twin-rinks-pending-updates";
 const MAX_PENDING_AGE = 20 * 60 * 1000; // 20 minutes
+
+function addDaysToIsoLocal(iso, deltaDays) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || "").trim());
+  if (!m) {
+    return null;
+  }
+  const dt = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  dt.setDate(dt.getDate() + deltaDays);
+  const y = dt.getFullYear();
+  const mo = String(dt.getMonth() + 1).padStart(2, "0");
+  const d = String(dt.getDate()).padStart(2, "0");
+  return `${y}-${mo}-${d}`;
+}
+
+function selectionForConflictCheck(game, draftSelections, submittedSelections) {
+  return Object.prototype.hasOwnProperty.call(draftSelections, game.gameId)
+    ? normalizeSelection(draftSelections[game.gameId])
+    : normalizeSelection(submittedSelections[game.gameId]);
+}
+
+/** Same rules as submit pipeline — used when turning “I can sub” on so it matches blackout-date flow. */
+function collectSubScheduleConflictReasonEntries(
+  g,
+  games,
+  draftSelections,
+  submittedSelections,
+  blackoutPrefs
+) {
+  const entries = [];
+  if (!g || g.source === "sportsengine") {
+    return entries;
+  }
+  if (!blackoutPrefs?.subWarnIfSameDayGame && !blackoutPrefs?.subWarnIfAdjacentGameDays) {
+    return entries;
+  }
+  const dk = getDateKeyIsoLocal(g);
+  if (!dk) {
+    return entries;
+  }
+
+  if (blackoutPrefs.subWarnIfSameDayGame) {
+    for (const h of games) {
+      if (h.gameId === g.gameId) {
+        continue;
+      }
+      if (getDateKeyIsoLocal(h) !== dk) {
+        continue;
+      }
+      const selH = selectionForConflictCheck(h, draftSelections, submittedSelections);
+      if (countsAsPlayingForSubWarn(h, selH)) {
+        entries.push({
+          line: `Another game that same calendar day`
+        });
+      }
+    }
+  }
+
+  if (blackoutPrefs.subWarnIfAdjacentGameDays) {
+    const prev = addDaysToIsoLocal(dk, -1);
+    const next = addDaysToIsoLocal(dk, 1);
+    for (const h of games) {
+      if (h.gameId === g.gameId) {
+        continue;
+      }
+      const dh = getDateKeyIsoLocal(h);
+      if (dh !== prev && dh !== next) {
+        continue;
+      }
+      const selH = selectionForConflictCheck(h, draftSelections, submittedSelections);
+      if (countsAsPlayingForSubWarn(h, selH)) {
+        const side = dh === prev ? "Previous calendar day" : "Next calendar day";
+        entries.push({
+          line: `${side}`
+        });
+      }
+    }
+  }
+
+  return entries;
+}
 
 function getSavedDenseMode() {
   try {
@@ -111,7 +195,9 @@ export default function SubsPage({
   setDemoMode,
   showToast,
   blackoutRules = [],
-  sportsengineCalendars = []
+  calendarBlocklist = [],
+  sportsengineCalendars = [],
+  blackoutPrefs = { subWarnIfSameDayGame: false, subWarnIfAdjacentGameDays: false }
 }) {
   const [draftSelections, setDraftSelections] = useState({});
   const [denseMode, setDenseMode] = useState(getSavedDenseMode);
@@ -127,6 +213,7 @@ export default function SubsPage({
   const [submitError, setSubmitError] = useState(null);
   const [blackoutToggleModal, setBlackoutToggleModal] = useState(null);
   const [blackoutSubmitModal, setBlackoutSubmitModal] = useState(null);
+  const submitPipelineRef = useRef({ steps: [], index: 0 });
 
   const rawGames = useMemo(() => normalizeGames(gamesResponse), [gamesResponse]);
 
@@ -205,10 +292,20 @@ export default function SubsPage({
   const blackoutReasonsByGameId = useMemo(() => {
     const map = {};
     for (const g of games) {
-      map[g.gameId] = getBlackoutReasonLines(g, blackoutRules, resolveLeagueLabel);
+      const ruleLines = getBlackoutReasonLines(g, blackoutRules, resolveLeagueLabel);
+      const importedLines = getImportedActiveBlackoutLines(g, calendarBlocklist, resolveLeagueLabel);
+      map[g.gameId] = [...ruleLines, ...importedLines];
     }
     return map;
-  }, [games, blackoutRules, resolveLeagueLabel]);
+  }, [games, blackoutRules, calendarBlocklist, resolveLeagueLabel]);
+
+  const tentativeBlackoutReasonsByGameId = useMemo(() => {
+    const map = {};
+    for (const g of games) {
+      map[g.gameId] = getImportedTentativeBlackoutLines(g, calendarBlocklist, resolveLeagueLabel);
+    }
+    return map;
+  }, [games, calendarBlocklist, resolveLeagueLabel]);
 
   const initialDraft = useMemo(() => buildDraftSelections(games), [games]);
 
@@ -399,15 +496,42 @@ export default function SubsPage({
       return;
     }
 
-    const reasons = game
-      ? getBlackoutReasonEntries(game, blackoutRules, resolveLeagueLabel)
+    const blackoutReasons = game
+      ? [
+          ...getBlackoutReasonEntries(game, blackoutRules, resolveLeagueLabel),
+          ...getImportedReasonEntries(game, calendarBlocklist, resolveLeagueLabel)
+        ]
       : [];
+    const scheduleReasons = game
+      ? collectSubScheduleConflictReasonEntries(
+          game,
+          games,
+          draftSelections,
+          submittedSelections,
+          blackoutPrefs
+        )
+      : [];
+    const reasons = [...blackoutReasons, ...scheduleReasons];
+
     if (reasons.length > 0) {
+      const hasBlackout = blackoutReasons.length > 0;
+      const hasSchedule = scheduleReasons.length > 0;
       setBlackoutToggleModal({
         gameId,
         reasons,
         headline: getGameHeadline(game),
-        schedule: getScheduleText(game)
+        schedule: getScheduleText(game),
+        ...(hasSchedule
+          ? {
+              modalTitle: "This date is on your blackout list",
+              modalSubtitle:
+                "Review the items below, then continue only if requesting a sub still makes sense.",
+              reasonIntro:
+                hasBlackout && hasSchedule
+                  ? "Before requesting a sub, review:"
+                  : "You asked to be warned before requesting a sub on dates like this:"
+            }
+          : {})
       });
       return;
     }
@@ -557,6 +681,21 @@ export default function SubsPage({
     }
   };
 
+  const advanceSubmitPipeline = () => {
+    const { steps, index } = submitPipelineRef.current;
+    if (index >= steps.length) {
+      setBlackoutSubmitModal(null);
+      void runSubmitGames();
+      return;
+    }
+    const step = steps[index];
+    submitPipelineRef.current = { steps, index: index + 1 };
+    setBlackoutSubmitModal({
+      ...step,
+      hasMore: index + 1 < steps.length
+    });
+  };
+
   const handleSubmitPendingChanges = async () => {
     setSubmitError(null);
 
@@ -565,33 +704,47 @@ export default function SubsPage({
       return;
     }
 
-    const needConfirm = [];
+    const steps = [];
+
+    const needBlackout = [];
     for (const game of games) {
       const baseline = normalizeSelection(submittedSelections[game.gameId]);
       const draft = normalizeSelection(draftSelections[game.gameId]);
       if (!draft.sub || baseline.sub) {
         continue;
       }
-      if (getMatchingBlackoutRules(game, blackoutRules).length === 0) {
+      if (!hasAnyBlackoutForGame(game, blackoutRules, calendarBlocklist)) {
         continue;
       }
-      needConfirm.push(game);
+      needBlackout.push(game);
     }
 
-    if (needConfirm.length > 0) {
-      setBlackoutSubmitModal({
-        items: needConfirm.map((g) => ({
+    if (needBlackout.length > 0) {
+      steps.push({
+        title: "Some sub requests are on blackout dates",
+        subtitle: "Confirm once to move through reminders, then submit all pending changes.",
+        reasonIntro: null,
+        footnote: null,
+        items: needBlackout.map((g) => ({
           key: g.gameId,
           gameId: g.gameId,
           headline: getGameHeadline(g),
           schedule: getScheduleText(g),
-          reasons: getBlackoutReasonEntries(g, blackoutRules, resolveLeagueLabel)
+          reasons: [
+            ...getBlackoutReasonEntries(g, blackoutRules, resolveLeagueLabel),
+            ...getImportedReasonEntries(g, calendarBlocklist, resolveLeagueLabel)
+          ]
         }))
       });
+    }
+
+    if (steps.length === 0) {
+      await runSubmitGames();
       return;
     }
 
-    await runSubmitGames();
+    submitPipelineRef.current = { steps, index: 0 };
+    advanceSubmitPipeline();
   };
 
   const confirmBlackoutToggle = () => {
@@ -610,9 +763,9 @@ export default function SubsPage({
     }));
   };
 
-  const confirmBlackoutSubmit = async () => {
+  const confirmBlackoutSubmit = () => {
     setBlackoutSubmitModal(null);
-    await runSubmitGames();
+    advanceSubmitPipeline();
   };
 
   const handleCancelPendingChanges = () => {
@@ -881,6 +1034,7 @@ export default function SubsPage({
             onToggleAttendance={handleToggleAttendance}
             isMyGame={isMyGameFn}
             blackoutReasonsByGameId={blackoutReasonsByGameId}
+            tentativeBlackoutReasonsByGameId={tentativeBlackoutReasonsByGameId}
           />
         ) : viewMode === "list" ? (
           <GamesListView
@@ -891,6 +1045,7 @@ export default function SubsPage({
             onToggleAttendance={handleToggleAttendance}
             isMyGame={isMyGameFn}
             blackoutReasonsByGameId={blackoutReasonsByGameId}
+            tentativeBlackoutReasonsByGameId={tentativeBlackoutReasonsByGameId}
           />
         ) : (
           <GamesGrid
@@ -902,6 +1057,7 @@ export default function SubsPage({
             onToggleAttendance={handleToggleAttendance}
             isMyGame={isMyGameFn}
             blackoutReasonsByGameId={blackoutReasonsByGameId}
+            tentativeBlackoutReasonsByGameId={tentativeBlackoutReasonsByGameId}
           />
         )}
 
@@ -939,8 +1095,13 @@ export default function SubsPage({
 
       <BlackoutConfirmModal
         open={Boolean(blackoutToggleModal)}
-        title="This date is on your blackout list"
-        subtitle="Review why you marked it, then continue only if requesting a sub still makes sense."
+        title={blackoutToggleModal?.modalTitle ?? "This date is on your blackout list"}
+        subtitle={
+          blackoutToggleModal?.modalSubtitle ??
+          "Review why you marked it, then continue only if requesting a sub still makes sense."
+        }
+        reasonIntro={blackoutToggleModal?.reasonIntro}
+        footnote={blackoutToggleModal?.footnote}
         items={
           blackoutToggleModal
             ? [
@@ -959,12 +1120,17 @@ export default function SubsPage({
 
       <BlackoutConfirmModal
         open={Boolean(blackoutSubmitModal)}
-        title="Some sub requests are on blackout dates"
-        subtitle="Confirm once to submit all pending changes."
+        title={blackoutSubmitModal?.title || "Review before submit"}
+        subtitle={blackoutSubmitModal?.subtitle || ""}
+        reasonIntro={blackoutSubmitModal?.reasonIntro}
+        footnote={blackoutSubmitModal?.footnote}
         items={blackoutSubmitModal?.items || []}
-        confirmLabel="Submit all"
+        confirmLabel={blackoutSubmitModal?.hasMore ? "Continue" : "Submit all"}
         onConfirm={confirmBlackoutSubmit}
-        onCancel={() => setBlackoutSubmitModal(null)}
+        onCancel={() => {
+          setBlackoutSubmitModal(null);
+          submitPipelineRef.current = { steps: [], index: 0 };
+        }}
       />
     </div>
   );

@@ -10,12 +10,53 @@ datasource db {
 /// Twin Rinks app user preferences keyed by login email (legacy subs login).
 /// Each entry: { scheduleId, url, leagueLabel } — scheduleId is opaque; URL validated at save; leagueLabel is user-defined (badge).
 model User {
-  id                     String         @id @default(cuid())
-  email                  String         @unique
-  sportsengineCalendars  Json           @default("[]")
-  blackoutRules          BlackoutRule[]
-  createdAt              DateTime       @default(now())
-  updatedAt              DateTime       @updatedAt
+  id                            String                 @id @default(cuid())
+  email                         String                 @unique
+  sportsengineCalendars         Json                   @default("[]")
+  /// Sub submit: warn if requesting a sub while already playing another game that calendar day.
+  subWarnIfSameDayGame          Boolean                @default(false)
+  /// Sub submit: warn if requesting a sub while having a game the previous or next calendar day.
+  subWarnIfAdjacentGameDays     Boolean                @default(false)
+  blackoutRules                 BlackoutRule[]
+  calendarSubscriptions         CalendarSubscription[]
+  createdAt                     DateTime               @default(now())
+  updatedAt                     DateTime               @updatedAt
+}
+
+/// Imported calendar feed (Google / iCal). Mode IMPORT_ALL syncs every event in-window; IMPORT_PICK stores user-selected instances only.
+model CalendarSubscription {
+  id            String                   @id @default(cuid())
+  userId        String
+  user          User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  url           String
+  label         String?
+  mode          String
+  leagueScopes  Json                     @default("[]")
+  syncStatus    String                   @default("idle")
+  lastSyncAt    DateTime?
+  lastSyncError String?
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @updatedAt
+  blocklist     CalendarBlocklistEntry[]
+
+  @@index([userId])
+}
+
+/// One expanded calendar instance (Chicago date) tied to a subscription. Status: active blocks; deleted user-removed; purgatory reappeared on manual sync after delete.
+model CalendarBlocklistEntry {
+  id               String               @id @default(cuid())
+  subscriptionId   String
+  subscription     CalendarSubscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  icsUid           String
+  recurrenceId     String               @default("")
+  instanceStartUtc DateTime
+  dateKeyChicago   String
+  note             String?
+  status           String               @default("active")
+
+  @@unique([subscriptionId, icsUid, recurrenceId, instanceStartUtc])
+  @@index([subscriptionId])
+  @@index([dateKeyChicago])
 }
 
 /// Per-user blackout rules (calendar-day granularity). `leagueScopes` JSON array; empty = all leagues.

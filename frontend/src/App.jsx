@@ -128,6 +128,12 @@ export default function App() {
   const [toastMessage, setToastMessage] = useState(null);
   const [uploadRefreshCountdownSec, setUploadRefreshCountdownSec] = useState(null);
   const [blackoutRules, setBlackoutRules] = useState([]);
+  const [calendarSubscriptions, setCalendarSubscriptions] = useState([]);
+  const [calendarBlocklist, setCalendarBlocklist] = useState([]);
+  const [blackoutPrefs, setBlackoutPrefs] = useState({
+    subWarnIfSameDayGame: false,
+    subWarnIfAdjacentGameDays: false
+  });
 
   const isLoggedIn = Boolean(phpsessid);
 
@@ -136,6 +142,12 @@ export default function App() {
     const email = String(userEmail || getSavedEmail() || "").trim();
     if (!session || !email) {
       setBlackoutRules([]);
+      setCalendarSubscriptions([]);
+      setCalendarBlocklist([]);
+      setBlackoutPrefs({
+        subWarnIfSameDayGame: false,
+        subWarnIfAdjacentGameDays: false
+      });
       return;
     }
     const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
@@ -148,17 +160,43 @@ export default function App() {
       const data = await response.json();
       if (response.ok && data.ok && Array.isArray(data.rules)) {
         setBlackoutRules(data.rules);
+        setCalendarSubscriptions(
+          Array.isArray(data.calendarSubscriptions) ? data.calendarSubscriptions : []
+        );
+        setCalendarBlocklist(Array.isArray(data.calendarBlocklist) ? data.calendarBlocklist : []);
+        setBlackoutPrefs({
+          subWarnIfSameDayGame: data.subWarnIfSameDayGame === true,
+          subWarnIfAdjacentGameDays: data.subWarnIfAdjacentGameDays === true
+        });
       } else {
         setBlackoutRules([]);
+        setCalendarSubscriptions([]);
+        setCalendarBlocklist([]);
+        setBlackoutPrefs({
+          subWarnIfSameDayGame: false,
+          subWarnIfAdjacentGameDays: false
+        });
       }
     } catch {
       setBlackoutRules([]);
+      setCalendarSubscriptions([]);
+      setCalendarBlocklist([]);
+      setBlackoutPrefs({
+        subWarnIfSameDayGame: false,
+        subWarnIfAdjacentGameDays: false
+      });
     }
   }, [userEmail]);
 
   useEffect(() => {
     if (!phpsessid || !String(userEmail || "").trim()) {
       setBlackoutRules([]);
+      setCalendarSubscriptions([]);
+      setCalendarBlocklist([]);
+      setBlackoutPrefs({
+        subWarnIfSameDayGame: false,
+        subWarnIfAdjacentGameDays: false
+      });
       return;
     }
     loadBlackouts();
@@ -309,6 +347,8 @@ export default function App() {
     setSportsengineCalendars([]);
     setSportsengineScheduleResults([]);
     setBlackoutRules([]);
+    setCalendarSubscriptions([]);
+    setCalendarBlocklist([]);
     setGamesError("");
     setIsUploading(false);
     setUploadRefreshCountdownSec(null);
@@ -574,7 +614,9 @@ export default function App() {
                   setDemoMode={setDemoMode}
                   showToast={setToastMessage}
                   blackoutRules={blackoutRules}
+                  calendarBlocklist={calendarBlocklist}
                   sportsengineCalendars={sportsengineCalendars}
+                  blackoutPrefs={blackoutPrefs}
                 />
               ) : (
                 <LandingPage onOpenLogin={() => setLoginModalOpen(true)} />
@@ -598,7 +640,14 @@ export default function App() {
                   sportsengineScheduleResults={sportsengineScheduleResults}
                   onRefreshSportsengineSchedules={fetchSportsengineSchedules}
                   blackoutRules={blackoutRules}
+                  calendarSubscriptions={calendarSubscriptions}
+                  calendarBlocklist={calendarBlocklist}
                   onBlackoutsUpdated={setBlackoutRules}
+                  loadBlackouts={loadBlackouts}
+                  blackoutPrefs={blackoutPrefs}
+                  onBlackoutPrefsUpdated={(patch) =>
+                    setBlackoutPrefs((prev) => ({ ...prev, ...patch }))
+                  }
                 />
               ) : (
                 <Navigate to="/" replace />

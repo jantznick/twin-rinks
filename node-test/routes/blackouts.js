@@ -15,6 +15,7 @@ const {
   formatRuleForClient
 } = require("../utils/blackout-rules");
 const { backfillScheduleIds } = require("../utils/sportsengine-calendars-storage");
+const { sanitizeLastSyncErrorForApi } = require("../utils/prisma-missing-table");
 
 const router = express.Router();
 
@@ -82,10 +83,69 @@ async function handleGetBlackouts(req, res) {
   const row = await getUserRowWithCalendars(prisma, key);
   const rules = (row.blackoutRules || []).map(formatRuleForClient);
 
+  let calendarSubscriptions = [];
+  let calendarBlocklist = [];
+  try {
+    calendarSubscriptions = await prisma.calendarSubscription.findMany({
+      where: { userId: row.id },
+      orderBy: { createdAt: "asc" }
+    });
+  } catch (err) {
+    if (err.code !== "P2021") {
+      throw err;
+    }
+    logInfo("CalendarSubscription table missing; skip calendar subscriptions", {
+      email: key
+    });
+  }
+  try {
+    calendarBlocklist = await prisma.calendarBlocklistEntry.findMany({
+      where: { subscription: { userId: row.id } },
+      include: { subscription: { select: { label: true, leagueScopes: true } } },
+      orderBy: [{ dateKeyChicago: "asc" }, { instanceStartUtc: "asc" }]
+    });
+  } catch (err) {
+    if (err.code !== "P2021") {
+      throw err;
+    }
+    logInfo("CalendarBlocklistEntry table missing; skip imported blocklist rows", {
+      email: key
+    });
+  }
+
   return res.json({
     ok: true,
     email: key,
-    rules
+    rules,
+    subWarnIfSameDayGame: Boolean(row.subWarnIfSameDayGame),
+    subWarnIfAdjacentGameDays: Boolean(row.subWarnIfAdjacentGameDays),
+    calendarSubscriptions: calendarSubscriptions.map((s) => ({
+      id: s.id,
+      url: s.url,
+      label: s.label,
+      mode: s.mode,
+      leagueScopes: Array.isArray(s.leagueScopes)
+        ? s.leagueScopes
+        : JSON.parse(JSON.stringify(s.leagueScopes || [])),
+      syncStatus: s.syncStatus,
+      lastSyncAt: s.lastSyncAt ? s.lastSyncAt.toISOString() : null,
+      lastSyncError: sanitizeLastSyncErrorForApi(s.lastSyncError),
+      createdAt: s.createdAt.toISOString()
+    })),
+    calendarBlocklist: calendarBlocklist.map((e) => ({
+      id: e.id,
+      subscriptionId: e.subscriptionId,
+      subscriptionLabel: e.subscription?.label || null,
+      leagueScopes: Array.isArray(e.subscription?.leagueScopes)
+        ? e.subscription.leagueScopes
+        : [],
+      icsUid: e.icsUid,
+      recurrenceId: e.recurrenceId,
+      instanceStartUtc: e.instanceStartUtc.toISOString(),
+      dateKeyChicago: e.dateKeyChicago,
+      note: e.note,
+      status: e.status
+    }))
   });
 }
 
@@ -165,8 +225,70 @@ async function handlePutBlackouts(req, res) {
   });
 }
 
+async function handlePatchBlackoutPreferences(req, res) {
+  const prisma = getPrisma();
+  if (!prisma) {
+    return res.status(503).json({
+      ok: false,
+      error: "Database is not configured (DATABASE_URL missing)",
+      code: "database_unavailable"
+    });
+  }
+
+  const phpsessid = getSessionFromRequest(req);
+  const claimedEmail = getEmailFromRequest(req);
+  if (!phpsessid) {
+    return res.status(400).json({ ok: false, error: "phpsessid is required" });
+  }
+  if (!claimedEmail) {
+    return res.status(400).json({ ok: false, error: "email is required" });
+  }
+
+  const session = await verifyTwinRinksSessionAndGetEmail(phpsessid);
+  if (!session.ok) {
+    return res.status(401).json({
+      ok: false,
+      error: "Legacy session invalid or expired",
+      code: session.code || "session_expired"
+    });
+  }
+  if (!isEmailClaimValid(session.email, claimedEmail)) {
+    return res.status(403).json({
+      ok: false,
+      error: "email does not match Twin Rinks session",
+      code: "email_mismatch"
+    });
+  }
+
+  const key = normalizeEmail(session.email);
+  const body = req.body && typeof req.body === "object" ? req.body : {};
+  const data = {};
+  if ("subWarnIfSameDayGame" in body) {
+    data.subWarnIfSameDayGame = Boolean(body.subWarnIfSameDayGame);
+  }
+  if ("subWarnIfAdjacentGameDays" in body) {
+    data.subWarnIfAdjacentGameDays = Boolean(body.subWarnIfAdjacentGameDays);
+  }
+  if (Object.keys(data).length === 0) {
+    return res.status(400).json({ ok: false, error: "No valid preference fields" });
+  }
+
+  const row = await prisma.user.upsert({
+    where: { email: key },
+    create: { email: key, ...data },
+    update: data
+  });
+
+  return res.json({
+    ok: true,
+    subWarnIfSameDayGame: Boolean(row.subWarnIfSameDayGame),
+    subWarnIfAdjacentGameDays: Boolean(row.subWarnIfAdjacentGameDays)
+  });
+}
+
 router.get("/blackouts", handleGetBlackouts);
 router.post("/blackouts", handleGetBlackouts);
 router.put("/blackouts", handlePutBlackouts);
+router.patch("/blackouts/preferences", handlePatchBlackoutPreferences);
 
 module.exports = router;

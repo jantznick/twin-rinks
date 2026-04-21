@@ -23,7 +23,8 @@ export default function GamesCalendarView({
   onToggleSub,
   onToggleAttendance,
   isMyGame,
-  blackoutReasonsByGameId = {}
+  blackoutReasonsByGameId = {},
+  tentativeBlackoutReasonsByGameId = {}
 }) {
   const groups = groupGamesByDate(games);
   const plannerBuckets = useMemo(() => buildPlannerBuckets(games, 14), [games]);
@@ -49,6 +50,7 @@ export default function GamesCalendarView({
           onToggleAttendance={onToggleAttendance}
           isMyGame={isMyGame}
           blackoutReasonsByGameId={blackoutReasonsByGameId}
+          tentativeBlackoutReasonsByGameId={tentativeBlackoutReasonsByGameId}
         />
       ) : layoutMode === "week" ? (
         <GamesWeekBoard
@@ -61,6 +63,7 @@ export default function GamesCalendarView({
           onToggleAttendance={onToggleAttendance}
           onSelectGame={setSelectedGame}
           blackoutReasonsByGameId={blackoutReasonsByGameId}
+          tentativeBlackoutReasonsByGameId={tentativeBlackoutReasonsByGameId}
         />
       ) : (
         groups.map((group) => (
@@ -103,6 +106,7 @@ export default function GamesCalendarView({
                     timeOnly
                     isMyGame={isMyGame?.(game)}
                     blackoutReasons={blackoutReasonsByGameId[game.gameId] || []}
+                    tentativeBlackoutReasons={tentativeBlackoutReasonsByGameId[game.gameId] || []}
                     onToggleSub={() => onToggleSub(game.gameId)}
                     onToggleAttendance={(value) => onToggleAttendance(game.gameId, value)}
                   />
@@ -121,6 +125,7 @@ export default function GamesCalendarView({
           onToggleAttendance={(value) => onToggleAttendance(selectedGame.gameId, value)}
           onClose={() => setSelectedGame(null)}
           blackoutReasons={blackoutReasonsByGameId[selectedGame.gameId] || []}
+          tentativeBlackoutReasons={tentativeBlackoutReasonsByGameId[selectedGame.gameId] || []}
         />
       ) : null}
     </div>
@@ -133,7 +138,8 @@ function GameDetailsModal({
   onToggleSub,
   onToggleAttendance,
   onClose,
-  blackoutReasons = []
+  blackoutReasons = [],
+  tentativeBlackoutReasons = []
 }) {
   const status = getStatusLabel(game, selection);
   const rink = getRink(game);
@@ -164,6 +170,14 @@ function GameDetailsModal({
                   title={blackoutReasons.join("\n")}
                 >
                   Blackout
+                </span>
+              ) : null}
+              {tentativeBlackoutReasons.length > 0 ? (
+                <span
+                  className="ml-2 inline-block rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-900"
+                  title={tentativeBlackoutReasons.join("\n")}
+                >
+                  Tentative
                 </span>
               ) : null}
             </p>

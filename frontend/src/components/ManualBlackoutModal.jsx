@@ -12,7 +12,6 @@ const WEEKDAYS = [
   { v: 6, label: "Saturday" }
 ];
 
-/** 1–4 = nth time that weekday appears in the month; 5 = last occurrence that month */
 const MONTH_ORD = [
   { v: 1, label: "First" },
   { v: 2, label: "Second" },
@@ -31,7 +30,7 @@ function formatMonthlyOccurrencePhrase(monthOrdinal, weekday) {
   return `${lead} ${wd} of each month`;
 }
 
-function newDraftRule() {
+export function newDraftRule() {
   const today = new Date();
   const y = today.getFullYear();
   const m = String(today.getMonth() + 1).padStart(2, "0");
@@ -48,7 +47,7 @@ function newDraftRule() {
   };
 }
 
-function draftRowsToPayload(rows) {
+export function draftRowsToPayload(rows) {
   return rows.map((r) => {
     const scopes =
       r.restrictLeagues && Array.isArray(r.leagueScopes) && r.leagueScopes.length > 0
@@ -102,76 +101,59 @@ function buildRowFromEditor(editor) {
   };
 }
 
-function summarizeRule(rule, calendars) {
-  const useAll =
-    rule.restrictLeagues === false ||
-    !Array.isArray(rule.leagueScopes) ||
-    rule.leagueScopes.length === 0;
-  const scopes = useAll
-    ? "All leagues"
-    : rule.leagueScopes
-        .map((id) =>
-          id === TWIN_RINKS_SCOPE
-            ? "Twin Rinks"
-            : calendars.find((c) => c.scheduleId === id)?.leagueLabel || "League"
-        )
-        .join(", ");
-  const kind = rule.recurrenceKind;
-  let rec = "";
-  if (kind === RECURRENCE.ONE_OFF) {
-    rec = `One-time · ${rule.oneOffDate || ""}`;
-  } else if (kind === RECURRENCE.WEEKLY) {
-    rec = `Weekly · ${WEEKDAYS.find((w) => w.v === Number(rule.weekday))?.label || ""}`;
-  } else {
-    rec = formatMonthlyOccurrencePhrase(rule.monthOrdinal, rule.weekday);
-  }
-  const note = String(rule.note || "").trim();
-  const noteBit = note ? ` · Note: ${note}` : "";
-  return `${scopes} — ${rec}${noteBit}`;
-}
-
-export default function BlackoutRulesSection({
+/**
+ * Modal to add one manual / recurring blackout rule (appends to existing draft rules).
+ */
+export default function ManualBlackoutModal({
+  open,
+  onClose,
   userEmail,
   sportsengineCalendars = [],
-  initialRules = [],
+  existingDraftRules = [],
   demoMode,
   showToast,
   onRulesSaved
 }) {
-  const [draft, setDraft] = useState([]);
   const [editor, setEditor] = useState(() => newDraftRule());
-  const [editorDirty, setEditorDirty] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [loadError, setLoadError] = useState(null);
-
-  const patchEditor = (partial) => {
-    setEditorDirty(true);
-    setEditor((p) => ({ ...p, ...partial }));
-  };
-
-  const patchEditorFn = (fn) => {
-    setEditorDirty(true);
-    setEditor(fn);
-  };
-
-  useEffect(() => {
-    setDraft(
-      (initialRules || []).map((r) => ({
-        ...r,
-        note: r.note != null ? String(r.note) : "",
-        localKey: r.id || `k-${Math.random().toString(36).slice(2)}`,
-        restrictLeagues: Array.isArray(r.leagueScopes) && r.leagueScopes.length > 0
-      }))
-    );
-  }, [initialRules]);
 
   const calendarsWithIds = useMemo(
     () => sportsengineCalendars.filter((c) => isScheduleId(String(c?.scheduleId || "").trim())),
     [sportsengineCalendars]
   );
 
-  const persist = async (rulesPayload, options = {}) => {
-    const successMessage = options.successMessage ?? "Blackout rules saved.";
+  useEffect(() => {
+    if (open) {
+      setEditor(newDraftRule());
+    }
+  }, [open]);
+
+  const patchEditor = (partial) => {
+    setEditor((p) => ({ ...p, ...partial }));
+  };
+
+  const patchEditorFn = (fn) => {
+    setEditor(fn);
+  };
+
+  const toggleScope = (scopeId, checked) => {
+    setEditor((prev) => {
+      const set = new Set(prev.leagueScopes || []);
+      if (checked) {
+        set.add(scopeId);
+      } else {
+        set.delete(scopeId);
+      }
+      const next = [...set];
+      return {
+        ...prev,
+        leagueScopes: next,
+        restrictLeagues: prev.restrictLeagues
+      };
+    });
+  };
+
+  const persist = async (rulesPayload) => {
     if (demoMode) {
       showToast?.({
         type: "error",
@@ -196,147 +178,61 @@ export default function BlackoutRulesSection({
       throw new Error(data.error || "Failed to save blackout rules");
     }
     onRulesSaved?.(data.rules || []);
-    showToast?.({ type: "success", text: successMessage });
+    showToast?.({ type: "success", text: "Blackout rule saved." });
   };
 
-  const handleSaveAll = async () => {
+  const handleSave = async () => {
+    const built = buildRowFromEditor(editor);
+    if (built.error) {
+      showToast?.({ type: "error", text: built.error });
+      return;
+    }
     setSaving(true);
-    setLoadError(null);
     try {
-      let rows = [...draft];
-      const includeEditor = editorDirty || draft.length === 0;
-      if (includeEditor) {
-        const built = buildRowFromEditor(editor);
-        if (built.error) {
-          showToast?.({ type: "error", text: built.error });
-          setSaving(false);
-          return;
-        }
-        rows = [...rows, built.row];
-      }
+      const rows = [...existingDraftRules, built.row];
       await persist(draftRowsToPayload(rows));
-      setEditor(newDraftRule());
-      setEditorDirty(false);
+      onClose?.();
     } catch (e) {
-      if (e.message === "demo_mode") {
-        return;
+      if (e.message !== "demo_mode") {
+        showToast?.({ type: "error", text: e.message || "Save failed" });
       }
-      setLoadError(e.message || "Save failed");
-      showToast?.({ type: "error", text: e.message || "Save failed" });
     } finally {
       setSaving(false);
     }
   };
 
-  const removeRule = async (localKey) => {
-    let snapshotBefore;
-    let snapshotAfter;
-    setDraft((prev) => {
-      snapshotBefore = prev;
-      snapshotAfter = prev.filter((r) => r.localKey !== localKey);
-      return snapshotAfter;
-    });
-    if (demoMode) {
-      return;
-    }
-    setSaving(true);
-    setLoadError(null);
-    try {
-      await persist(draftRowsToPayload(snapshotAfter), { successMessage: "Rule removed." });
-    } catch (e) {
-      if (e.message === "demo_mode") {
-        return;
-      }
-      setDraft(snapshotBefore);
-      setLoadError(e.message || "Failed to remove rule");
-      showToast?.({ type: "error", text: e.message || "Failed to remove rule" });
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const toggleScope = (scopeId, checked, ruleLocalKey) => {
-    if (ruleLocalKey) {
-      setDraft((prev) =>
-        prev.map((r) => {
-          if (r.localKey !== ruleLocalKey) {
-            return r;
-          }
-          const set = new Set(r.leagueScopes || []);
-          if (checked) {
-            set.add(scopeId);
-          } else {
-            set.delete(scopeId);
-          }
-          return { ...r, leagueScopes: [...set], restrictLeagues: set.size > 0 };
-        })
-      );
-      return;
-    }
-    setEditorDirty(true);
-    setEditor((prev) => {
-      const set = new Set(prev.leagueScopes || []);
-      if (checked) {
-        set.add(scopeId);
-      } else {
-        set.delete(scopeId);
-      }
-      const next = [...set];
-      return {
-        ...prev,
-        leagueScopes: next,
-        restrictLeagues: prev.restrictLeagues
-      };
-    });
-  };
+  if (!open) {
+    return null;
+  }
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-      <h2 className="text-base font-semibold text-slate-900">Blackout dates</h2>
-      <p className="mt-1 text-sm text-slate-600">
-        Whole calendar days you&apos;re usually unavailable. Sub requests still work — we&apos;ll remind you when you pick
-        a blackout day.
-      </p>
+    <div
+      className="fixed inset-0 z-[100] flex touch-manipulation items-end justify-center bg-black/40 p-4 sm:items-center"
+      role="dialog"
+      aria-modal
+      aria-labelledby="manual-blackout-title"
+      onClick={(ev) => {
+        if (ev.target === ev.currentTarget) onClose?.();
+      }}
+    >
+      <div className="relative isolate z-[101] flex max-h-[min(90dvh,800px)] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-white shadow-xl">
+        <div className="shrink-0 border-b border-slate-200 px-4 py-3">
+          <h2 id="manual-blackout-title" className="text-base font-semibold text-slate-900">
+            Add blackout date
+          </h2>
+          <p className="mt-1 text-xs text-slate-500">
+            One-time, weekly, or monthly. Sub requests still work — we&apos;ll remind you on blackout days.
+          </p>
+        </div>
 
-      {loadError ? (
-        <p className="mt-3 text-sm text-rose-700">{loadError}</p>
-      ) : null}
-
-      {draft.length > 0 ? (
-        <ul className="mt-4 space-y-2">
-          {draft.map((rule) => (
-            <li
-              key={rule.localKey}
-              className="flex items-start justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50/80 px-3 py-2 text-sm"
-            >
-              <span className="min-w-0 text-slate-800">{summarizeRule(rule, calendarsWithIds)}</span>
-              <button
-                type="button"
-                disabled={saving}
-                onClick={() => removeRule(rule.localKey)}
-                className="shrink-0 text-xs font-medium text-rose-700 hover:text-rose-900 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Remove
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="mt-3 text-sm text-slate-500">No blackout rules yet.</p>
-      )}
-
-      <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-        <h3 className="text-sm font-semibold text-slate-900">
-          {draft.length > 0 ? "Add another rule" : "New rule"}
-        </h3>
-
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+        <div className="grid gap-3 p-4 sm:grid-cols-2">
           <label className="block text-xs font-medium text-slate-700">
             Repeat
             <select
               value={editor.recurrenceKind}
               onChange={(e) => patchEditor({ recurrenceKind: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm"
+              className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-2 py-2 text-base text-slate-900 sm:text-sm"
             >
               <option value={RECURRENCE.ONE_OFF}>One date</option>
               <option value={RECURRENCE.WEEKLY}>Every week (same weekday)</option>
@@ -351,7 +247,7 @@ export default function BlackoutRulesSection({
                 type="date"
                 value={editor.oneOffDate || ""}
                 onChange={(e) => patchEditor({ oneOffDate: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm"
+                className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-2 py-2 text-base text-slate-900 sm:text-sm"
               />
             </label>
           ) : null}
@@ -362,7 +258,7 @@ export default function BlackoutRulesSection({
               <select
                 value={Number(editor.weekday)}
                 onChange={(e) => patchEditor({ weekday: Number(e.target.value) })}
-                className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm"
+                className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-2 py-2 text-base text-slate-900 sm:text-sm"
               >
                 {WEEKDAYS.map((w) => (
                   <option key={w.v} value={w.v}>
@@ -380,7 +276,7 @@ export default function BlackoutRulesSection({
                 <select
                   value={Number(editor.weekday)}
                   onChange={(e) => patchEditor({ weekday: Number(e.target.value) })}
-                  className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm"
+                  className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-2 py-2 text-base text-slate-900 sm:text-sm"
                 >
                   {WEEKDAYS.map((w) => (
                     <option key={w.v} value={w.v}>
@@ -394,7 +290,7 @@ export default function BlackoutRulesSection({
                 <select
                   value={Number(editor.monthOrdinal)}
                   onChange={(e) => patchEditor({ monthOrdinal: Number(e.target.value) })}
-                  className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm"
+                  className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-2 py-2 text-base text-slate-900 sm:text-sm"
                 >
                   {MONTH_ORD.map((o) => (
                     <option key={o.v} value={o.v}>
@@ -414,7 +310,7 @@ export default function BlackoutRulesSection({
           ) : null}
         </div>
 
-        <div className="mt-4 border-t border-slate-200 pt-4">
+        <div className="border-t border-slate-200 px-4 pb-2">
           <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-800">
             <input
               type="checkbox"
@@ -439,12 +335,12 @@ export default function BlackoutRulesSection({
                 <li className="flex items-center gap-2">
                   <input
                     type="checkbox"
-                    id="scope-tr"
+                    id="manual-modal-scope-tr"
                     checked={(editor.leagueScopes || []).includes(TWIN_RINKS_SCOPE)}
-                    onChange={(e) => toggleScope(TWIN_RINKS_SCOPE, e.target.checked, null)}
+                    onChange={(e) => toggleScope(TWIN_RINKS_SCOPE, e.target.checked)}
                     className="h-4 w-4 rounded border-slate-300"
                   />
-                  <label htmlFor="scope-tr" className="text-sm text-slate-800">
+                  <label htmlFor="manual-modal-scope-tr" className="text-sm text-slate-800">
                     Twin Rinks (subs &amp; league games)
                   </label>
                 </li>
@@ -454,12 +350,12 @@ export default function BlackoutRulesSection({
                     <li key={sid} className="flex items-center gap-2">
                       <input
                         type="checkbox"
-                        id={`scope-${sid}`}
+                        id={`manual-modal-scope-${sid}`}
                         checked={(editor.leagueScopes || []).includes(sid)}
-                        onChange={(e) => toggleScope(sid, e.target.checked, null)}
+                        onChange={(e) => toggleScope(sid, e.target.checked)}
                         className="h-4 w-4 rounded border-slate-300"
                       />
-                      <label htmlFor={`scope-${sid}`} className="text-sm text-slate-800">
+                      <label htmlFor={`manual-modal-scope-${sid}`} className="text-sm text-slate-800">
                         {cal.leagueLabel?.trim() || "League schedule"}
                       </label>
                     </li>
@@ -467,13 +363,15 @@ export default function BlackoutRulesSection({
                 })}
               </ul>
               {calendarsWithIds.length === 0 ? (
-                <p className="mt-2 text-xs text-slate-500">Add a SportsEngine calendar above to target a single league.</p>
+                <p className="mt-2 text-xs text-slate-500">
+                  Add a SportsEngine calendar above to target a single league.
+                </p>
               ) : null}
             </div>
           ) : null}
         </div>
 
-        <div className="mt-4">
+        <div className="px-4 pb-4">
           <label className="block text-xs font-medium text-slate-700">
             Note (optional)
             <textarea
@@ -487,18 +385,27 @@ export default function BlackoutRulesSection({
           </label>
           <p className="mt-1 text-xs text-slate-500">Shown in the sub reminder if this rule applies.</p>
         </div>
+        </div>
 
-        <div className="mt-4">
+        <div className="flex shrink-0 justify-end gap-2 border-t border-slate-200 px-4 py-3">
           <button
             type="button"
             disabled={saving}
-            onClick={handleSaveAll}
-            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-50"
+            onClick={() => onClose?.()}
+            className="cursor-pointer rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {saving ? "Saving…" : "Save blackout rules"}
+            Cancel
+          </button>
+          <button
+            type="button"
+            disabled={saving || demoMode}
+            onClick={handleSave}
+            className="cursor-pointer rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {saving ? "Saving…" : "Save rule"}
           </button>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

@@ -20,7 +20,8 @@ export default function GamesListView({
   onToggleSub,
   onToggleAttendance,
   isMyGame,
-  blackoutReasonsByGameId = {}
+  blackoutReasonsByGameId = {},
+  tentativeBlackoutReasonsByGameId = {}
 }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -44,8 +45,8 @@ export default function GamesListView({
           let bgClass = "bg-white hover:bg-slate-50";
 
           if (pendingGameIds?.has(game.gameId)) {
-            borderClass = "border-l-4 border-l-amber-400 border-b border-b-amber-200 last:border-b-0";
-            bgClass = "bg-amber-50/50";
+            borderClass = "border-l-4 border-l-indigo-500 border-b border-b-indigo-200 last:border-b-0";
+            bgClass = "bg-indigo-50/45 hover:bg-indigo-50/65";
           } else if (myRow) {
             borderClass =
               "border-l-4 border-l-blue-600 border-b border-b-slate-200 last:border-b-0";
@@ -91,6 +92,22 @@ export default function GamesListView({
                       title={(blackoutReasonsByGameId[game.gameId] || []).join("\n")}
                     >
                       Blackout
+                    </span>
+                  ) : null}
+                  {(tentativeBlackoutReasonsByGameId[game.gameId] || []).length > 0 ? (
+                    <span
+                      className="inline-block rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-900"
+                      title={(tentativeBlackoutReasonsByGameId[game.gameId] || []).join("\n")}
+                    >
+                      Tentative
+                    </span>
+                  ) : null}
+                  {pendingGameIds?.has(game.gameId) ? (
+                    <span
+                      className="inline-block rounded-full border border-indigo-200 bg-white px-2 py-0.5 text-[10px] font-medium text-indigo-800"
+                      title="Not submitted — use the submit bar below."
+                    >
+                      Not saved yet
                     </span>
                   ) : null}
                   {status ? (

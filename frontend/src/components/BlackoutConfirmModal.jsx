@@ -3,6 +3,10 @@ export default function BlackoutConfirmModal({
   title,
   subtitle,
   items,
+  /** Replaces the default “You marked this date as a blackout because:” line above each item’s reasons. */
+  reasonIntro,
+  /** Replaces the small footer note under the list. */
+  footnote,
   confirmLabel = "Continue anyway",
   cancelLabel = "Cancel",
   onConfirm,
@@ -37,7 +41,11 @@ export default function BlackoutConfirmModal({
               {item.schedule ? (
                 <p className="mt-0.5 text-xs text-slate-600">{item.schedule}</p>
               ) : null}
-              <p className="mt-2 text-xs font-medium text-amber-900">You marked this date as a blackout because:</p>
+              <p className="mt-2 text-xs font-medium text-amber-900">
+                {reasonIntro != null && reasonIntro !== ""
+                  ? reasonIntro
+                  : "You marked this date as a blackout because:"}
+              </p>
               <ul className="mt-1 list-disc pl-4 text-xs text-amber-950/90">
                 {(item.reasons || []).map((entry, i) => {
                   const line = typeof entry === "string" ? entry : entry?.line ?? "";
@@ -59,8 +67,9 @@ export default function BlackoutConfirmModal({
         </ul>
 
         <p className="mt-4 text-xs text-slate-500">
-          Blackouts don&apos;t block subs — this is a reminder. You can still request a sub if you&apos;re only available
-          for part of the day.
+          {footnote != null && footnote !== ""
+            ? footnote
+            : "Blackouts don’t block subs — this is a reminder. You can still request a sub if you’re only available for part of the day."}
         </p>
 
         <div className="mt-6 flex flex-wrap justify-end gap-2">

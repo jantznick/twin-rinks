@@ -21,7 +21,8 @@ export default function GamesPlannerBoard({
   onToggleSub,
   onToggleAttendance,
   isMyGame,
-  blackoutReasonsByGameId = {}
+  blackoutReasonsByGameId = {},
+  tentativeBlackoutReasonsByGameId = {}
 }) {
   const [collapsedDays, setCollapsedDays] = useState({});
 
@@ -88,6 +89,7 @@ export default function GamesPlannerBoard({
                   timeOnly
                   isMyGame={isMyGame?.(game)}
                   blackoutReasons={blackoutReasonsByGameId[game.gameId] || []}
+                  tentativeBlackoutReasons={tentativeBlackoutReasonsByGameId[game.gameId] || []}
                   onToggleSub={() => onToggleSub(game.gameId)}
                   onToggleAttendance={(value) => onToggleAttendance(game.gameId, value)}
                 />

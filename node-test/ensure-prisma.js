@@ -17,12 +17,14 @@ require("dotenv").config({ path: path.join(root, ".env") });
 
 if (process.env.SKIP_PRISMA_GENERATE !== "1") {
   try {
+    console.log("[twin-rinks-api] running npx prisma generate (set SKIP_PRISMA_GENERATE=1 to skip)…");
     execSync("npx prisma generate", {
       cwd: root,
       stdio: "inherit",
       env: process.env,
       shell: true
     });
+    console.log("[twin-rinks-api] prisma generate finished");
   } catch {
     console.error(
       "\n[prisma] Generate failed. From the node-test directory run:\n  npm install\n  npx prisma generate\n"

@@ -16,7 +16,8 @@ export default function GamesWeekBoard({
   onToggleSub,
   onToggleAttendance,
   onSelectGame,
-  blackoutReasonsByGameId = {}
+  blackoutReasonsByGameId = {},
+  tentativeBlackoutReasonsByGameId = {}
 }) {
   const buckets = buildUpcomingWeekBuckets(games, 14);
   const firstWeek = buckets.slice(0, 7);
@@ -57,6 +58,7 @@ export default function GamesWeekBoard({
               isMyGame={isMyGame}
               onSelectGame={onSelectGame}
               blackoutReasonsByGameId={blackoutReasonsByGameId}
+              tentativeBlackoutReasonsByGameId={tentativeBlackoutReasonsByGameId}
             />
           ))}
         </div>
@@ -74,6 +76,7 @@ export default function GamesWeekBoard({
               isMyGame={isMyGame}
               onSelectGame={onSelectGame}
               blackoutReasonsByGameId={blackoutReasonsByGameId}
+              tentativeBlackoutReasonsByGameId={tentativeBlackoutReasonsByGameId}
             />
           ))}
         </div>
@@ -94,6 +97,7 @@ export default function GamesWeekBoard({
                 denseMode={denseMode}
                 isMyGame={isMyGame?.(game)}
                 blackoutReasons={blackoutReasonsByGameId[game.gameId] || []}
+                tentativeBlackoutReasons={tentativeBlackoutReasonsByGameId[game.gameId] || []}
                 onToggleSub={() => onToggleSub(game.gameId)}
                 onToggleAttendance={(value) => onToggleAttendance(game.gameId, value)}
               />
@@ -105,7 +109,14 @@ export default function GamesWeekBoard({
   );
 }
 
-function WeekDayColumn({ bucket, draftSelections, isMyGame, onSelectGame, blackoutReasonsByGameId = {} }) {
+function WeekDayColumn({
+  bucket,
+  draftSelections,
+  isMyGame,
+  onSelectGame,
+  blackoutReasonsByGameId = {},
+  tentativeBlackoutReasonsByGameId = {}
+}) {
   const isToday = isDateToday(bucket.date);
 
   return (
@@ -173,6 +184,14 @@ function WeekDayColumn({ bucket, draftSelections, isMyGame, onSelectGame, blacko
                       title={(blackoutReasonsByGameId[game.gameId] || []).join("\n")}
                     >
                       · Bl
+                    </span>
+                  ) : null}
+                  {(tentativeBlackoutReasonsByGameId[game.gameId] || []).length > 0 ? (
+                    <span
+                      className="ml-1 text-amber-900"
+                      title={(tentativeBlackoutReasonsByGameId[game.gameId] || []).join("\n")}
+                    >
+                      · Tent
                     </span>
                   ) : null}
                 </p>

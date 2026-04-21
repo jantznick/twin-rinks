@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import PendingChangesBar from "../components/PendingChangesBar";
 import TelegramInstructionsModal from "../components/TelegramInstructionsModal";
-import BlackoutRulesSection from "../components/BlackoutRulesSection";
+import BlackoutsSettingsPanel from "../components/BlackoutsSettingsPanel";
 import { normalizeCalendarUrlInput, isScheduleId } from "../lib/sportsengineCalendars";
 
 function scheduleFetchResultMatchesCalendar(cal, r) {
@@ -18,6 +18,12 @@ function scheduleFetchResultMatchesCalendar(cal, r) {
 
 const PENDING_PROFILE_KEY = "twin-rinks-pending-profile";
 const MAX_PENDING_AGE = 20 * 60 * 1000; // 20 minutes
+
+const PROFILE_TABS = [
+  { id: "calendars", label: "SportsEngine calendars", shortLabel: "Calendars" },
+  { id: "blackouts", label: "Blackouts & availability", shortLabel: "Blackouts" },
+  { id: "twinrinks", label: "Twin Rinks settings", shortLabel: "Twin Rinks" }
+];
 
 const FIELD_LABELS = {
   password: "Password",
@@ -52,7 +58,12 @@ export default function ProfilePage({
   sportsengineScheduleResults = [],
   onRefreshSportsengineSchedules,
   blackoutRules = [],
-  onBlackoutsUpdated = () => {}
+  calendarSubscriptions = [],
+  calendarBlocklist = [],
+  onBlackoutsUpdated = () => {},
+  loadBlackouts = () => {},
+  blackoutPrefs = { subWarnIfSameDayGame: false, subWarnIfAdjacentGameDays: false },
+  onBlackoutPrefsUpdated = () => {}
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   /** Twin Rinks `/get-profile` only — does not block SportsEngine calendars above. */
@@ -65,6 +76,7 @@ export default function ProfilePage({
   const [draftSportsengineCalendars, setDraftSportsengineCalendars] = useState([]);
   /** `cal.url` of row whose detail modal is open */
   const [calendarDetailUrl, setCalendarDetailUrl] = useState(null);
+  const [profileTab, setProfileTab] = useState("calendars");
 
   useEffect(() => {
     setDraftSportsengineCalendars(sportsengineCalendars);
@@ -550,7 +562,69 @@ export default function ProfilePage({
         </p>
       </div>
 
-      <section className="mb-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      {demoMode ? (
+        <div className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+          <div>
+            <strong>Demo mode:</strong> submissions are local only.
+          </div>
+          <button
+            type="button"
+            className="shrink-0 cursor-pointer rounded-md border border-sky-300 bg-sky-200 px-2 py-1 text-xs font-medium text-sky-900 transition hover:bg-sky-300"
+            onClick={() => setDemoMode(false)}
+          >
+            Activate Live Mode
+          </button>
+        </div>
+      ) : (
+        <div className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          <div>
+            <strong>Live mode active:</strong> Submitting changes will update your actual profile.
+          </div>
+          <button
+            type="button"
+            className="shrink-0 cursor-pointer rounded-md border border-emerald-300 bg-emerald-200 px-2 py-1 text-xs font-medium text-emerald-900 transition hover:bg-emerald-300"
+            onClick={() => setDemoMode(true)}
+          >
+            Return to Demo Mode
+          </button>
+        </div>
+      )}
+
+      <div className="mb-6">
+        <div
+          className="flex flex-wrap gap-1 border-b border-slate-200"
+          role="tablist"
+          aria-label="Profile sections"
+        >
+          {PROFILE_TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              id={`profile-tab-${tab.id}`}
+              aria-selected={profileTab === tab.id}
+              aria-controls={`profile-panel-${tab.id}`}
+              onClick={() => setProfileTab(tab.id)}
+              className={`-mb-px cursor-pointer border-b-2 px-2 py-2.5 text-sm font-medium transition sm:px-4 ${
+                profileTab === tab.id
+                  ? "border-indigo-600 text-indigo-700"
+                  : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-800"
+              }`}
+            >
+              <span className="hidden sm:inline">{tab.label}</span>
+              <span className="sm:hidden">{tab.shortLabel}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <section className="mb-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        {profileTab === "calendars" && (
+          <div
+            role="tabpanel"
+            id="profile-panel-calendars"
+            aria-labelledby="profile-tab-calendars"
+          >
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-base font-semibold text-slate-900">SportsEngine team calendars</h2>
           {onRefreshSportsengineSchedules ? (
@@ -647,48 +721,46 @@ export default function ProfilePage({
         ) : (
           <p className="mt-4 text-sm text-slate-500">No extra calendars yet. Add a schedule URL and display name above.</p>
         )}
-      </section>
-
-      <div className="mb-8">
-        <BlackoutRulesSection
-          userEmail={userEmail}
-          sportsengineCalendars={draftSportsengineCalendars}
-          initialRules={blackoutRules}
-          demoMode={demoMode}
-          showToast={showToast}
-          onRulesSaved={(rules) => onBlackoutsUpdated(rules)}
-        />
-      </div>
-
-      {demoMode ? (
-        <div className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
-          <div>
-            <strong>Demo mode:</strong> submissions are local only.
           </div>
-          <button 
-            type="button" 
-            className="shrink-0 cursor-pointer rounded-md border border-sky-300 bg-sky-200 px-2 py-1 text-xs font-medium text-sky-900 transition hover:bg-sky-300" 
-            onClick={() => setDemoMode(false)}
-          >
-            Activate Live Mode
-          </button>
-        </div>
-      ) : (
-        <div className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-          <div>
-            <strong>Live mode active:</strong> Submitting changes will update your actual profile.
-          </div>
-          <button 
-            type="button" 
-            className="shrink-0 cursor-pointer rounded-md border border-emerald-300 bg-emerald-200 px-2 py-1 text-xs font-medium text-emerald-900 transition hover:bg-emerald-300" 
-            onClick={() => setDemoMode(true)}
-          >
-            Return to Demo Mode
-          </button>
-        </div>
-      )}
+        )}
 
-      <form onSubmit={handleSubmit} className="space-y-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        {profileTab === "blackouts" && (
+          <div
+            role="tabpanel"
+            id="profile-panel-blackouts"
+            aria-labelledby="profile-tab-blackouts"
+          >
+            <h2 id="profile-blackouts-heading" className="text-base font-semibold text-slate-900">
+              Blackouts &amp; availability
+            </h2>
+            <p className="mt-1 text-sm text-slate-600">
+              One list of days you&apos;re unavailable for subs — add rules by hand or import an iCal feed.
+            </p>
+            <BlackoutsSettingsPanel
+              userEmail={userEmail}
+              sportsengineCalendars={draftSportsengineCalendars}
+              initialRules={blackoutRules}
+              calendarSubscriptions={calendarSubscriptions}
+              calendarBlocklist={calendarBlocklist}
+              demoMode={demoMode}
+              showToast={showToast}
+              onRulesSaved={(rules) => onBlackoutsUpdated(rules)}
+              onReloadBlackouts={loadBlackouts}
+              subWarnIfSameDayGame={blackoutPrefs.subWarnIfSameDayGame}
+              subWarnIfAdjacentGameDays={blackoutPrefs.subWarnIfAdjacentGameDays}
+              onSubWarnPrefsUpdated={onBlackoutPrefsUpdated}
+            />
+          </div>
+        )}
+
+        {profileTab === "twinrinks" && (
+      <form
+        onSubmit={handleSubmit}
+        role="tabpanel"
+        id="profile-panel-twinrinks"
+        aria-labelledby="profile-tab-twinrinks"
+        className="space-y-8"
+      >
         <div>
           <h2 className="text-base font-semibold text-slate-900">Twin Rinks settings</h2>
           <p className="mt-1 text-sm text-slate-600">
@@ -714,7 +786,7 @@ export default function ProfilePage({
             </svg>
             <span className="text-sm font-medium text-slate-700">Loading Twin Rinks settings…</span>
             <p className="max-w-sm text-center text-xs text-slate-500">
-              SportsEngine calendars above are available while this loads.
+              Open the Calendars tab to edit SportsEngine feeds while this loads.
             </p>
           </div>
         ) : twinRinksSettingsError ? (
@@ -1020,6 +1092,9 @@ export default function ProfilePage({
           <button type="submit" disabled={isSubmitting}>Save</button>
         </div>
       </form>
+        )}
+
+      </section>
 
       <PendingChangesBar
         isExpanded={pendingExpanded}

@@ -563,6 +563,33 @@ export function isPlayerPlaying(game, selection) {
   return stage === "selected" || stage === "confirmed-in";
 }
 
+/**
+ * Whether this row counts as “already have a game” for sub-request submit warnings.
+ * Aligns with My Games & Subs: rostered / must respond, but not another open sub request.
+ */
+export function countsAsPlayingForSubWarn(game, selection) {
+  const sel = selection || {};
+  const stage = String(game?.stage || "").toLowerCase();
+
+  if (game?.source === "sportsengine") {
+    return true;
+  }
+  if (sel.attendance === "OUT" || (stage === "out" && sel.attendance !== "IN")) {
+    return false;
+  }
+  // Second game where you’re only requesting a sub — don’t treat as “already playing.”
+  if (stage === "sub-requested" && sel.sub && sel.attendance !== "IN") {
+    return false;
+  }
+  return (
+    sel.attendance === "IN" ||
+    stage === "selected" ||
+    stage === "confirmed-in" ||
+    stage === "sub-requested" ||
+    stage === "hidden"
+  );
+}
+
 export function getSubSpotState(game) {
   const note = String(game?.details?.note || "").toLowerCase();
   if (note.includes("sub needed") || note.includes("sub spot needed")) {

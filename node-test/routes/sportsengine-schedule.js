@@ -55,11 +55,11 @@ async function fetchScheduleForStoredUrl(scheduleUrl, res, requestedScheduleId) 
     const bodyPreview = buildBodyPreview(html);
     const responseHeaders = headersToObject(response.headers);
 
-    logInfo("SportsEngine team schedule response received", {
-      status: response.status,
-      headers: responseHeaders,
-      bodyPreview
-    });
+    // logInfo("SportsEngine team schedule response received", {
+    //   status: response.status,
+    //   headers: responseHeaders,
+    //   bodyPreview
+    // });
 
     if (response.status >= 400) {
       return res.status(502).json({

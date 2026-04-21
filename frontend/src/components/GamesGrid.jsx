@@ -8,7 +8,8 @@ export default function GamesGrid({
   onToggleSub,
   onToggleAttendance,
   isMyGame,
-  blackoutReasonsByGameId = {}
+  blackoutReasonsByGameId = {},
+  tentativeBlackoutReasonsByGameId = {}
 }) {
   return (
     <div
@@ -27,6 +28,7 @@ export default function GamesGrid({
           denseMode={denseMode}
           isMyGame={isMyGame?.(game)}
           blackoutReasons={blackoutReasonsByGameId[game.gameId] || []}
+          tentativeBlackoutReasons={tentativeBlackoutReasonsByGameId[game.gameId] || []}
           onToggleSub={() => onToggleSub(game.gameId)}
           onToggleAttendance={(value) => onToggleAttendance(game.gameId, value)}
         />

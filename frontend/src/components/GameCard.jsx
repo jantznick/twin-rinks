@@ -24,7 +24,8 @@ export default function GameCard({
   onToggleSub,
   onToggleAttendance,
   isMyGame = false,
-  blackoutReasons = []
+  blackoutReasons = [],
+  tentativeBlackoutReasons = []
 }) {
   const statusLabel = getStatusLabel(game, selection);
   const statusPill = getStatusPillClasses(statusLabel);
@@ -45,9 +46,14 @@ export default function GameCard({
 
   return (
     <article
+      title={
+        pending
+          ? "Your choices for this game are not saved yet — tap Submit on the bar below."
+          : undefined
+      }
       className={`rounded-xl ${
         pending
-          ? "border border-amber-300 bg-amber-50/70 ring-1 ring-amber-200 shadow-lg shadow-amber-200/50"
+          ? "border border-indigo-300 bg-indigo-50/60 ring-1 ring-indigo-200/90 shadow-md shadow-indigo-200/35"
           : isSubRequestedFilled && !isMyGame
           ? "border-2 border-sky-500 bg-sky-50/40 shadow-lg shadow-sky-200/40"
           : isPlaying && !isMyGame
@@ -74,6 +80,22 @@ export default function GameCard({
                 title={blackoutReasons.join("\n")}
               >
                 Blackout
+              </span>
+            ) : null}
+            {tentativeBlackoutReasons.length > 0 ? (
+              <span
+                className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 font-medium text-amber-900"
+                title={tentativeBlackoutReasons.join("\n")}
+              >
+                Tentative
+              </span>
+            ) : null}
+            {pending ? (
+              <span
+                className="rounded-full border border-indigo-200 bg-white px-2 py-0.5 font-medium text-indigo-800"
+                title="Not submitted — your bar at the bottom still has changes for this game."
+              >
+                Not saved yet
               </span>
             ) : null}
             {countdown ? <span className="text-slate-500">{countdown}</span> : null}
