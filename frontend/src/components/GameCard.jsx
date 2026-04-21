@@ -23,7 +23,8 @@ export default function GameCard({
   timeOnly,
   onToggleSub,
   onToggleAttendance,
-  isMyGame = false
+  isMyGame = false,
+  blackoutReasons = []
 }) {
   const statusLabel = getStatusLabel(game, selection);
   const statusPill = getStatusPillClasses(statusLabel);
@@ -65,6 +66,14 @@ export default function GameCard({
             {rink ? (
               <span className={`rounded-full px-2 py-0.5 font-medium ${rinkPillClasses}`}>
                 {rink} rink
+              </span>
+            ) : null}
+            {blackoutReasons.length > 0 ? (
+              <span
+                className="rounded-full border border-slate-300 bg-slate-100 px-2 py-0.5 font-medium text-slate-600"
+                title={blackoutReasons.join("\n")}
+              >
+                Blackout
               </span>
             ) : null}
             {countdown ? <span className="text-slate-500">{countdown}</span> : null}

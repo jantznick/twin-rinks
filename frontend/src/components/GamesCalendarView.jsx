@@ -22,7 +22,8 @@ export default function GamesCalendarView({
   layoutMode,
   onToggleSub,
   onToggleAttendance,
-  isMyGame
+  isMyGame,
+  blackoutReasonsByGameId = {}
 }) {
   const groups = groupGamesByDate(games);
   const plannerBuckets = useMemo(() => buildPlannerBuckets(games, 14), [games]);
@@ -47,6 +48,7 @@ export default function GamesCalendarView({
           onToggleSub={onToggleSub}
           onToggleAttendance={onToggleAttendance}
           isMyGame={isMyGame}
+          blackoutReasonsByGameId={blackoutReasonsByGameId}
         />
       ) : layoutMode === "week" ? (
         <GamesWeekBoard
@@ -58,6 +60,7 @@ export default function GamesCalendarView({
           onToggleSub={onToggleSub}
           onToggleAttendance={onToggleAttendance}
           onSelectGame={setSelectedGame}
+          blackoutReasonsByGameId={blackoutReasonsByGameId}
         />
       ) : (
         groups.map((group) => (
@@ -99,6 +102,7 @@ export default function GamesCalendarView({
                     denseMode={denseMode}
                     timeOnly
                     isMyGame={isMyGame?.(game)}
+                    blackoutReasons={blackoutReasonsByGameId[game.gameId] || []}
                     onToggleSub={() => onToggleSub(game.gameId)}
                     onToggleAttendance={(value) => onToggleAttendance(game.gameId, value)}
                   />
@@ -116,6 +120,7 @@ export default function GamesCalendarView({
           onToggleSub={() => onToggleSub(selectedGame.gameId)}
           onToggleAttendance={(value) => onToggleAttendance(selectedGame.gameId, value)}
           onClose={() => setSelectedGame(null)}
+          blackoutReasons={blackoutReasonsByGameId[selectedGame.gameId] || []}
         />
       ) : null}
     </div>
@@ -127,7 +132,8 @@ function GameDetailsModal({
   selection,
   onToggleSub,
   onToggleAttendance,
-  onClose
+  onClose,
+  blackoutReasons = []
 }) {
   const status = getStatusLabel(game, selection);
   const rink = getRink(game);
@@ -152,6 +158,14 @@ function GameDetailsModal({
             <p className="mt-1 text-xs text-slate-500">
               {rink ? `${rink} rink` : "Rink unknown"}
               {countdown ? ` • ${countdown}` : ""}
+              {blackoutReasons.length > 0 ? (
+                <span
+                  className="ml-2 inline-block rounded-full border border-slate-300 bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600"
+                  title={blackoutReasons.join("\n")}
+                >
+                  Blackout
+                </span>
+              ) : null}
             </p>
           </div>
           <button

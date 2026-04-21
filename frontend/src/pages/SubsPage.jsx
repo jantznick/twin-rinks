@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import GamesCalendarView from "../components/GamesCalendarView";
 import GamesGrid from "../components/GamesGrid";
 import GamesListView from "../components/GamesListView";
 import JerseyGuideModal from "../components/JerseyGuideModal";
 import PendingChangesBar from "../components/PendingChangesBar";
+import BlackoutConfirmModal from "../components/BlackoutConfirmModal";
 import {
   buildDraftSelections,
   getJerseyChart,
@@ -16,6 +17,12 @@ import {
   checkIsProcessed,
   applyPendingUpdate
 } from "../lib/gameUtils";
+import {
+  getBlackoutReasonEntries,
+  getBlackoutReasonLines,
+  getMatchingBlackoutRules,
+  TWIN_RINKS_SCOPE
+} from "../lib/blackoutRules";
 
 const DENSE_MODE_KEY = "subs-dense-mode";
 const VIEW_MODE_KEY = "subs-view-mode";
@@ -91,7 +98,21 @@ function getChangeSummary(before, after) {
   return `${fromLabel} → ${toLabel}`;
 }
 
-export default function SubsPage({ phpsessid, gamesResponse, loading, error, isUploading, isSubmitting, onRefresh, onSubmitGames, demoMode, setDemoMode, showToast }) {
+export default function SubsPage({
+  phpsessid,
+  gamesResponse,
+  loading,
+  error,
+  isUploading,
+  isSubmitting,
+  onRefresh,
+  onSubmitGames,
+  demoMode,
+  setDemoMode,
+  showToast,
+  blackoutRules = [],
+  sportsengineCalendars = []
+}) {
   const [draftSelections, setDraftSelections] = useState({});
   const [denseMode, setDenseMode] = useState(getSavedDenseMode);
   const [viewMode, setViewMode] = useState(getSavedViewMode);
@@ -104,8 +125,21 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
   const [showSubOptions, setShowSubOptions] = useState(true);
   const [pendingUpdates, setPendingUpdates] = useState({});
   const [submitError, setSubmitError] = useState(null);
+  const [blackoutToggleModal, setBlackoutToggleModal] = useState(null);
+  const [blackoutSubmitModal, setBlackoutSubmitModal] = useState(null);
 
   const rawGames = useMemo(() => normalizeGames(gamesResponse), [gamesResponse]);
+
+  const resolveLeagueLabel = useCallback(
+    (scopeId) => {
+      if (scopeId === TWIN_RINKS_SCOPE) {
+        return "Twin Rinks";
+      }
+      const cal = sportsengineCalendars.find((c) => String(c.scheduleId || "") === String(scopeId));
+      return cal?.leagueLabel?.trim() || "League schedule";
+    },
+    [sportsengineCalendars]
+  );
 
   useEffect(() => {
     const profile = gamesResponse?.profile;
@@ -167,6 +201,14 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
       return ta - tb;
     });
   }, [rawGames, pendingUpdates]);
+
+  const blackoutReasonsByGameId = useMemo(() => {
+    const map = {};
+    for (const g of games) {
+      map[g.gameId] = getBlackoutReasonLines(g, blackoutRules, resolveLeagueLabel);
+    }
+    return map;
+  }, [games, blackoutRules, resolveLeagueLabel]);
 
   const initialDraft = useMemo(() => buildDraftSelections(games), [games]);
 
@@ -342,17 +384,42 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
 
   const handleToggleSub = (gameId) => {
     setSubmitError(null);
-    setDraftSelections((previous) => {
-      const wasSelected = Boolean(previous[gameId]?.sub);
-      return {
+    const game = games.find((g) => g.gameId === gameId);
+    const wasSelected = Boolean(draftSelections[gameId]?.sub);
+
+    if (wasSelected) {
+      setDraftSelections((previous) => ({
         ...previous,
         [gameId]: {
           ...previous[gameId],
-          sub: !wasSelected,
-          attendance: ""
+          sub: false,
+          attendance: previous[gameId]?.attendance || ""
         }
-      };
-    });
+      }));
+      return;
+    }
+
+    const reasons = game
+      ? getBlackoutReasonEntries(game, blackoutRules, resolveLeagueLabel)
+      : [];
+    if (reasons.length > 0) {
+      setBlackoutToggleModal({
+        gameId,
+        reasons,
+        headline: getGameHeadline(game),
+        schedule: getScheduleText(game)
+      });
+      return;
+    }
+
+    setDraftSelections((previous) => ({
+      ...previous,
+      [gameId]: {
+        ...previous[gameId],
+        sub: true,
+        attendance: ""
+      }
+    }));
   };
 
   const handleToggleAttendance = (gameId, value) => {
@@ -381,14 +448,14 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
     });
   };
 
-  const handleSubmitPendingChanges = async () => {
+  const runSubmitGames = async () => {
     setSubmitError(null);
 
     if (window.__FAKE_SUB_FAILURE) {
       window.__FAKE_SUB_FAILURE = false;
       setSubmitError("Failed to submit games. Please try again.");
       setTimeout(() => {
-        setSubmitError((prev) => 
+        setSubmitError((prev) =>
           prev === "Failed to submit games. Please try again." ? null : prev
         );
       }, 5000);
@@ -417,7 +484,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
       const bodyParams = new URLSearchParams();
       bodyParams.append("action", "games update");
       bodyParams.append("profile", gamesResponse?.profile || "UNKNOWN_PROFILE");
-      
+
       const activeSelections = [];
       for (const game of updates) {
         bodyParams.append(game.gameId, game.dateTimeRink);
@@ -426,7 +493,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
           activeSelections.push(`${game.gameId}i=${game.selection}`);
         }
       }
-      
+
       bodyParams.append("submit", "Submit");
       bodyParams.append("required", "");
       bodyParams.append("data_order", "action,profile12/03/2015");
@@ -457,7 +524,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
       // Save to local storage for optimistic UI
       try {
         const profile = gamesResponse?.profile;
-        const changedUpdates = updates.filter(u => {
+        const changedUpdates = updates.filter((u) => {
           const draft = normalizeSelection(draftSelections[u.gameId]);
           const submitted = normalizeSelection(submittedSelections[u.gameId]);
           return !areSelectionsEqual(draft, submitted);
@@ -488,6 +555,64 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
         setSubmitError((prev) => (prev === errorMessage ? null : prev));
       }, 5000);
     }
+  };
+
+  const handleSubmitPendingChanges = async () => {
+    setSubmitError(null);
+
+    if (window.__FAKE_SUB_FAILURE) {
+      await runSubmitGames();
+      return;
+    }
+
+    const needConfirm = [];
+    for (const game of games) {
+      const baseline = normalizeSelection(submittedSelections[game.gameId]);
+      const draft = normalizeSelection(draftSelections[game.gameId]);
+      if (!draft.sub || baseline.sub) {
+        continue;
+      }
+      if (getMatchingBlackoutRules(game, blackoutRules).length === 0) {
+        continue;
+      }
+      needConfirm.push(game);
+    }
+
+    if (needConfirm.length > 0) {
+      setBlackoutSubmitModal({
+        items: needConfirm.map((g) => ({
+          key: g.gameId,
+          gameId: g.gameId,
+          headline: getGameHeadline(g),
+          schedule: getScheduleText(g),
+          reasons: getBlackoutReasonEntries(g, blackoutRules, resolveLeagueLabel)
+        }))
+      });
+      return;
+    }
+
+    await runSubmitGames();
+  };
+
+  const confirmBlackoutToggle = () => {
+    if (!blackoutToggleModal) {
+      return;
+    }
+    const { gameId } = blackoutToggleModal;
+    setBlackoutToggleModal(null);
+    setDraftSelections((previous) => ({
+      ...previous,
+      [gameId]: {
+        ...previous[gameId],
+        sub: true,
+        attendance: ""
+      }
+    }));
+  };
+
+  const confirmBlackoutSubmit = async () => {
+    setBlackoutSubmitModal(null);
+    await runSubmitGames();
   };
 
   const handleCancelPendingChanges = () => {
@@ -755,6 +880,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
             onToggleSub={handleToggleSub}
             onToggleAttendance={handleToggleAttendance}
             isMyGame={isMyGameFn}
+            blackoutReasonsByGameId={blackoutReasonsByGameId}
           />
         ) : viewMode === "list" ? (
           <GamesListView
@@ -764,6 +890,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
             onToggleSub={handleToggleSub}
             onToggleAttendance={handleToggleAttendance}
             isMyGame={isMyGameFn}
+            blackoutReasonsByGameId={blackoutReasonsByGameId}
           />
         ) : (
           <GamesGrid
@@ -774,6 +901,7 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
             onToggleSub={handleToggleSub}
             onToggleAttendance={handleToggleAttendance}
             isMyGame={isMyGameFn}
+            blackoutReasonsByGameId={blackoutReasonsByGameId}
           />
         )}
 
@@ -807,6 +935,36 @@ export default function SubsPage({ phpsessid, gamesResponse, loading, error, isU
         open={jerseyGuideOpen}
         onClose={() => setJerseyGuideOpen(false)}
         chart={jerseyChart}
+      />
+
+      <BlackoutConfirmModal
+        open={Boolean(blackoutToggleModal)}
+        title="This date is on your blackout list"
+        subtitle="Review why you marked it, then continue only if requesting a sub still makes sense."
+        items={
+          blackoutToggleModal
+            ? [
+                {
+                  key: blackoutToggleModal.gameId,
+                  headline: blackoutToggleModal.headline,
+                  schedule: blackoutToggleModal.schedule,
+                  reasons: blackoutToggleModal.reasons
+                }
+              ]
+            : []
+        }
+        onConfirm={confirmBlackoutToggle}
+        onCancel={() => setBlackoutToggleModal(null)}
+      />
+
+      <BlackoutConfirmModal
+        open={Boolean(blackoutSubmitModal)}
+        title="Some sub requests are on blackout dates"
+        subtitle="Confirm once to submit all pending changes."
+        items={blackoutSubmitModal?.items || []}
+        confirmLabel="Submit all"
+        onConfirm={confirmBlackoutSubmit}
+        onCancel={() => setBlackoutSubmitModal(null)}
       />
     </div>
   );

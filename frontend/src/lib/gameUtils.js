@@ -1,5 +1,6 @@
 import seasonCalendar from "../data/seasonCalendar.json";
 import { expandTwinRinksLeagueCode } from "./twinRinksLeagueCodes";
+import { isScheduleId } from "./sportsengineCalendars";
 
 /** @deprecated Prefer `game.leagueLabel` on SportsEngine rows. */
 export const ROSEMONT_LEAGUE_LABEL = "Rosemont AHL";
@@ -86,6 +87,8 @@ export function normalizeSportsengineScheduleGames(apiGames, meta = {}) {
   const leagueLabel =
     String(meta.leagueLabel || "").trim() || "League schedule";
 
+  const metaScheduleId = String(meta.scheduleId || "").trim();
+
   return apiGames.map((row) => {
     const parsedDate = parseRosemontDateRawToDate(row.dateRaw);
     const legacyTime = rosemontStatusTimeToLegacyTime(row.statusTime);
@@ -107,6 +110,7 @@ export function normalizeSportsengineScheduleGames(apiGames, meta = {}) {
     return {
       gameId: `se-${sourceKey}-${row.gameId}`,
       source: "sportsengine",
+      scheduleId: isScheduleId(metaScheduleId) ? metaScheduleId : "",
       rosterTeamName: myTeam,
       leagueLabel,
       dateRaw: row.dateRaw,
@@ -928,6 +932,18 @@ export function formatDateKey(date) {
   const dd = String(date.getDate()).padStart(2, "0");
   const yyyy = String(date.getFullYear());
   return `${mm}/${dd}/${yyyy}`;
+}
+
+/** Local calendar date as YYYY-MM-DD (for blackout / comparisons). */
+export function getDateKeyIsoLocal(game) {
+  const parsed = parseGameDate(game);
+  if (!parsed || Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+  const y = parsed.getFullYear();
+  const m = String(parsed.getMonth() + 1).padStart(2, "0");
+  const d = String(parsed.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
 }
 
 function formatPlannerLabel(date) {

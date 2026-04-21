@@ -15,7 +15,8 @@ export default function GamesWeekBoard({
   isMyGame,
   onToggleSub,
   onToggleAttendance,
-  onSelectGame
+  onSelectGame,
+  blackoutReasonsByGameId = {}
 }) {
   const buckets = buildUpcomingWeekBuckets(games, 14);
   const firstWeek = buckets.slice(0, 7);
@@ -49,7 +50,14 @@ export default function GamesWeekBoard({
         </p>
         <div className="grid min-w-[980px] grid-cols-7 gap-3">
           {firstWeek.map((bucket) => (
-            <WeekDayColumn key={bucket.key} bucket={bucket} draftSelections={draftSelections} isMyGame={isMyGame} onSelectGame={onSelectGame} />
+            <WeekDayColumn
+              key={bucket.key}
+              bucket={bucket}
+              draftSelections={draftSelections}
+              isMyGame={isMyGame}
+              onSelectGame={onSelectGame}
+              blackoutReasonsByGameId={blackoutReasonsByGameId}
+            />
           ))}
         </div>
       </div>
@@ -59,7 +67,14 @@ export default function GamesWeekBoard({
         </p>
         <div className="grid min-w-[980px] grid-cols-7 gap-3">
           {secondWeek.map((bucket) => (
-            <WeekDayColumn key={bucket.key} bucket={bucket} draftSelections={draftSelections} isMyGame={isMyGame} onSelectGame={onSelectGame} />
+            <WeekDayColumn
+              key={bucket.key}
+              bucket={bucket}
+              draftSelections={draftSelections}
+              isMyGame={isMyGame}
+              onSelectGame={onSelectGame}
+              blackoutReasonsByGameId={blackoutReasonsByGameId}
+            />
           ))}
         </div>
       </div>
@@ -78,6 +93,7 @@ export default function GamesWeekBoard({
                 pending={pendingGameIds?.has(game.gameId)}
                 denseMode={denseMode}
                 isMyGame={isMyGame?.(game)}
+                blackoutReasons={blackoutReasonsByGameId[game.gameId] || []}
                 onToggleSub={() => onToggleSub(game.gameId)}
                 onToggleAttendance={(value) => onToggleAttendance(game.gameId, value)}
               />
@@ -89,7 +105,7 @@ export default function GamesWeekBoard({
   );
 }
 
-function WeekDayColumn({ bucket, draftSelections, isMyGame, onSelectGame }) {
+function WeekDayColumn({ bucket, draftSelections, isMyGame, onSelectGame, blackoutReasonsByGameId = {} }) {
   const isToday = isDateToday(bucket.date);
 
   return (
@@ -149,7 +165,17 @@ function WeekDayColumn({ bucket, draftSelections, isMyGame, onSelectGame }) {
                 <p className="text-[11px] font-medium text-slate-700">
                   {getTimeText(game) || "Time TBA"}
                 </p>
-                <p className="text-[11px] text-slate-600">{getLeagueLabel(game)}</p>
+                <p className="text-[11px] text-slate-600">
+                  {getLeagueLabel(game)}
+                  {(blackoutReasonsByGameId[game.gameId] || []).length > 0 ? (
+                    <span
+                      className="ml-1 text-amber-800"
+                      title={(blackoutReasonsByGameId[game.gameId] || []).join("\n")}
+                    >
+                      · Bl
+                    </span>
+                  ) : null}
+                </p>
               </button>
             );
           })}

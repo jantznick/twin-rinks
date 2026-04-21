@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import PendingChangesBar from "../components/PendingChangesBar";
 import TelegramInstructionsModal from "../components/TelegramInstructionsModal";
+import BlackoutRulesSection from "../components/BlackoutRulesSection";
 import { normalizeCalendarUrlInput, isScheduleId } from "../lib/sportsengineCalendars";
 
 function scheduleFetchResultMatchesCalendar(cal, r) {
@@ -49,7 +50,9 @@ export default function ProfilePage({
   applyProfileSaveResponse = () => {},
   syncDemoSportsengineCalendars = () => {},
   sportsengineScheduleResults = [],
-  onRefreshSportsengineSchedules
+  onRefreshSportsengineSchedules,
+  blackoutRules = [],
+  onBlackoutsUpdated = () => {}
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   /** Twin Rinks `/get-profile` only — does not block SportsEngine calendars above. */
@@ -645,6 +648,17 @@ export default function ProfilePage({
           <p className="mt-4 text-sm text-slate-500">No extra calendars yet. Add a schedule URL and display name above.</p>
         )}
       </section>
+
+      <div className="mb-8">
+        <BlackoutRulesSection
+          userEmail={userEmail}
+          sportsengineCalendars={draftSportsengineCalendars}
+          initialRules={blackoutRules}
+          demoMode={demoMode}
+          showToast={showToast}
+          onRulesSaved={(rules) => onBlackoutsUpdated(rules)}
+        />
+      </div>
 
       {demoMode ? (
         <div className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">

@@ -19,7 +19,8 @@ export default function GamesListView({
   pendingGameIds,
   onToggleSub,
   onToggleAttendance,
-  isMyGame
+  isMyGame,
+  blackoutReasonsByGameId = {}
 }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -84,6 +85,14 @@ export default function GamesListView({
                     {getGameHeadline(game)}
                   </p>
                   <LeagueSourceBadge game={game} />
+                  {(blackoutReasonsByGameId[game.gameId] || []).length > 0 ? (
+                    <span
+                      className="inline-block rounded-full border border-slate-300 bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600"
+                      title={(blackoutReasonsByGameId[game.gameId] || []).join("\n")}
+                    >
+                      Blackout
+                    </span>
+                  ) : null}
                   {status ? (
                     <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 whitespace-nowrap ${statusPill}`}>
                       {status}

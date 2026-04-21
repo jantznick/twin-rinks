@@ -127,8 +127,42 @@ export default function App() {
   const [demoMode, setDemoMode] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
   const [uploadRefreshCountdownSec, setUploadRefreshCountdownSec] = useState(null);
+  const [blackoutRules, setBlackoutRules] = useState([]);
 
   const isLoggedIn = Boolean(phpsessid);
+
+  const loadBlackouts = useCallback(async () => {
+    const session = getSavedSession();
+    const email = String(userEmail || getSavedEmail() || "").trim();
+    if (!session || !email) {
+      setBlackoutRules([]);
+      return;
+    }
+    const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    try {
+      const response = await fetch(`${API_BASE}/user/blackouts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phpsessid: session, email })
+      });
+      const data = await response.json();
+      if (response.ok && data.ok && Array.isArray(data.rules)) {
+        setBlackoutRules(data.rules);
+      } else {
+        setBlackoutRules([]);
+      }
+    } catch {
+      setBlackoutRules([]);
+    }
+  }, [userEmail]);
+
+  useEffect(() => {
+    if (!phpsessid || !String(userEmail || "").trim()) {
+      setBlackoutRules([]);
+      return;
+    }
+    loadBlackouts();
+  }, [phpsessid, userEmail, loadBlackouts]);
 
   useEffect(() => {
     if (!phpsessid || !String(userEmail || "").trim()) {
@@ -240,7 +274,8 @@ export default function App() {
         ...normalizeSportsengineScheduleGames(r.games, {
           sourceKey: key,
           leagueLabel: cal?.leagueLabel || r.leagueLabel || "League schedule",
-          teamName: r.teamName ?? ""
+          teamName: r.teamName ?? "",
+          scheduleId: r.requestedScheduleId || cal?.scheduleId || ""
         })
       );
     }
@@ -273,6 +308,7 @@ export default function App() {
     setGamesResponse(null);
     setSportsengineCalendars([]);
     setSportsengineScheduleResults([]);
+    setBlackoutRules([]);
     setGamesError("");
     setIsUploading(false);
     setUploadRefreshCountdownSec(null);
@@ -531,11 +567,14 @@ export default function App() {
                   onRefresh={() => {
                     fetchGames(phpsessid);
                     fetchSportsengineSchedules();
+                    loadBlackouts();
                   }}
                   onSubmitGames={submitGames}
                   demoMode={demoMode}
                   setDemoMode={setDemoMode}
                   showToast={setToastMessage}
+                  blackoutRules={blackoutRules}
+                  sportsengineCalendars={sportsengineCalendars}
                 />
               ) : (
                 <LandingPage onOpenLogin={() => setLoginModalOpen(true)} />
@@ -558,6 +597,8 @@ export default function App() {
                   syncDemoSportsengineCalendars={syncDemoSportsengineCalendars}
                   sportsengineScheduleResults={sportsengineScheduleResults}
                   onRefreshSportsengineSchedules={fetchSportsengineSchedules}
+                  blackoutRules={blackoutRules}
+                  onBlackoutsUpdated={setBlackoutRules}
                 />
               ) : (
                 <Navigate to="/" replace />

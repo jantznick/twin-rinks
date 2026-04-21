@@ -20,7 +20,8 @@ export default function GamesPlannerBoard({
   denseMode,
   onToggleSub,
   onToggleAttendance,
-  isMyGame
+  isMyGame,
+  blackoutReasonsByGameId = {}
 }) {
   const [collapsedDays, setCollapsedDays] = useState({});
 
@@ -86,6 +87,7 @@ export default function GamesPlannerBoard({
                   denseMode={denseMode}
                   timeOnly
                   isMyGame={isMyGame?.(game)}
+                  blackoutReasons={blackoutReasonsByGameId[game.gameId] || []}
                   onToggleSub={() => onToggleSub(game.gameId)}
                   onToggleAttendance={(value) => onToggleAttendance(game.gameId, value)}
                 />

@@ -15,6 +15,7 @@ const {
 const { logInfo } = require("./utils/logger");
 const sportsengineScheduleRoutes = require("./routes/sportsengine-schedule");
 const userSettingsRoutes = require("./routes/user-settings");
+const blackoutsRoutes = require("./routes/blackouts");
 const legacyRoutes = require("./routes/legacy");
 
 const app = express();
@@ -38,6 +39,7 @@ app.get("/health", (_req, res) => {
 
 app.use("/sportsengine", sportsengineScheduleRoutes);
 app.use("/user", userSettingsRoutes);
+app.use("/user", blackoutsRoutes);
 app.use(legacyRoutes);
 
 app.listen(PORT, () => {
