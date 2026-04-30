@@ -18,5 +18,17 @@ export default function LeagueSourceBadge({ game }) {
       </span>
     );
   }
+  if (game?.source === "twin-rinks-season") {
+    const lg = String(game.seasonCalendarLeague || "").trim();
+    const short = lg.length > 22 ? `${lg.slice(0, 20)}…` : lg;
+    return (
+      <span
+        title={lg.length > 22 ? lg : undefined}
+        className="inline-flex max-w-[min(100%,14rem)] shrink-0 items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold leading-tight text-amber-950 ring-1 ring-amber-200/90"
+      >
+        Season{short ? ` · ${short}` : ""}
+      </span>
+    );
+  }
   return null;
 }

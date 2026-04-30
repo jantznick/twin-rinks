@@ -9,6 +9,7 @@ import SchedulePage from "./pages/SchedulePage";
 import ProfilePage from "./pages/ProfilePage";
 import Toast from "./components/Toast";
 import { normalizeSportsengineScheduleGames } from "./lib/gameUtils";
+import { twinRinksSeasonGamesForDashboard } from "./lib/twinRinksSeasonCalendar";
 import {
   loadSportsengineCalendarsFromApi,
   normalizeCalendarsPayload,
@@ -134,6 +135,10 @@ export default function App() {
     subWarnIfSameDayGame: false,
     subWarnIfAdjacentGameDays: false
   });
+  const [twinRinksSeason, setTwinRinksSeason] = useState({
+    league: "",
+    team: ""
+  });
 
   const isLoggedIn = Boolean(phpsessid);
 
@@ -148,6 +153,7 @@ export default function App() {
         subWarnIfSameDayGame: false,
         subWarnIfAdjacentGameDays: false
       });
+      setTwinRinksSeason({ league: "", team: "" });
       return;
     }
     const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
@@ -168,6 +174,10 @@ export default function App() {
           subWarnIfSameDayGame: data.subWarnIfSameDayGame === true,
           subWarnIfAdjacentGameDays: data.subWarnIfAdjacentGameDays === true
         });
+        setTwinRinksSeason({
+          league: String(data.twinRinksSeasonLeague || "").trim(),
+          team: String(data.twinRinksSeasonTeam || "").trim()
+        });
       } else {
         setBlackoutRules([]);
         setCalendarSubscriptions([]);
@@ -176,6 +186,7 @@ export default function App() {
           subWarnIfSameDayGame: false,
           subWarnIfAdjacentGameDays: false
         });
+        setTwinRinksSeason({ league: "", team: "" });
       }
     } catch {
       setBlackoutRules([]);
@@ -185,6 +196,7 @@ export default function App() {
         subWarnIfSameDayGame: false,
         subWarnIfAdjacentGameDays: false
       });
+      setTwinRinksSeason({ league: "", team: "" });
     }
   }, [userEmail]);
 
@@ -197,6 +209,7 @@ export default function App() {
         subWarnIfSameDayGame: false,
         subWarnIfAdjacentGameDays: false
       });
+      setTwinRinksSeason({ league: "", team: "" });
       return;
     }
     loadBlackouts();
@@ -320,25 +333,37 @@ export default function App() {
     return merged;
   }, [sportsengineScheduleResults, sportsengineCalendars]);
 
+  const twinRinksSeasonMerged = useMemo(
+    () =>
+      twinRinksSeasonGamesForDashboard(
+        twinRinksSeason.league,
+        twinRinksSeason.team,
+        gamesResponse?.ok && Array.isArray(gamesResponse.games) ? gamesResponse.games : []
+      ),
+    [twinRinksSeason.league, twinRinksSeason.team, gamesResponse?.ok, gamesResponse?.games]
+  );
+
   const combinedGamesResponse = useMemo(() => {
     const se = combinedSportsengineGames;
+    const tr = twinRinksSeasonMerged;
     if (gamesResponse?.ok) {
       const baseGames = Array.isArray(gamesResponse.games) ? gamesResponse.games : [];
       return {
         ...gamesResponse,
-        games: [...baseGames, ...se]
+        games: [...baseGames, ...tr, ...se]
       };
     }
-    if (se.length > 0) {
+    const merged = [...tr, ...se];
+    if (merged.length > 0) {
       return {
         ok: true,
-        games: se,
+        games: merged,
         profile: gamesResponse?.profile,
         profilePath: gamesResponse?.profilePath
       };
     }
     return gamesResponse;
-  }, [gamesResponse, combinedSportsengineGames]);
+  }, [gamesResponse, combinedSportsengineGames, twinRinksSeasonMerged]);
 
   const clearSession = (preserveEmail = false) => {
     const savedEmail = preserveEmail ? userEmail || getSavedEmail() : "";
@@ -352,6 +377,11 @@ export default function App() {
     setGamesError("");
     setIsUploading(false);
     setUploadRefreshCountdownSec(null);
+    setBlackoutPrefs({
+      subWarnIfSameDayGame: false,
+      subWarnIfAdjacentGameDays: false
+    });
+    setTwinRinksSeason({ league: "", team: "" });
     setUserEmail(savedEmail);
 
     try {
@@ -647,6 +677,10 @@ export default function App() {
                   blackoutPrefs={blackoutPrefs}
                   onBlackoutPrefsUpdated={(patch) =>
                     setBlackoutPrefs((prev) => ({ ...prev, ...patch }))
+                  }
+                  twinRinksSeason={twinRinksSeason}
+                  onTwinRinksSeasonUpdated={(patch) =>
+                    setTwinRinksSeason((prev) => ({ ...prev, ...patch }))
                   }
                 />
               ) : (

@@ -3,6 +3,7 @@ import PendingChangesBar from "../components/PendingChangesBar";
 import TelegramInstructionsModal from "../components/TelegramInstructionsModal";
 import BlackoutsSettingsPanel from "../components/BlackoutsSettingsPanel";
 import { normalizeCalendarUrlInput, isScheduleId } from "../lib/sportsengineCalendars";
+import { buildSeasonCalendarLeagueTeamOptions } from "../lib/twinRinksSeasonCalendar";
 
 function scheduleFetchResultMatchesCalendar(cal, r) {
   const sid = String(cal.scheduleId || "").trim();
@@ -63,7 +64,9 @@ export default function ProfilePage({
   onBlackoutsUpdated = () => {},
   loadBlackouts = () => {},
   blackoutPrefs = { subWarnIfSameDayGame: false, subWarnIfAdjacentGameDays: false },
-  onBlackoutPrefsUpdated = () => {}
+  onBlackoutPrefsUpdated = () => {},
+  twinRinksSeason = { league: "", team: "" },
+  onTwinRinksSeasonUpdated = () => {}
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   /** Twin Rinks `/get-profile` only — does not block SportsEngine calendars above. */
@@ -77,6 +80,23 @@ export default function ProfilePage({
   /** `cal.url` of row whose detail modal is open */
   const [calendarDetailUrl, setCalendarDetailUrl] = useState(null);
   const [profileTab, setProfileTab] = useState("calendars");
+  const seasonOpts = useMemo(() => buildSeasonCalendarLeagueTeamOptions(), []);
+  const [draftSeasonLeague, setDraftSeasonLeague] = useState("");
+  const [draftSeasonTeam, setDraftSeasonTeam] = useState("");
+  const [seasonSaving, setSeasonSaving] = useState(false);
+
+  useEffect(() => {
+    setDraftSeasonLeague(String(twinRinksSeason?.league || "").trim());
+    setDraftSeasonTeam(String(twinRinksSeason?.team || "").trim());
+  }, [twinRinksSeason?.league, twinRinksSeason?.team]);
+
+  const teamOptionsForLeague = seasonOpts.teamsByLeague[draftSeasonLeague] || [];
+
+  useEffect(() => {
+    if (draftSeasonTeam && !teamOptionsForLeague.includes(draftSeasonTeam)) {
+      setDraftSeasonTeam("");
+    }
+  }, [draftSeasonLeague, draftSeasonTeam, teamOptionsForLeague]);
 
   useEffect(() => {
     setDraftSportsengineCalendars(sportsengineCalendars);
@@ -376,6 +396,65 @@ export default function ProfilePage({
     } catch (err) {
       setIsSubmitting(false);
       showToast({ type: "error", text: err.message || `Failed to send test ${type === "telegram" ? "Telegram" : "Email"}.` });
+    }
+  };
+
+  const saveSeasonDashboardTeam = async () => {
+    if (draftSeasonLeague && !draftSeasonTeam) {
+      showToast({
+        type: "error",
+        text: "Choose a team, or clear both fields to remove season games from the dashboard."
+      });
+      return;
+    }
+    if (!draftSeasonLeague && draftSeasonTeam) {
+      showToast({ type: "error", text: "Choose a league first." });
+      return;
+    }
+
+    if (demoMode) {
+      onTwinRinksSeasonUpdated({
+        league: draftSeasonLeague.trim(),
+        team: draftSeasonTeam.trim()
+      });
+      showToast({
+        type: "success",
+        text: "Season team saved (demo). The dashboard updates immediately."
+      });
+      return;
+    }
+
+    setSeasonSaving(true);
+    try {
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      const phpsessid =
+        localStorage.getItem("legacy-phpsessid") || sessionStorage.getItem("legacy-phpsessid") || "";
+      const res = await fetch(`${API_BASE}/user/blackouts/preferences`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phpsessid,
+          email: String(userEmail || "").trim(),
+          twinRinksSeasonLeague: draftSeasonLeague.trim() || null,
+          twinRinksSeasonTeam: draftSeasonTeam.trim() || null
+        })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || "Could not save season team");
+      }
+      onTwinRinksSeasonUpdated({
+        league: String(data.twinRinksSeasonLeague ?? "").trim(),
+        team: String(data.twinRinksSeasonTeam ?? "").trim()
+      });
+      showToast({
+        type: "success",
+        text: "Season team saved. My Games & Subs now includes your full Twin Rinks schedule."
+      });
+    } catch (err) {
+      showToast({ type: "error", text: err.message || "Save failed" });
+    } finally {
+      setSeasonSaving(false);
     }
   };
 
@@ -831,6 +910,80 @@ export default function ProfilePage({
                 className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             </div>
+          </div>
+        </section>
+
+        <hr className="border-slate-200" />
+
+        <section>
+          <h3 className="text-base font-semibold text-slate-900">Dashboard season schedule</h3>
+          <p className="mt-1 text-sm text-slate-600">
+            The Twin Rinks subs page only lists your games for the next week or two. Pick your league and team here to
+            merge the full season from this app&apos;s calendar (including playoff slots for your league, such as semi-final
+            and final placeholders). Check-in and sub controls still appear only when a game is listed on the legacy subs
+            page.
+          </p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="season-calendar-league" className="block text-sm font-medium text-slate-700">
+                League
+              </label>
+              <select
+                id="season-calendar-league"
+                value={draftSeasonLeague}
+                onChange={(e) => {
+                  setDraftSeasonLeague(e.target.value);
+                  setDraftSeasonTeam("");
+                }}
+                className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              >
+                <option value="">— Not set —</option>
+                {seasonOpts.leagues.map((lg) => (
+                  <option key={lg} value={lg}>
+                    {lg}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="season-calendar-team" className="block text-sm font-medium text-slate-700">
+                Team
+              </label>
+              <select
+                id="season-calendar-team"
+                value={draftSeasonTeam}
+                onChange={(e) => setDraftSeasonTeam(e.target.value)}
+                disabled={!draftSeasonLeague}
+                className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500"
+              >
+                <option value="">— Choose team —</option>
+                {teamOptionsForLeague.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={saveSeasonDashboardTeam}
+              disabled={seasonSaving}
+              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {seasonSaving ? "Saving…" : "Save season team"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setDraftSeasonLeague("");
+                setDraftSeasonTeam("");
+              }}
+              className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+            >
+              Clear selection
+            </button>
           </div>
         </section>
 

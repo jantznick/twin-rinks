@@ -17,6 +17,10 @@ model User {
   subWarnIfSameDayGame          Boolean                @default(false)
   /// Sub submit: warn if requesting a sub while having a game the previous or next calendar day.
   subWarnIfAdjacentGameDays     Boolean                @default(false)
+  /// Season calendar: league name matching `seasonCalendar.json` (e.g. "Platinum").
+  twinRinksSeasonLeague         String?
+  /// Season calendar: team name matching `seasonCalendar.json` home/away (e.g. "Kelly").
+  twinRinksSeasonTeam           String?
   blackoutRules                 BlackoutRule[]
   calendarSubscriptions         CalendarSubscription[]
   createdAt                     DateTime               @default(now())

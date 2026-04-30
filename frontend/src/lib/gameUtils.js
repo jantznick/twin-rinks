@@ -320,6 +320,9 @@ export function getLeagueLabel(game) {
   if (game?.source === "sportsengine") {
     return game.leagueLabel || "League schedule";
   }
+  if (game?.source === "twin-rinks-season") {
+    return String(game.seasonCalendarLeague || "").trim() || "Twin Rinks season";
+  }
   if (game?.source === "twin-rinks-league") {
     if (game?.details?.kind === "matchup" && game?.details?.league) {
       return expandTwinRinksLeagueCode(game.details.league) || game.details.league;
@@ -341,7 +344,7 @@ export function getLeagueLabel(game) {
 }
 
 export function getGameNote(game) {
-  if (game?.source === "sportsengine") {
+  if (game?.source === "sportsengine" || game?.source === "twin-rinks-season") {
     return "";
   }
   let note = "";
@@ -571,7 +574,7 @@ export function countsAsPlayingForSubWarn(game, selection) {
   const sel = selection || {};
   const stage = String(game?.stage || "").toLowerCase();
 
-  if (game?.source === "sportsengine") {
+  if (game?.source === "sportsengine" || game?.source === "twin-rinks-season") {
     return true;
   }
   if (sel.attendance === "OUT" || (stage === "out" && sel.attendance !== "IN")) {
@@ -602,7 +605,7 @@ export function getSubSpotState(game) {
 }
 
 export function getStatusLabel(game, selection) {
-  if (game?.source === "sportsengine") {
+  if (game?.source === "sportsengine" || game?.source === "twin-rinks-season") {
     return null;
   }
   if (game?.source === "twin-rinks-league") {
@@ -1027,6 +1030,13 @@ function parseGameDate(game) {
   const schedule = game?.schedule || {};
   let datePart = schedule.date;
   let timePart = schedule.time;
+
+  if (game?.source === "twin-rinks-season" && datePart && timePart) {
+    const parsedSeason = parseDateAndTimeParts(datePart, timePart);
+    if (parsedSeason) {
+      return parsedSeason;
+    }
+  }
 
   let parsed = parseDateAndTimeParts(datePart, timePart);
   if (parsed) {

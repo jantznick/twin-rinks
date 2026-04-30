@@ -119,6 +119,8 @@ async function handleGetBlackouts(req, res) {
     rules,
     subWarnIfSameDayGame: Boolean(row.subWarnIfSameDayGame),
     subWarnIfAdjacentGameDays: Boolean(row.subWarnIfAdjacentGameDays),
+    twinRinksSeasonLeague: row.twinRinksSeasonLeague ?? "",
+    twinRinksSeasonTeam: row.twinRinksSeasonTeam ?? "",
     calendarSubscriptions: calendarSubscriptions.map((s) => ({
       id: s.id,
       url: s.url,
@@ -269,6 +271,16 @@ async function handlePatchBlackoutPreferences(req, res) {
   if ("subWarnIfAdjacentGameDays" in body) {
     data.subWarnIfAdjacentGameDays = Boolean(body.subWarnIfAdjacentGameDays);
   }
+  if ("twinRinksSeasonLeague" in body) {
+    const v = body.twinRinksSeasonLeague;
+    data.twinRinksSeasonLeague =
+      v === null || v === undefined ? null : String(v).trim() || null;
+  }
+  if ("twinRinksSeasonTeam" in body) {
+    const v = body.twinRinksSeasonTeam;
+    data.twinRinksSeasonTeam =
+      v === null || v === undefined ? null : String(v).trim() || null;
+  }
   if (Object.keys(data).length === 0) {
     return res.status(400).json({ ok: false, error: "No valid preference fields" });
   }
@@ -282,7 +294,9 @@ async function handlePatchBlackoutPreferences(req, res) {
   return res.json({
     ok: true,
     subWarnIfSameDayGame: Boolean(row.subWarnIfSameDayGame),
-    subWarnIfAdjacentGameDays: Boolean(row.subWarnIfAdjacentGameDays)
+    subWarnIfAdjacentGameDays: Boolean(row.subWarnIfAdjacentGameDays),
+    twinRinksSeasonLeague: row.twinRinksSeasonLeague ?? "",
+    twinRinksSeasonTeam: row.twinRinksSeasonTeam ?? ""
   });
 }
 

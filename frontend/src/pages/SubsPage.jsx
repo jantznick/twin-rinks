@@ -61,7 +61,7 @@ function collectSubScheduleConflictReasonEntries(
   blackoutPrefs
 ) {
   const entries = [];
-  if (!g || g.source === "sportsengine") {
+  if (!g || g.source === "sportsengine" || g.source === "twin-rinks-season") {
     return entries;
   }
   if (!blackoutPrefs?.subWarnIfSameDayGame && !blackoutPrefs?.subWarnIfAdjacentGameDays) {
@@ -344,21 +344,27 @@ export default function SubsPage({
   }, [games, submittedSelections]);
 
   const isTwinRinksLeagueGame = (game) => game?.source === "twin-rinks-league";
+  const isTwinRinksSeasonGame = (game) => game?.source === "twin-rinks-season";
   const isSubListingGame = (game) =>
     game?.source === "subs" ||
     game?.source === undefined ||
     game?.source === null ||
     game?.source === "";
 
+  /** Subs (etc.) marked OUT live under Hidden; roster league games stay on the main list for awareness. */
+  const isOutHiddenFromMainList = (game) =>
+    outGameIds.has(game.gameId) && !isTwinRinksLeagueGame(game);
+
   const combinedMainGames = useMemo(
     () =>
       games.filter((game) => {
-        if (outGameIds.has(game.gameId)) {
+        if (isOutHiddenFromMainList(game)) {
           return false;
         }
         const myGameRow =
           submittedGameIds.has(game.gameId) ||
           game.source === "sportsengine" ||
+          isTwinRinksSeasonGame(game) ||
           isTwinRinksLeagueGame(game);
         const subOptionsRow = isSubListingGame(game);
         return (
@@ -370,18 +376,22 @@ export default function SubsPage({
 
   const myGames = useMemo(
     () =>
-      games.filter(
-        (game) =>
-          !outGameIds.has(game.gameId) &&
-          (submittedGameIds.has(game.gameId) ||
-            game.source === "sportsengine" ||
-            isTwinRinksLeagueGame(game))
-      ),
+      games.filter((game) => {
+        if (isOutHiddenFromMainList(game)) {
+          return false;
+        }
+        return (
+          submittedGameIds.has(game.gameId) ||
+          game.source === "sportsengine" ||
+          isTwinRinksSeasonGame(game) ||
+          isTwinRinksLeagueGame(game)
+        );
+      }),
     [games, submittedGameIds, outGameIds]
   );
 
   const hiddenTabGames = useMemo(
-    () => games.filter((game) => outGameIds.has(game.gameId)),
+    () => games.filter((game) => isOutHiddenFromMainList(game)),
     [games, outGameIds]
   );
 
@@ -389,6 +399,9 @@ export default function SubsPage({
     const now = Date.now();
     let nextGame = null;
     for (const game of myGames) {
+      if (outGameIds.has(game.gameId)) {
+        continue;
+      }
       const date = getGameStartDate(game);
       if (!date) {
         continue;
@@ -416,6 +429,7 @@ export default function SubsPage({
         game &&
           (submittedGameIds.has(game.gameId) ||
             game.source === "sportsengine" ||
+            isTwinRinksSeasonGame(game) ||
             isTwinRinksLeagueGame(game))
       ),
     [submittedGameIds]
@@ -587,7 +601,10 @@ export default function SubsPage({
     }
 
     const updates = games
-      .filter((game) => game.source !== "sportsengine")
+      .filter(
+        (game) =>
+          game.source !== "sportsengine" && game.source !== "twin-rinks-season"
+      )
       .map((game) => {
         const draft = normalizeSelection(draftSelections[game.gameId]);
         return {
