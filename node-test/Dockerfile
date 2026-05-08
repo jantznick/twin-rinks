@@ -1,4 +1,4 @@
-FROM node:22-bookworm-slim
+FROM node:22.22.2-trixie-slim
 
 # Prisma needs OpenSSL libs on slim images; avoids openssl detection warnings at build/runtime.
 RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
