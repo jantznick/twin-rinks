@@ -367,11 +367,14 @@ export default function SubsPage({
           isTwinRinksSeasonGame(game) ||
           isTwinRinksLeagueGame(game);
         const subOptionsRow = isSubListingGame(game);
+        if (!hasTwinRinksLink) {
+          return myGameRow || subOptionsRow;
+        }
         return (
           (myGameRow && showMyGames) || (subOptionsRow && showSubOptions)
         );
       }),
-    [games, outGameIds, showMyGames, showSubOptions, submittedGameIds]
+    [games, outGameIds, showMyGames, showSubOptions, submittedGameIds, hasTwinRinksLink]
   );
 
   const myGames = useMemo(
@@ -802,19 +805,10 @@ export default function SubsPage({
 
   return (
     <div className={`mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 ${hasPendingSelectionChanges ? "pb-36 md:pb-44" : ""}`}>
-      {!hasTwinRinksLink ? (
-        <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          Twin Rinks is not connected. SportsEngine and imported calendars still show here.{" "}
-          <a href="/profile" className="font-semibold text-indigo-700 hover:underline">
-            Connect in Profile → Twin Rinks settings
-          </a>
-          .
-        </div>
-      ) : null}
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-            My Games & Subs
+            {hasTwinRinksLink ? "My Games & Subs" : "My Games"}
           </h1>
           <p className="mt-1 text-sm text-slate-500">
             {nextGameText
@@ -865,13 +859,15 @@ export default function SubsPage({
                 />
               </svg>
             </button>
-            <button
-              type="button"
-              onClick={() => setJerseyGuideOpen(true)}
-              className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-indigo-700 shadow-sm transition hover:bg-slate-50 hover:text-indigo-900 sm:flex-none"
-            >
-              Twin Rinks Subs Jersey guide
-            </button>
+            {hasTwinRinksLink ? (
+              <button
+                type="button"
+                onClick={() => setJerseyGuideOpen(true)}
+                className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-indigo-700 shadow-sm transition hover:bg-slate-50 hover:text-indigo-900 sm:flex-none"
+              >
+                Twin Rinks Subs Jersey guide
+              </button>
+            ) : null}
           </div>
         </div>
       </div>
@@ -892,33 +888,35 @@ export default function SubsPage({
         </div>
       ) : null}
 
-      {demoMode ? (
-        <div className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
-          <div>
-            <strong>Demo mode:</strong> selections and submissions are local only.
+      {hasTwinRinksLink ? (
+        demoMode ? (
+          <div className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+            <div>
+              <strong>Demo mode:</strong> selections and submissions are local only.
+            </div>
+            <button
+              type="button"
+              className="shrink-0 cursor-pointer rounded-md border border-sky-300 bg-sky-200 px-2 py-1 text-xs font-medium text-sky-900 transition hover:bg-sky-300"
+              onClick={() => setDemoMode(false)}
+            >
+              Activate Live Mode
+            </button>
           </div>
-          <button 
-            type="button" 
-            className="shrink-0 cursor-pointer rounded-md border border-sky-300 bg-sky-200 px-2 py-1 text-xs font-medium text-sky-900 transition hover:bg-sky-300" 
-            onClick={() => setDemoMode(false)}
-          >
-            Activate Live Mode
-          </button>
-        </div>
-      ) : (
-        <div className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-          <div>
-            <strong>Live mode active:</strong> Submitting changes will update your actual games on the server.
+        ) : (
+          <div className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+            <div>
+              <strong>Live mode active:</strong> Submitting changes will update your actual games on the server.
+            </div>
+            <button
+              type="button"
+              className="shrink-0 cursor-pointer rounded-md border border-emerald-300 bg-emerald-200 px-2 py-1 text-xs font-medium text-emerald-900 transition hover:bg-emerald-300"
+              onClick={() => setDemoMode(true)}
+            >
+              Return to Demo Mode
+            </button>
           </div>
-          <button 
-            type="button" 
-            className="shrink-0 cursor-pointer rounded-md border border-emerald-300 bg-emerald-200 px-2 py-1 text-xs font-medium text-emerald-900 transition hover:bg-emerald-300" 
-            onClick={() => setDemoMode(true)}
-          >
-            Return to Demo Mode
-          </button>
-        </div>
-      )}
+        )
+      ) : null}
 
       <section className="space-y-4">
         <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
@@ -1023,7 +1021,7 @@ export default function SubsPage({
                   Small
                 </button>
               </div>
-              {activeTab === "games" ? (
+              {activeTab === "games" && hasTwinRinksLink ? (
                 <>
                   <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-700">
                     <input
@@ -1093,8 +1091,12 @@ export default function SubsPage({
               {activeTab === "hidden"
                 ? "No hidden games right now."
                 : games.some((g) => !outGameIds.has(g.gameId))
-                ? "No games match your filters. Try enabling Show my games and/or Show sub options."
-                : "No upcoming games right now."}
+                ? hasTwinRinksLink
+                  ? "No games match your filters. Try enabling Show my games and/or Show sub options."
+                  : "No games to show. Add a calendar under Settings to get started."
+                : hasTwinRinksLink
+                  ? "No upcoming games right now."
+                  : "No upcoming games right now. Add calendars under Settings to get started."}
             </p>
           </div>
         ) : null}

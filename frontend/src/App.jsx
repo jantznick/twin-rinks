@@ -343,7 +343,7 @@ export default function App() {
         String(err.message || "").toLowerCase().includes("session")
       ) {
         setGamesError(
-          "Twin Rinks session expired. Reconnect your Twin Rinks account in Profile."
+          "Twin Rinks session expired. Reconnect your Twin Rinks account in Settings → Integrations."
         );
         setIsUploading(false);
       } else {
@@ -435,7 +435,7 @@ export default function App() {
       if (err.code === "session_expired" || err.status === 401) {
         return {
           success: false,
-          error: "Twin Rinks session expired. Reconnect in Profile settings."
+          error: "Twin Rinks session expired. Reconnect in Settings → Integrations."
         };
       }
       return { success: false, error: err.message || "Failed to submit games" };
@@ -470,6 +470,7 @@ export default function App() {
     <div className="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900">
       <TopNav
         isLoggedIn={isLoggedIn}
+        hasTwinRinksLink={hasTwinRinksLink}
         userEmail={userEmail}
         onLogout={handleLogout}
         onOpenLogin={() => setLoginModalOpen(true)}
@@ -526,7 +527,12 @@ export default function App() {
               )
             }
           />
-          <Route path="/schedule" element={<SchedulePage />} />
+          <Route
+            path="/schedule"
+            element={
+              hasTwinRinksLink ? <SchedulePage /> : <Navigate to="/" replace />
+            }
+          />
           <Route path="/auth/verify" element={<VerifyMagicLinkPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />

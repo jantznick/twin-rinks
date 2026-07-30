@@ -6,8 +6,8 @@ export default function LandingPage({ onOpenLogin }) {
           Manage your hockey schedule
         </h1>
         <p className="mx-auto mt-6 max-w-xl text-lg text-slate-600">
-          View the full season calendar, manage your sub requests, and confirm your
-          attendance for upcoming games across all leagues.
+          Bring team calendars together in one place and set blackouts for when you&apos;re
+          unavailable. Optional league integrations—like Twin Rinks—are available under Settings.
         </p>
         <div className="mt-10 flex items-center justify-center gap-4">
           <button

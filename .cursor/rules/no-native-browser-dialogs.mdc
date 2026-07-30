@@ -1,0 +1,15 @@
+---
+description: Require reusable app modals instead of native browser dialogs
+globs: frontend/src/**/*.{js,jsx,ts,tsx}
+alwaysApply: false
+---
+
+# No Native Browser Dialogs
+
+- Never use `alert()`, `confirm()`, `prompt()`, or their `window.*` forms.
+- Use an existing reusable modal component from `frontend/src/components`.
+- Use `ConfirmationModal` for confirmations, including destructive actions.
+- Extend an existing modal component when necessary instead of adding an ad hoc
+  page-specific dialog.
+- Modals must provide accessible dialog semantics and support canceling with
+  Escape unless an action is actively processing.

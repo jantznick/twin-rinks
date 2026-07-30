@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import PendingChangesBar from "../components/PendingChangesBar";
 import TelegramInstructionsModal from "../components/TelegramInstructionsModal";
+import ConfirmationModal from "../components/ConfirmationModal";
 import BlackoutsSettingsPanel from "../components/BlackoutsSettingsPanel";
 import { normalizeCalendarUrlInput, isScheduleId } from "../lib/sportsengineCalendars";
 import { buildSeasonCalendarLeagueTeamOptions } from "../lib/twinRinksSeasonCalendar";
@@ -21,11 +22,19 @@ function scheduleFetchResultMatchesCalendar(cal, r) {
 const PENDING_PROFILE_KEY = "twin-rinks-pending-profile";
 const MAX_PENDING_AGE = 20 * 60 * 1000; // 20 minutes
 
-const PROFILE_TABS = [
-  { id: "calendars", label: "SportsEngine calendars", shortLabel: "Calendars" },
+const BASE_PROFILE_TABS = [
+  { id: "calendars", label: "Calendars", shortLabel: "Calendars" },
   { id: "blackouts", label: "Blackouts & availability", shortLabel: "Blackouts" },
-  { id: "twinrinks", label: "Twin Rinks settings", shortLabel: "Twin Rinks" }
+  { id: "integrations", label: "Integrations", shortLabel: "Integrations" }
 ];
+
+const TWIN_RINKS_TAB = {
+  id: "twinrinks",
+  label: "Twin Rinks",
+  shortLabel: "Twin Rinks"
+};
+
+const INTEGRATIONS_CONTACT_EMAIL = "hockey@creativeendurancelab.com";
 
 const FIELD_LABELS = {
   password: "Password",
@@ -80,6 +89,7 @@ export default function ProfilePage({
   const [linkLoading, setLinkLoading] = useState(false);
   const [linkError, setLinkError] = useState("");
   const [unlinkLoading, setUnlinkLoading] = useState(false);
+  const [unlinkConfirmOpen, setUnlinkConfirmOpen] = useState(false);
   const [telegramModalOpen, setTelegramModalOpen] = useState(false);
   const [pendingExpanded, setPendingExpanded] = useState(false);
   const [newCalendarUrl, setNewCalendarUrl] = useState("");
@@ -92,6 +102,25 @@ export default function ProfilePage({
   const [draftSeasonLeague, setDraftSeasonLeague] = useState("");
   const [draftSeasonTeam, setDraftSeasonTeam] = useState("");
   const [seasonSaving, setSeasonSaving] = useState(false);
+
+  const profileTabs = useMemo(
+    () =>
+      hasTwinRinksLink
+        ? [
+            BASE_PROFILE_TABS[0],
+            BASE_PROFILE_TABS[1],
+            TWIN_RINKS_TAB,
+            BASE_PROFILE_TABS[2]
+          ]
+        : BASE_PROFILE_TABS,
+    [hasTwinRinksLink]
+  );
+
+  useEffect(() => {
+    if (!hasTwinRinksLink && profileTab === "twinrinks") {
+      setProfileTab("integrations");
+    }
+  }, [hasTwinRinksLink, profileTab]);
 
   useEffect(() => {
     setDraftSeasonLeague(String(twinRinksSeason?.league || "").trim());
@@ -168,7 +197,7 @@ export default function ProfilePage({
       }
       if (!profilePath) {
         setTwinRinksSettingsError(
-          "Twin Rinks profile link is not loaded yet. Open My Games & Subs once after signing in, or return when the games list has finished loading."
+          "Twin Rinks profile link is not loaded yet. Open Games once after signing in, or return when the games list has finished loading."
         );
         setTwinRinksSettingsLoading(false);
         return;
@@ -270,6 +299,7 @@ export default function ProfilePage({
       await twinRinksApi.link(linkUsername.trim(), linkPassword);
       setLinkPassword("");
       showToast({ type: "success", text: "Twin Rinks account connected." });
+      setProfileTab("twinrinks");
       await onTwinRinksLinkChanged();
     } catch (err) {
       setLinkError(err.message || "Could not connect Twin Rinks account");
@@ -279,13 +309,12 @@ export default function ProfilePage({
   };
 
   const handleUnlinkTwinRinks = async () => {
-    if (!window.confirm("Disconnect Twin Rinks? Subs games and Twin Rinks profile edits will stop until you reconnect.")) {
-      return;
-    }
     setUnlinkLoading(true);
     try {
       await twinRinksApi.unlink();
+      setUnlinkConfirmOpen(false);
       showToast({ type: "success", text: "Twin Rinks account disconnected." });
+      setProfileTab("integrations");
       await onTwinRinksLinkChanged();
     } catch (err) {
       showToast({ type: "error", text: err.message || "Could not disconnect" });
@@ -489,7 +518,7 @@ export default function ProfilePage({
       });
       showToast({
         type: "success",
-        text: "Season team saved. My Games & Subs now includes your full Twin Rinks schedule."
+        text: "Season team saved. My Games now includes your full Twin Rinks schedule."
       });
     } catch (err) {
       showToast({ type: "error", text: err.message || "Save failed" });
@@ -673,47 +702,49 @@ export default function ProfilePage({
   return (
     <div className={`mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 lg:px-8 ${hasPendingChanges ? "pb-36 md:pb-44" : ""}`}>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Your Profile</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Settings</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Manage your contact information and notification preferences.
+          Manage calendars, availability, and optional league integrations.
         </p>
       </div>
 
-      {demoMode ? (
-        <div className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
-          <div>
-            <strong>Demo mode:</strong> submissions are local only.
+      {hasTwinRinksLink ? (
+        demoMode ? (
+          <div className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+            <div>
+              <strong>Demo mode:</strong> Twin Rinks submissions are local only.
+            </div>
+            <button
+              type="button"
+              className="shrink-0 cursor-pointer rounded-md border border-sky-300 bg-sky-200 px-2 py-1 text-xs font-medium text-sky-900 transition hover:bg-sky-300"
+              onClick={() => setDemoMode(false)}
+            >
+              Activate Live Mode
+            </button>
           </div>
-          <button
-            type="button"
-            className="shrink-0 cursor-pointer rounded-md border border-sky-300 bg-sky-200 px-2 py-1 text-xs font-medium text-sky-900 transition hover:bg-sky-300"
-            onClick={() => setDemoMode(false)}
-          >
-            Activate Live Mode
-          </button>
-        </div>
-      ) : (
-        <div className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-          <div>
-            <strong>Live mode active:</strong> Submitting changes will update your actual profile.
+        ) : (
+          <div className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+            <div>
+              <strong>Live mode active:</strong> Twin Rinks profile submissions update the server.
+            </div>
+            <button
+              type="button"
+              className="shrink-0 cursor-pointer rounded-md border border-emerald-300 bg-emerald-200 px-2 py-1 text-xs font-medium text-emerald-900 transition hover:bg-emerald-300"
+              onClick={() => setDemoMode(true)}
+            >
+              Return to Demo Mode
+            </button>
           </div>
-          <button
-            type="button"
-            className="shrink-0 cursor-pointer rounded-md border border-emerald-300 bg-emerald-200 px-2 py-1 text-xs font-medium text-emerald-900 transition hover:bg-emerald-300"
-            onClick={() => setDemoMode(true)}
-          >
-            Return to Demo Mode
-          </button>
-        </div>
-      )}
+        )
+      ) : null}
 
       <div className="mb-6">
         <div
           className="flex flex-wrap gap-1 border-b border-slate-200"
           role="tablist"
-          aria-label="Profile sections"
+          aria-label="Settings sections"
         >
-          {PROFILE_TABS.map((tab) => (
+          {profileTabs.map((tab) => (
             <button
               key={tab.id}
               type="button"
@@ -743,7 +774,7 @@ export default function ProfilePage({
             aria-labelledby="profile-tab-calendars"
           >
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-base font-semibold text-slate-900">SportsEngine team calendars</h2>
+          <h2 className="text-base font-semibold text-slate-900">SportsEngine calendars</h2>
           {onRefreshSportsengineSchedules ? (
             <button
               type="button"
@@ -756,9 +787,9 @@ export default function ProfilePage({
         </div>
         <p className="mt-1 text-sm text-slate-600">
           Add public team schedule pages (SportsEngine / Sports NGIN). You choose the <strong>display name</strong> for each
-          calendar (purple badge on game cards). Your team name for matchup lines comes from the schedule page. Games appear alongside Twin Rinks subs on{" "}
+          calendar (purple badge on game cards). Your team name for matchup lines comes from the schedule page. Games appear on{" "}
           <a href="/" className="font-medium text-indigo-600 hover:text-indigo-800 hover:underline">
-            My Games &amp; Subs
+            My Games
           </a>
           .
         </p>
@@ -851,7 +882,7 @@ export default function ProfilePage({
               Blackouts &amp; availability
             </h2>
             <p className="mt-1 text-sm text-slate-600">
-              One list of days you&apos;re unavailable for subs — add rules by hand or import an iCal feed.
+              One list of days you&apos;re unavailable — add rules by hand or import an iCal feed.
             </p>
             <BlackoutsSettingsPanel
               userEmail={userEmail}
@@ -870,7 +901,105 @@ export default function ProfilePage({
           </div>
         )}
 
-        {profileTab === "twinrinks" && (
+        {profileTab === "integrations" && (
+      <div
+        role="tabpanel"
+        id="profile-panel-integrations"
+        aria-labelledby="profile-tab-integrations"
+        className="space-y-8"
+      >
+        <div>
+          <h2 className="text-base font-semibold text-slate-900">Integrations</h2>
+          <p className="mt-1 text-sm text-slate-600">
+            Optional league connections beyond SportsEngine calendars.
+          </p>
+        </div>
+
+        <section className="rounded-xl border border-slate-200 bg-white p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h3 className="text-sm font-semibold text-slate-900">Twin Rinks</h3>
+              <p className="mt-1 text-sm text-slate-600">
+                {hasTwinRinksLink
+                  ? "Connected. Manage league settings, season schedule, and reminders in the Twin Rinks tab."
+                  : "Connect your Twin Rinks login to manage league subs, attendance, and reminders."}
+              </p>
+            </div>
+            {hasTwinRinksLink ? (
+              <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800 ring-1 ring-emerald-200">
+                Connected
+              </span>
+            ) : (
+              <span className="rounded-full bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600 ring-1 ring-slate-200">
+                Not connected
+              </span>
+            )}
+          </div>
+
+          {!hasTwinRinksLink ? (
+            <form onSubmit={handleLinkTwinRinks} className="mt-5 max-w-md space-y-4">
+              {linkError ? (
+                <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{linkError}</p>
+              ) : null}
+              <label className="block text-sm">
+                <span className="font-medium text-slate-700">Twin Rinks username / email</span>
+                <input
+                  className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2"
+                  value={linkUsername}
+                  onChange={(e) => setLinkUsername(e.target.value)}
+                  autoComplete="username"
+                  required
+                />
+              </label>
+              <label className="block text-sm">
+                <span className="font-medium text-slate-700">Twin Rinks password</span>
+                <input
+                  type="password"
+                  className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2"
+                  value={linkPassword}
+                  onChange={(e) => setLinkPassword(e.target.value)}
+                  autoComplete="current-password"
+                  required
+                />
+              </label>
+              <button
+                type="submit"
+                disabled={linkLoading}
+                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+              >
+                {linkLoading ? "Connecting…" : "Connect"}
+              </button>
+            </form>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setProfileTab("twinrinks")}
+              className="mt-5 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-indigo-700 shadow-sm transition hover:bg-slate-50"
+            >
+              Open Twin Rinks settings
+            </button>
+          )}
+        </section>
+
+        <section className="rounded-xl border border-slate-200 bg-white p-5">
+          <h3 className="text-sm font-semibold text-slate-900">Custom league website</h3>
+          <p className="mt-1 text-sm text-slate-600">
+            Need another league site integrated into Hockey Rink? Email us with the website and what you&apos;d like
+            supported — we&apos;ll follow up about adding it.
+          </p>
+          <a
+            href={`mailto:${INTEGRATIONS_CONTACT_EMAIL}?subject=${encodeURIComponent(
+              "Custom league website integration"
+            )}`}
+            className="mt-4 inline-flex rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-indigo-700 shadow-sm transition hover:bg-slate-50"
+          >
+            Email {INTEGRATIONS_CONTACT_EMAIL}
+          </a>
+        </section>
+      </div>
+        )}
+
+        {profileTab === "twinrinks" && hasTwinRinksLink ? (
       <div
         role="tabpanel"
         id="profile-panel-twinrinks"
@@ -878,48 +1007,13 @@ export default function ProfilePage({
         className="space-y-8"
       >
         <div>
-          <h2 className="text-base font-semibold text-slate-900">Twin Rinks settings</h2>
+          <h2 className="text-base font-semibold text-slate-900">Twin Rinks</h2>
           <p className="mt-1 text-sm text-slate-600">
-            Connect your Twin Rinks login to load subs games and profile reminders. SportsEngine calendars work without this.
+            League account settings, season schedule merge, and reminder preferences.
           </p>
         </div>
 
-        {!hasTwinRinksLink ? (
-          <form onSubmit={handleLinkTwinRinks} className="max-w-md space-y-4 rounded-xl border border-slate-200 bg-white p-5">
-            <h3 className="text-sm font-semibold text-slate-900">Connect Twin Rinks</h3>
-            {linkError ? (
-              <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{linkError}</p>
-            ) : null}
-            <label className="block text-sm">
-              <span className="font-medium text-slate-700">Twin Rinks username / email</span>
-              <input
-                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2"
-                value={linkUsername}
-                onChange={(e) => setLinkUsername(e.target.value)}
-                autoComplete="username"
-                required
-              />
-            </label>
-            <label className="block text-sm">
-              <span className="font-medium text-slate-700">Twin Rinks password</span>
-              <input
-                type="password"
-                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2"
-                value={linkPassword}
-                onChange={(e) => setLinkPassword(e.target.value)}
-                autoComplete="current-password"
-                required
-              />
-            </label>
-            <button
-              type="submit"
-              disabled={linkLoading}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
-            >
-              {linkLoading ? "Connecting…" : "Connect"}
-            </button>
-          </form>
-        ) : twinRinksSettingsLoading ? (
+        {twinRinksSettingsLoading ? (
           <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-14">
             <svg
               className="h-8 w-8 animate-spin text-indigo-600"
@@ -937,7 +1031,7 @@ export default function ProfilePage({
             </svg>
             <span className="text-sm font-medium text-slate-700">Loading Twin Rinks settings…</span>
             <p className="max-w-sm text-center text-xs text-slate-500">
-              Open the Calendars tab to edit SportsEngine feeds while this loads.
+              You can keep editing SportsEngine calendars under Calendars while this loads.
             </p>
           </div>
         ) : twinRinksSettingsError ? (
@@ -950,17 +1044,16 @@ export default function ProfilePage({
               }}
               className="mt-4 rounded-lg bg-rose-100 px-4 py-2 text-sm font-medium text-rose-800 transition hover:bg-rose-200"
             >
-              Go to My Games &amp; Subs
+              Go to My Games
             </button>
           </div>
         ) : (
           <>
-            {/* Account Info */}
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
               <p className="text-sm text-emerald-900">Twin Rinks account connected.</p>
               <button
                 type="button"
-                onClick={handleUnlinkTwinRinks}
+                onClick={() => setUnlinkConfirmOpen(true)}
                 disabled={unlinkLoading}
                 className="rounded-lg border border-emerald-300 bg-white px-3 py-1.5 text-sm font-medium text-emerald-900 hover:bg-emerald-100 disabled:opacity-60"
               >
@@ -1330,7 +1423,7 @@ export default function ProfilePage({
           </>
         )}
       </div>
-        )}
+        ) : null}
       </section>
 
       <PendingChangesBar
@@ -1554,6 +1647,16 @@ export default function ProfilePage({
       <TelegramInstructionsModal 
         open={telegramModalOpen} 
         onClose={() => setTelegramModalOpen(false)} 
+      />
+      <ConfirmationModal
+        open={unlinkConfirmOpen}
+        title="Disconnect Twin Rinks?"
+        message="Subs games and Twin Rinks profile edits will stop until you reconnect."
+        confirmLabel="Disconnect"
+        destructive
+        loading={unlinkLoading}
+        onConfirm={handleUnlinkTwinRinks}
+        onCancel={() => setUnlinkConfirmOpen(false)}
       />
     </div>
   );

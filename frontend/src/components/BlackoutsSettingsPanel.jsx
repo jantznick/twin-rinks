@@ -282,7 +282,7 @@ export default function BlackoutsSettingsPanel({
     if (demoMode) {
       showToast?.({
         type: "error",
-        text: "Blackout rules can’t be saved in demo mode. Turn off demo mode on My Games & Subs."
+        text: "Blackout rules can’t be saved in demo mode. Turn off demo mode on Games."
       });
       throw new Error("demo_mode");
     }

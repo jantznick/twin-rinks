@@ -159,8 +159,8 @@ export default function LoginModal({ open, onClose, initialEmail = "" }) {
             : forgotMode
             ? "We’ll email a link to choose a new password."
             : isRegister
-              ? "Create an account for this app. You can connect Twin Rinks later under Profile."
-              : "Sign in with the email and password for this app. Twin Rinks is connected separately in Profile."}
+              ? "Create an account for this app. You can add team calendars after you sign in."
+              : "Sign in with the email and password for this app."}
         </p>
 
         {error ? (
