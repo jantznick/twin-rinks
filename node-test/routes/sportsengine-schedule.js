@@ -9,14 +9,8 @@ const {
   headersToObject,
   buildBodyPreview
 } = require("../utils/http");
-const { getSessionFromRequest } = require("../utils/legacy-session");
-const { getEmailFromRequest } = require("../utils/email-from-request");
 const { getPrisma } = require("../lib/prisma");
-const {
-  verifyTwinRinksSessionAndGetEmail,
-  isEmailClaimValid,
-  normalizeEmail
-} = require("../utils/twin-rinks-session-verify");
+const { requireAuth } = require("../middleware/auth");
 const { isUuid } = require("../utils/sportsengine-calendars-storage");
 
 const router = express.Router();
@@ -112,7 +106,7 @@ async function fetchScheduleForStoredUrl(scheduleUrl, res, requestedScheduleId) 
  * Fetches a schedule by opaque scheduleId only. URL is resolved from the signed-in user's
  * stored calendar rows (validated when saved) — no arbitrary URL fetch (SSRF-safe).
  */
-router.post("/team-schedule", async (req, res) => {
+router.post("/team-schedule", requireAuth, async (req, res) => {
   const prisma = getPrisma();
   if (!prisma) {
     return res.status(503).json({
@@ -123,8 +117,6 @@ router.post("/team-schedule", async (req, res) => {
   }
 
   const scheduleId = String(req.body?.scheduleId ?? "").trim();
-  const phpsessid = getSessionFromRequest(req);
-  const claimedEmail = getEmailFromRequest(req);
 
   if (!scheduleId || !isUuid(scheduleId)) {
     return res.status(400).json({
@@ -133,30 +125,8 @@ router.post("/team-schedule", async (req, res) => {
       code: "sportsengine_schedule_id_required"
     });
   }
-  if (!phpsessid) {
-    return res.status(400).json({ ok: false, error: "phpsessid is required" });
-  }
-  if (!claimedEmail) {
-    return res.status(400).json({ ok: false, error: "email is required" });
-  }
 
-  const session = await verifyTwinRinksSessionAndGetEmail(phpsessid);
-  if (!session.ok) {
-    return res.status(401).json({
-      ok: false,
-      error: "Legacy session invalid or expired",
-      code: session.code || "session_expired"
-    });
-  }
-  if (!isEmailClaimValid(session.email, claimedEmail)) {
-    return res.status(403).json({
-      ok: false,
-      error: "email does not match Twin Rinks session",
-      code: "email_mismatch"
-    });
-  }
-
-  const key = normalizeEmail(session.email);
+  const key = req.user.email;
   const row = await prisma.user.findUnique({ where: { email: key } });
   const raw = row?.sportsengineCalendars;
   const calendars = Array.isArray(raw) ? raw : [];

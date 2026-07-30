@@ -251,11 +251,6 @@ export default function BlackoutsSettingsPanel({
   }, [unifiedRows, unifiedPage]);
 
   const apiBase = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-  const authBody = () => ({
-    phpsessid:
-      localStorage.getItem("legacy-phpsessid") || sessionStorage.getItem("legacy-phpsessid") || "",
-    email: String(userEmail || "").trim()
-  });
 
   const patchSubWarnPrefs = async (patch) => {
     if (demoMode) {
@@ -265,12 +260,10 @@ export default function BlackoutsSettingsPanel({
     setSubPrefsSaving(true);
     try {
       const res = await fetch(`${apiBase}/user/blackouts/preferences`, {
+        credentials: "include",
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...authBody(),
-          ...patch
-        })
+        body: JSON.stringify(patch)
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) {
@@ -293,14 +286,11 @@ export default function BlackoutsSettingsPanel({
       });
       throw new Error("demo_mode");
     }
-    const phpsessid =
-      localStorage.getItem("legacy-phpsessid") || sessionStorage.getItem("legacy-phpsessid") || "";
     const response = await fetch(`${apiBase}/user/blackouts`, {
-      method: "PUT",
+      credentials: "include",
+        method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        phpsessid,
-        email: String(userEmail || "").trim(),
         rules: rulesPayload
       })
     });
@@ -380,11 +370,11 @@ export default function BlackoutsSettingsPanel({
     setSubmitting(true);
     try {
       const res = await fetch(`${apiBase}/user/calendar-blocklists`, {
+        credentials: "include",
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...authBody(),
-          url: u,
+                    url: u,
           mode,
           leagueScopes: scopes
         })
@@ -421,9 +411,10 @@ export default function BlackoutsSettingsPanel({
     setSyncingId(subscriptionId);
     try {
       const res = await fetch(`${apiBase}/user/calendar-blocklists/${subscriptionId}/sync`, {
+        credentials: "include",
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(authBody())
+        body: JSON.stringify({})
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) {
@@ -451,9 +442,10 @@ export default function BlackoutsSettingsPanel({
     setPickSelected(new Set());
     try {
       const res = await fetch(`${apiBase}/user/calendar-blocklists/${sub.id}/preview`, {
+        credentials: "include",
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(authBody())
+        body: JSON.stringify({})
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) {
@@ -486,11 +478,11 @@ export default function BlackoutsSettingsPanel({
     setPickSaveLoading(true);
     try {
       const res = await fetch(`${apiBase}/user/calendar-blocklists/${pickModal.id}/selections`, {
+        credentials: "include",
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...authBody(),
-          keys
+                    keys
         })
       });
       const data = await res.json().catch(() => ({}));
@@ -519,11 +511,11 @@ export default function BlackoutsSettingsPanel({
     setSubmitting(true);
     try {
       const res = await fetch(`${apiBase}/user/calendar-blocklists/${disconnectTarget.id}`, {
+        credentials: "include",
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...authBody(),
-          removeBlocklistEntries
+                    removeBlocklistEntries
         })
       });
       const data = await res.json().catch(() => ({}));
@@ -546,9 +538,10 @@ export default function BlackoutsSettingsPanel({
     }
     try {
       const res = await fetch(`${apiBase}/user/calendar-blocklist-entries/${entryId}`, {
+        credentials: "include",
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...authBody(), intent })
+        body: JSON.stringify({ intent })
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) {

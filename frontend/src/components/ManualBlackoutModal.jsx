@@ -162,14 +162,11 @@ export default function ManualBlackoutModal({
       throw new Error("demo_mode");
     }
     const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-    const phpsessid =
-      localStorage.getItem("legacy-phpsessid") || sessionStorage.getItem("legacy-phpsessid") || "";
     const response = await fetch(`${API_BASE}/user/blackouts`, {
-      method: "PUT",
+      credentials: "include",
+        method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        phpsessid,
-        email: String(userEmail || "").trim(),
         rules: rulesPayload
       })
     });

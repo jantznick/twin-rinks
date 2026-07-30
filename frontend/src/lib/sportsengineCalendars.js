@@ -72,11 +72,12 @@ export function normalizeCalendarsPayload(data) {
   return [];
 }
 
-export async function loadSportsengineCalendarsFromApi(apiBase, phpsessid, email) {
+export async function loadSportsengineCalendarsFromApi(apiBase) {
   const response = await fetch(`${apiBase}/user/sportsengine-calendars`, {
     method: "POST",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ phpsessid, email: String(email || "").trim() })
+    body: JSON.stringify({})
   });
   const data = await response.json();
   if (!response.ok || !data.ok) {
@@ -87,13 +88,12 @@ export async function loadSportsengineCalendarsFromApi(apiBase, phpsessid, email
   return normalizeCalendarsPayload(data);
 }
 
-export async function saveSportsengineCalendarsToApi(apiBase, phpsessid, email, calendars) {
+export async function saveSportsengineCalendarsToApi(apiBase, calendars) {
   const response = await fetch(`${apiBase}/user/sportsengine-calendars`, {
     method: "PUT",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      phpsessid,
-      email: String(email || "").trim(),
       sportsengineCalendars: calendars
     })
   });

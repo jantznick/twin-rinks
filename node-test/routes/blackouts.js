@@ -2,14 +2,8 @@
 
 const express = require("express");
 const { getPrisma } = require("../lib/prisma");
-const { getSessionFromRequest } = require("../utils/legacy-session");
-const {
-  verifyTwinRinksSessionAndGetEmail,
-  isEmailClaimValid,
-  normalizeEmail
-} = require("../utils/twin-rinks-session-verify");
+const { requireAuth } = require("../middleware/auth");
 const { logInfo } = require("../utils/logger");
-const { getEmailFromRequest } = require("../utils/email-from-request");
 const {
   sanitizeBlackoutRulesList,
   formatRuleForClient
@@ -54,32 +48,7 @@ async function handleGetBlackouts(req, res) {
     });
   }
 
-  const phpsessid = getSessionFromRequest(req);
-  const claimedEmail = getEmailFromRequest(req);
-  if (!phpsessid) {
-    return res.status(400).json({ ok: false, error: "phpsessid is required" });
-  }
-  if (!claimedEmail) {
-    return res.status(400).json({ ok: false, error: "email is required" });
-  }
-
-  const session = await verifyTwinRinksSessionAndGetEmail(phpsessid);
-  if (!session.ok) {
-    return res.status(401).json({
-      ok: false,
-      error: "Legacy session invalid or expired",
-      code: session.code || "session_expired"
-    });
-  }
-  if (!isEmailClaimValid(session.email, claimedEmail)) {
-    return res.status(403).json({
-      ok: false,
-      error: "email does not match Twin Rinks session",
-      code: "email_mismatch"
-    });
-  }
-
-  const key = normalizeEmail(session.email);
+  const key = req.user.email;
   const row = await getUserRowWithCalendars(prisma, key);
   const rules = (row.blackoutRules || []).map(formatRuleForClient);
 
@@ -161,34 +130,8 @@ async function handlePutBlackouts(req, res) {
     });
   }
 
-  const phpsessid = getSessionFromRequest(req);
-  const claimedEmail = getEmailFromRequest(req);
   const rawList = req.body?.rules;
-
-  if (!phpsessid) {
-    return res.status(400).json({ ok: false, error: "phpsessid is required" });
-  }
-  if (!claimedEmail) {
-    return res.status(400).json({ ok: false, error: "email is required" });
-  }
-
-  const session = await verifyTwinRinksSessionAndGetEmail(phpsessid);
-  if (!session.ok) {
-    return res.status(401).json({
-      ok: false,
-      error: "Legacy session invalid or expired",
-      code: session.code || "session_expired"
-    });
-  }
-  if (!isEmailClaimValid(session.email, claimedEmail)) {
-    return res.status(403).json({
-      ok: false,
-      error: "email does not match Twin Rinks session",
-      code: "email_mismatch"
-    });
-  }
-
-  const key = normalizeEmail(session.email);
+  const key = req.user.email;
   const row = await getUserRowWithCalendars(prisma, key);
   const calendars = Array.isArray(row.sportsengineCalendars)
     ? row.sportsengineCalendars
@@ -237,32 +180,7 @@ async function handlePatchBlackoutPreferences(req, res) {
     });
   }
 
-  const phpsessid = getSessionFromRequest(req);
-  const claimedEmail = getEmailFromRequest(req);
-  if (!phpsessid) {
-    return res.status(400).json({ ok: false, error: "phpsessid is required" });
-  }
-  if (!claimedEmail) {
-    return res.status(400).json({ ok: false, error: "email is required" });
-  }
-
-  const session = await verifyTwinRinksSessionAndGetEmail(phpsessid);
-  if (!session.ok) {
-    return res.status(401).json({
-      ok: false,
-      error: "Legacy session invalid or expired",
-      code: session.code || "session_expired"
-    });
-  }
-  if (!isEmailClaimValid(session.email, claimedEmail)) {
-    return res.status(403).json({
-      ok: false,
-      error: "email does not match Twin Rinks session",
-      code: "email_mismatch"
-    });
-  }
-
-  const key = normalizeEmail(session.email);
+  const key = req.user.email;
   const body = req.body && typeof req.body === "object" ? req.body : {};
   const data = {};
   if ("subWarnIfSameDayGame" in body) {
@@ -300,9 +218,9 @@ async function handlePatchBlackoutPreferences(req, res) {
   });
 }
 
-router.get("/blackouts", handleGetBlackouts);
-router.post("/blackouts", handleGetBlackouts);
-router.put("/blackouts", handlePutBlackouts);
-router.patch("/blackouts/preferences", handlePatchBlackoutPreferences);
+router.get("/blackouts", requireAuth, handleGetBlackouts);
+router.post("/blackouts", requireAuth, handleGetBlackouts);
+router.put("/blackouts", requireAuth, handlePutBlackouts);
+router.patch("/blackouts/preferences", requireAuth, handlePatchBlackoutPreferences);
 
 module.exports = router;

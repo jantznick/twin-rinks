@@ -7,11 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/// Twin Rinks app user preferences keyed by login email (legacy subs login).
-/// Each entry: { scheduleId, url, leagueLabel } — scheduleId is opaque; URL validated at save; leagueLabel is user-defined (badge).
+/// Twin Rinks app user: first-party auth + preferences.
+/// Legacy Twin Rinks credentials (optional) are stored encrypted for server-side PHPSESSID.
 model User {
   id                            String                 @id @default(cuid())
   email                         String                 @unique
+  passwordHash                  String?
+  emailVerified                 Boolean                @default(false)
+  /// Legacy Twin Rinks subs username (plaintext OK; password is encrypted separately).
+  twinRinksUsername             String?
+  twinRinksPasswordEnc          String?
+  twinRinksPhpsessid            String?
+  twinRinksSessionUpdatedAt     DateTime?
+  twinRinksLinkedAt             DateTime?
   sportsengineCalendars         Json                   @default("[]")
   /// Sub submit: warn if requesting a sub while already playing another game that calendar day.
   subWarnIfSameDayGame          Boolean                @default(false)
@@ -23,8 +31,36 @@ model User {
   twinRinksSeasonTeam           String?
   blackoutRules                 BlackoutRule[]
   calendarSubscriptions         CalendarSubscription[]
+  authTokens                    AuthToken[]
   createdAt                     DateTime               @default(now())
   updatedAt                     DateTime               @updatedAt
+}
+
+/// express-session / connect-pg-simple store
+model Session {
+  sid    String   @id @db.VarChar(255)
+  sess   Json     @db.JsonB
+  expire DateTime @db.Timestamp(6)
+
+  @@index([expire])
+  @@map("session")
+}
+
+/// One-time auth tokens (magic link, password reset, email verification).
+model AuthToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String    @unique @db.VarChar(500)
+  /// magic_link | password_reset | email_verification
+  tokenType String    @db.VarChar(32)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([token])
+  @@map("auth_tokens")
 }
 
 /// Imported calendar feed (Google / iCal). Mode IMPORT_ALL syncs every event in-window; IMPORT_PICK stores user-selected instances only.

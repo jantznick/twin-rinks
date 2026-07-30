@@ -2,13 +2,7 @@
 
 const express = require("express");
 const { getPrisma } = require("../lib/prisma");
-const { getSessionFromRequest } = require("../utils/legacy-session");
-const {
-  verifyTwinRinksSessionAndGetEmail,
-  isEmailClaimValid,
-  normalizeEmail
-} = require("../utils/twin-rinks-session-verify");
-const { getEmailFromRequest } = require("../utils/email-from-request");
+const { requireAuth } = require("../middleware/auth");
 const { logInfo } = require("../utils/logger");
 const { isAllowedCalendarUrl, normalizeWebcalToHttps } = require("../utils/calendar-url");
 const {
@@ -29,6 +23,8 @@ const {
 } = require("../utils/prisma-missing-table");
 
 const router = express.Router();
+
+router.use(requireAuth);
 
 function formatSubscription(s) {
   return {
@@ -90,36 +86,7 @@ async function requireSessionUser(req, res) {
     return null;
   }
 
-  const phpsessid = getSessionFromRequest(req);
-  const claimedEmail = getEmailFromRequest(req);
-  if (!phpsessid) {
-    res.status(400).json({ ok: false, error: "phpsessid is required" });
-    return null;
-  }
-  if (!claimedEmail) {
-    res.status(400).json({ ok: false, error: "email is required" });
-    return null;
-  }
-
-  const session = await verifyTwinRinksSessionAndGetEmail(phpsessid);
-  if (!session.ok) {
-    res.status(401).json({
-      ok: false,
-      error: "Legacy session invalid or expired",
-      code: session.code || "session_expired"
-    });
-    return null;
-  }
-  if (!isEmailClaimValid(session.email, claimedEmail)) {
-    res.status(403).json({
-      ok: false,
-      error: "email does not match Twin Rinks session",
-      code: "email_mismatch"
-    });
-    return null;
-  }
-
-  const key = normalizeEmail(session.email);
+  const key = req.user.email;
   let user = await prisma.user.findUnique({ where: { email: key } });
   if (!user) {
     user = await prisma.user.create({ data: { email: key } });

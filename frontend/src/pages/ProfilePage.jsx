@@ -4,6 +4,7 @@ import TelegramInstructionsModal from "../components/TelegramInstructionsModal";
 import BlackoutsSettingsPanel from "../components/BlackoutsSettingsPanel";
 import { normalizeCalendarUrlInput, isScheduleId } from "../lib/sportsengineCalendars";
 import { buildSeasonCalendarLeagueTeamOptions } from "../lib/twinRinksSeasonCalendar";
+import { twinRinksApi } from "../lib/api";
 
 function scheduleFetchResultMatchesCalendar(cal, r) {
   const sid = String(cal.scheduleId || "").trim();
@@ -66,12 +67,19 @@ export default function ProfilePage({
   blackoutPrefs = { subWarnIfSameDayGame: false, subWarnIfAdjacentGameDays: false },
   onBlackoutPrefsUpdated = () => {},
   twinRinksSeason = { league: "", team: "" },
-  onTwinRinksSeasonUpdated = () => {}
+  onTwinRinksSeasonUpdated = () => {},
+  hasTwinRinksLink = false,
+  onTwinRinksLinkChanged = async () => {}
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   /** Twin Rinks `/get-profile` only — does not block SportsEngine calendars above. */
   const [twinRinksSettingsLoading, setTwinRinksSettingsLoading] = useState(true);
   const [twinRinksSettingsError, setTwinRinksSettingsError] = useState(null);
+  const [linkUsername, setLinkUsername] = useState("");
+  const [linkPassword, setLinkPassword] = useState("");
+  const [linkLoading, setLinkLoading] = useState(false);
+  const [linkError, setLinkError] = useState("");
+  const [unlinkLoading, setUnlinkLoading] = useState(false);
   const [telegramModalOpen, setTelegramModalOpen] = useState(false);
   const [pendingExpanded, setPendingExpanded] = useState(false);
   const [newCalendarUrl, setNewCalendarUrl] = useState("");
@@ -153,6 +161,11 @@ export default function ProfilePage({
 
   useEffect(() => {
     async function fetchProfile() {
+      if (!hasTwinRinksLink) {
+        setTwinRinksSettingsLoading(false);
+        setTwinRinksSettingsError(null);
+        return;
+      }
       if (!profilePath) {
         setTwinRinksSettingsError(
           "Twin Rinks profile link is not loaded yet. Open My Games & Subs once after signing in, or return when the games list has finished loading."
@@ -166,12 +179,11 @@ export default function ProfilePage({
 
       try {
         const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-        const phpsessid = localStorage.getItem("legacy-phpsessid") || sessionStorage.getItem("legacy-phpsessid") || "";
-        
         const response = await fetch(`${API_BASE}/get-profile`, {
-          method: "POST",
+          credentials: "include",
+        method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phpsessid, profilePath })
+          body: JSON.stringify({ profilePath })
         });
         
         const data = await response.json();
@@ -248,7 +260,39 @@ export default function ProfilePage({
     }
 
     fetchProfile();
-  }, [profilePath]);
+  }, [profilePath, hasTwinRinksLink]);
+
+  const handleLinkTwinRinks = async (event) => {
+    event.preventDefault();
+    setLinkError("");
+    setLinkLoading(true);
+    try {
+      await twinRinksApi.link(linkUsername.trim(), linkPassword);
+      setLinkPassword("");
+      showToast({ type: "success", text: "Twin Rinks account connected." });
+      await onTwinRinksLinkChanged();
+    } catch (err) {
+      setLinkError(err.message || "Could not connect Twin Rinks account");
+    } finally {
+      setLinkLoading(false);
+    }
+  };
+
+  const handleUnlinkTwinRinks = async () => {
+    if (!window.confirm("Disconnect Twin Rinks? Subs games and Twin Rinks profile edits will stop until you reconnect.")) {
+      return;
+    }
+    setUnlinkLoading(true);
+    try {
+      await twinRinksApi.unlink();
+      showToast({ type: "success", text: "Twin Rinks account disconnected." });
+      await onTwinRinksLinkChanged();
+    } catch (err) {
+      showToast({ type: "error", text: err.message || "Could not disconnect" });
+    } finally {
+      setUnlinkLoading(false);
+    }
+  };
 
   const calendarsDirty = useMemo(() => {
     if (
@@ -373,15 +417,13 @@ export default function ProfilePage({
 
     try {
       const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-      const phpsessid = localStorage.getItem("legacy-phpsessid") || sessionStorage.getItem("legacy-phpsessid") || "";
-      
       const response = await fetch(`${API_BASE}/update-profile`, {
+        credentials: "include",
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...testPayload,
           email: userEmail,
-          phpsessid
         })
       });
       
@@ -427,13 +469,11 @@ export default function ProfilePage({
     setSeasonSaving(true);
     try {
       const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-      const phpsessid =
-        localStorage.getItem("legacy-phpsessid") || sessionStorage.getItem("legacy-phpsessid") || "";
       const res = await fetch(`${API_BASE}/user/blackouts/preferences`, {
+        credentials: "include",
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          phpsessid,
           email: String(userEmail || "").trim(),
           twinRinksSeasonLeague: draftSeasonLeague.trim() || null,
           twinRinksSeasonTeam: draftSeasonTeam.trim() || null
@@ -505,10 +545,7 @@ export default function ProfilePage({
 
     try {
       const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-      const phpsessid = localStorage.getItem("legacy-phpsessid") || sessionStorage.getItem("legacy-phpsessid") || "";
-
       const payload = {
-        phpsessid,
         email: String(userEmail || "").trim()
       };
       if (formHasPendingChanges) {
@@ -541,6 +578,7 @@ export default function ProfilePage({
       }
 
       const response = await fetch(`${API_BASE}/update-profile`, {
+        credentials: "include",
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -833,8 +871,7 @@ export default function ProfilePage({
         )}
 
         {profileTab === "twinrinks" && (
-      <form
-        onSubmit={handleSubmit}
+      <div
         role="tabpanel"
         id="profile-panel-twinrinks"
         aria-labelledby="profile-tab-twinrinks"
@@ -843,11 +880,46 @@ export default function ProfilePage({
         <div>
           <h2 className="text-base font-semibold text-slate-900">Twin Rinks settings</h2>
           <p className="mt-1 text-sm text-slate-600">
-            Your Twin Rinks account, subs preferences, and reminders — separate from extra SportsEngine calendars above.
+            Connect your Twin Rinks login to load subs games and profile reminders. SportsEngine calendars work without this.
           </p>
         </div>
 
-        {twinRinksSettingsLoading ? (
+        {!hasTwinRinksLink ? (
+          <form onSubmit={handleLinkTwinRinks} className="max-w-md space-y-4 rounded-xl border border-slate-200 bg-white p-5">
+            <h3 className="text-sm font-semibold text-slate-900">Connect Twin Rinks</h3>
+            {linkError ? (
+              <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{linkError}</p>
+            ) : null}
+            <label className="block text-sm">
+              <span className="font-medium text-slate-700">Twin Rinks username / email</span>
+              <input
+                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2"
+                value={linkUsername}
+                onChange={(e) => setLinkUsername(e.target.value)}
+                autoComplete="username"
+                required
+              />
+            </label>
+            <label className="block text-sm">
+              <span className="font-medium text-slate-700">Twin Rinks password</span>
+              <input
+                type="password"
+                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2"
+                value={linkPassword}
+                onChange={(e) => setLinkPassword(e.target.value)}
+                autoComplete="current-password"
+                required
+              />
+            </label>
+            <button
+              type="submit"
+              disabled={linkLoading}
+              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+            >
+              {linkLoading ? "Connecting…" : "Connect"}
+            </button>
+          </form>
+        ) : twinRinksSettingsLoading ? (
           <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-14">
             <svg
               className="h-8 w-8 animate-spin text-indigo-600"
@@ -884,6 +956,19 @@ export default function ProfilePage({
         ) : (
           <>
             {/* Account Info */}
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+              <p className="text-sm text-emerald-900">Twin Rinks account connected.</p>
+              <button
+                type="button"
+                onClick={handleUnlinkTwinRinks}
+                disabled={unlinkLoading}
+                className="rounded-lg border border-emerald-300 bg-white px-3 py-1.5 text-sm font-medium text-emerald-900 hover:bg-emerald-100 disabled:opacity-60"
+              >
+                {unlinkLoading ? "Disconnecting…" : "Disconnect"}
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-8">
             <section>
           <h3 className="text-base font-semibold text-slate-900">Account Information</h3>
           <div className="mt-4 grid gap-6 sm:grid-cols-2">
@@ -1237,16 +1322,15 @@ export default function ProfilePage({
           </div>
         </section>
 
-          </>
-        )}
-
         <div className="hidden">
           {/* We hide the inline buttons since PendingChangesBar handles it, but keep form submit valid */}
           <button type="submit" disabled={isSubmitting}>Save</button>
         </div>
       </form>
+          </>
         )}
-
+      </div>
+        )}
       </section>
 
       <PendingChangesBar

@@ -3,7 +3,6 @@
 const express = require("express");
 const {
   LEGACY_BASE_URL,
-  LEGACY_LOGIN_PATH,
   LEGACY_GAMES_PATH,
   LEGACY_SUBMIT_PATH,
   LOG_SENSITIVE,
@@ -14,34 +13,23 @@ const { logInfo } = require("../utils/logger");
 const {
   headersToObject,
   buildBodyPreview,
-  buildCurlCommand,
-  getSetCookieHeaders
+  buildCurlCommand
 } = require("../utils/http");
 const {
-  looksLikeAuthenticatedGamesPage,
   looksLikeLegacyLoginPage,
   isLegacyLoginRedirect
 } = require("../utils/legacy-pages");
-const {
-  getPhpSessionId,
-  buildLoginUrl,
-  redactLoginUrl,
-  maskSessionId,
-  getSessionFromRequest
-} = require("../utils/legacy-session");
+const { maskSessionId } = require("../utils/legacy-session");
 const { getPrisma } = require("../lib/prisma");
 const {
   sanitizeSportsengineCalendars
 } = require("../utils/sportsengine-calendars-storage");
 const {
-  verifyTwinRinksSessionAndGetEmail,
-  isEmailClaimValid,
-  normalizeEmail
-} = require("../utils/twin-rinks-session-verify");
-const {
   getLegacyProfilePayload,
   forwardTwinRinksProfileToLegacy
 } = require("../utils/legacy-profile-forward");
+const { requireTwinRinksLink, requireAuth } = require("../middleware/auth");
+const { getValidPhpsessid } = require("../utils/twin-rinks-session");
 
 const router = express.Router();
 
@@ -59,129 +47,23 @@ router.post("/verify-access", (req, res) => {
   return res.status(401).json({ ok: false, error: "Invalid password" });
 });
 
-router.post("/login", async (req, res) => {
-  const { username, password } = req.body || {};
-
-  if (!username || !password) {
-    return res.status(400).json({
+async function resolveLegacySession(req, res) {
+  const result = await getValidPhpsessid(req.user);
+  if (!result.ok) {
+    res.status(result.code === "twin_rinks_not_linked" ? 403 : 401).json({
       ok: false,
-      error: "username and password are required"
+      error: result.error,
+      code: result.code || "session_expired"
     });
+    return null;
   }
-
-  try {
-    const loginUrl = buildLoginUrl(username, password);
-    const safeLoginUrl = redactLoginUrl(loginUrl);
-    const loginCurl = buildCurlCommand({
-      method: "GET",
-      url: safeLoginUrl
-    });
-    logInfo("Attempting legacy login", { username });
-    logInfo("Legacy login request target", {
-      url: safeLoginUrl,
-      command: loginCurl
-    });
-    const response = await fetch(loginUrl, {
-      method: "GET",
-      redirect: "manual"
-    });
-
-    const setCookieHeaders = getSetCookieHeaders(response.headers);
-    const locationHeader = response.headers.get("location");
-    const responseHeaders = headersToObject(response.headers);
-    const responseBody = await response.text();
-    const bodyPreview = buildBodyPreview(responseBody);
-    logInfo("Legacy login response received", {
-      status: response.status,
-      location: locationHeader,
-      setCookieCount: setCookieHeaders.length,
-      headers: responseHeaders,
-      setCookieHeaders,
-      bodyPreview
-    });
-
-    if (response.status >= 400) {
-      return res.status(401).json({
-        ok: false,
-        error: `Legacy login request failed with status ${response.status}`
-      });
-    }
-
-    const phpsessid = getPhpSessionId(setCookieHeaders);
-
-    if (!phpsessid) {
-      logInfo("No PHPSESSID found in login response", {
-        status: response.status,
-        location: locationHeader,
-        headers: responseHeaders,
-        setCookieHeaders,
-        bodyPreview
-      });
-      return res.status(401).json({
-        ok: false,
-        error: "Login failed: no PHPSESSID returned",
-        debug: {
-          status: response.status,
-          location: locationHeader,
-          setCookieCount: setCookieHeaders.length,
-          headers: responseHeaders,
-          bodyPreview
-        }
-      });
-    }
-
-    logInfo("Login succeeded with PHPSESSID", {
-      username,
-      phpsessid: maskSessionId(phpsessid)
-    });
-
-    const gamesUrl = new URL(LEGACY_GAMES_PATH, LEGACY_BASE_URL).toString();
-    const verifyResponse = await fetch(gamesUrl, {
-      method: "GET",
-      headers: {
-        Cookie: `PHPSESSID=${phpsessid}`
-      }
-    });
-    const verifyHtml = await verifyResponse.text();
-    const verifyParsed = parseSubsHtml(verifyHtml);
-    const authenticated =
-      verifyResponse.status < 400 &&
-      (verifyParsed.gameCount > 0 || looksLikeAuthenticatedGamesPage(verifyHtml));
-
-    if (!authenticated) {
-      logInfo("Login rejected after session verification", {
-        username,
-        status: verifyResponse.status,
-        session: maskSessionId(phpsessid),
-        bodyPreview: buildBodyPreview(verifyHtml)
-      });
-      return res.status(401).json({
-        ok: false,
-        error: "Invalid username or password"
-      });
-    }
-
-    return res.json({
-      ok: true,
-      phpsessid
-    });
-  } catch (error) {
-    return res.status(502).json({
-      ok: false,
-      error: "Legacy login request failed",
-      details: error.message
-    });
-  }
-});
+  return result.phpsessid;
+}
 
 async function legacyFetchGames(req, res) {
-  const phpsessid = getSessionFromRequest(req);
-
+  const phpsessid = await resolveLegacySession(req, res);
   if (!phpsessid) {
-    return res.status(400).json({
-      ok: false,
-      error: "phpsessid is required (body, query, or x-phpsessid header)"
-    });
+    return undefined;
   }
 
   try {
@@ -293,16 +175,16 @@ async function legacyFetchGames(req, res) {
   }
 }
 
-router.get("/get-games", legacyFetchGames);
-router.post("/get-games", legacyFetchGames);
+router.get("/get-games", requireTwinRinksLink, legacyFetchGames);
+router.post("/get-games", requireTwinRinksLink, legacyFetchGames);
 
 async function legacyFetchProfile(req, res) {
-  const phpsessid = getSessionFromRequest(req);
+  const phpsessid = await resolveLegacySession(req, res);
+  if (!phpsessid) {
+    return undefined;
+  }
   const profilePath = req.query?.profilePath || req.body?.profilePath;
 
-  if (!phpsessid) {
-    return res.status(400).json({ ok: false, error: "phpsessid is required" });
-  }
   if (!profilePath) {
     return res.status(400).json({ ok: false, error: "profilePath is required" });
   }
@@ -396,16 +278,16 @@ async function legacyFetchProfile(req, res) {
   }
 }
 
-router.get("/get-profile", legacyFetchProfile);
-router.post("/get-profile", legacyFetchProfile);
+router.get("/get-profile", requireTwinRinksLink, legacyFetchProfile);
+router.post("/get-profile", requireTwinRinksLink, legacyFetchProfile);
 
-router.post("/update-games", async (req, res) => {
-  const phpsessid = getSessionFromRequest(req);
+router.post("/update-games", requireTwinRinksLink, async (req, res) => {
+  const phpsessid = await resolveLegacySession(req, res);
+  if (!phpsessid) {
+    return undefined;
+  }
   const { profile, games } = req.body || {};
 
-  if (!phpsessid) {
-    return res.status(400).json({ ok: false, error: "phpsessid is required" });
-  }
   if (!profile) {
     return res.status(400).json({ ok: false, error: "profile is required" });
   }
@@ -524,38 +406,14 @@ router.post("/update-games", async (req, res) => {
   }
 });
 
-router.post("/update-profile", async (req, res) => {
-  const phpsessid = getSessionFromRequest(req);
+router.post("/update-profile", requireAuth, async (req, res) => {
   const body = req.body || {};
-  const claimedEmail = String(body.email || "").trim();
-
-  if (!phpsessid) {
-    return res.status(400).json({ ok: false, error: "phpsessid is required" });
-  }
-  if (!claimedEmail) {
-    return res.status(400).json({ ok: false, error: "email is required" });
-  }
-
-  const session = await verifyTwinRinksSessionAndGetEmail(phpsessid);
-  if (!session.ok) {
-    return res.status(401).json({
-      ok: false,
-      error: "Legacy session invalid or expired",
-      code: session.code || "session_expired"
-    });
-  }
-  if (!isEmailClaimValid(session.email, claimedEmail)) {
-    logInfo("update-profile: email mismatch", { sessionEmail: session.email });
-    return res.status(403).json({
-      ok: false,
-      error: "email does not match Twin Rinks session",
-      code: "email_mismatch"
-    });
-  }
-
-  const key = normalizeEmail(session.email);
+  const key = req.user.email;
+  const hasCalendarsKey = Object.prototype.hasOwnProperty.call(
+    body,
+    "sportsengineCalendars"
+  );
   const legacyPayload = getLegacyProfilePayload(body);
-  const hasCalendarsKey = Object.prototype.hasOwnProperty.call(body, "sportsengineCalendars");
 
   if (!legacyPayload && !hasCalendarsKey) {
     return res.status(400).json({
@@ -569,6 +427,17 @@ router.post("/update-profile", async (req, res) => {
   let savedCalendars = null;
 
   if (legacyPayload) {
+    if (!req.user.twinRinksUsername || !req.user.twinRinksPasswordEnc) {
+      return res.status(403).json({
+        ok: false,
+        error: "Twin Rinks account not linked",
+        code: "twin_rinks_not_linked"
+      });
+    }
+    const phpsessid = await resolveLegacySession(req, res);
+    if (!phpsessid) {
+      return undefined;
+    }
     const legacyResult = await forwardTwinRinksProfileToLegacy(phpsessid, legacyPayload);
     if (!legacyResult.ok) {
       return res.status(legacyResult.status).json(legacyResult.body);

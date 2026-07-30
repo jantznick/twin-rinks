@@ -17,6 +17,16 @@ const BODY_PREVIEW_LIMIT = Number(process.env.BODY_PREVIEW_LIMIT || 4000);
 const LOG_SENSITIVE = process.env.LOG_SENSITIVE === "1";
 const SITE_ACCESS_PASSWORD = process.env.SITE_ACCESS_PASSWORD || "";
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+const APP_URL = process.env.APP_URL || FRONTEND_URL;
+const SESSION_SECRET =
+  process.env.SESSION_SECRET || "dev-session-secret-change-me";
+const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN || "";
+const NODE_ENV = process.env.NODE_ENV || "development";
+const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
+const RESEND_FROM_EMAIL =
+  process.env.RESEND_FROM_EMAIL || "Hockey <hockey@creativeendurancelab.com>";
+const LEGACY_CREDENTIALS_KEY = process.env.LEGACY_CREDENTIALS_KEY || "";
+const DATABASE_URL = process.env.DATABASE_URL || "";
 
 module.exports = {
   PORT,
@@ -28,5 +38,13 @@ module.exports = {
   BODY_PREVIEW_LIMIT,
   LOG_SENSITIVE,
   SITE_ACCESS_PASSWORD,
-  FRONTEND_URL
+  FRONTEND_URL,
+  APP_URL,
+  SESSION_SECRET,
+  COOKIE_DOMAIN,
+  NODE_ENV,
+  RESEND_API_KEY,
+  RESEND_FROM_EMAIL,
+  LEGACY_CREDENTIALS_KEY,
+  DATABASE_URL
 };

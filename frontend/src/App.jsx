@@ -7,7 +7,12 @@ import LandingPage from "./pages/LandingPage";
 import SubsPage from "./pages/SubsPage";
 import SchedulePage from "./pages/SchedulePage";
 import ProfilePage from "./pages/ProfilePage";
+import VerifyMagicLinkPage from "./pages/VerifyMagicLinkPage";
+import VerifyEmailPage from "./pages/VerifyEmailPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import Toast from "./components/Toast";
+import { useAuth } from "./context/AuthContext";
+import { apiFetch, getApiBase, authApi } from "./lib/api";
 import { normalizeSportsengineScheduleGames } from "./lib/gameUtils";
 import { twinRinksSeasonGamesForDashboard } from "./lib/twinRinksSeasonCalendar";
 import {
@@ -17,29 +22,14 @@ import {
   isScheduleId
 } from "./lib/sportsengineCalendars";
 
-const SAVED_SESSION_KEY = "legacy-phpsessid";
-const SAVED_EMAIL_KEY = "legacy-user-email";
 const GAMES_UPLOAD_POLL_MS = 20000;
 const GAMES_UPLOAD_POLL_SEC = Math.ceil(GAMES_UPLOAD_POLL_MS / 1000);
 
-// Expose a global function for testing submission failures
 window.fake_sub_failure = () => {
   window.__FAKE_SUB_FAILURE = true;
   console.log("Next submission will fail!");
 };
 
-/**
- * Simulate get-games API outcomes from the browser console (dev / QA).
- *
- * One-shot (next fetch only):
- *   fake_games_next_failure()           → generic error UI
- *   fake_games_next_failure("timeout")  → custom message
- *   fake_games_next_uploading()         → uploading + countdown (then real API on later polls unless sticky)
- *
- * Sticky (every poll until cleared — good for testing the countdown):
- *   fake_games_uploading_sticky()
- *   clear_fake_games_simulation()       → stop sticky + cancel pending one-shot
- */
 window.fake_games_next_failure = (message = "Simulated get-games failure") => {
   window.__FAKE_GAMES_NEXT = { type: "error", message };
   console.log("Next get-games call will fail:", message);
@@ -63,44 +53,16 @@ window.clear_fake_games_simulation = () => {
   console.log("Games API simulation cleared. Refresh or use “Refresh” on subs if needed.");
 };
 
-function getSavedSession() {
-  try {
-    return localStorage.getItem(SAVED_SESSION_KEY) || sessionStorage.getItem(SAVED_SESSION_KEY) || "";
-  } catch {
-    return "";
-  }
-}
-
-function getSavedEmail() {
-  try {
-    return localStorage.getItem(SAVED_EMAIL_KEY) || sessionStorage.getItem(SAVED_EMAIL_KEY) || "";
-  } catch {
-    return "";
-  }
-}
-
-function isLegacySessionExpiredResponse(response, data) {
-  if (!response) {
-    return false;
-  }
-  if (String(data?.code || "").toLowerCase() === "session_expired") {
-    return true;
-  }
-  if (response.status === 401) {
-    return true;
-  }
-  const errorText = String(data?.error || "").toLowerCase();
-  const hintText = String(data?.hint || "").toLowerCase();
-  if (errorText.includes("session")) {
-    return true;
-  }
-  if (hintText.includes("session may be invalid")) {
-    return true;
-  }
-  return false;
-}
-
 export default function App() {
+  const {
+    user,
+    loading: authLoading,
+    isLoggedIn,
+    hasTwinRinksLink,
+    logout,
+    checkAuth
+  } = useAuth();
+
   const [siteUnlocked, setSiteUnlocked] = useState(() => {
     try {
       return localStorage.getItem("site-unlocked") === "true";
@@ -108,14 +70,7 @@ export default function App() {
       return false;
     }
   });
-  const [phpsessid, setPhpsessid] = useState(getSavedSession);
-  const [userEmail, setUserEmail] = useState(getSavedEmail);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
-  const [loginUsername, setLoginUsername] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
-  const [loginRemember, setLoginRemember] = useState(true);
-  const [loginLoading, setLoginLoading] = useState(false);
-  const [loginError, setLoginError] = useState("");
 
   const [gamesResponse, setGamesResponse] = useState(null);
   const [sportsengineCalendars, setSportsengineCalendars] = useState([]);
@@ -140,12 +95,27 @@ export default function App() {
     team: ""
   });
 
-  const isLoggedIn = Boolean(phpsessid);
+  const userEmail = user?.email || "";
+
+  const clearAppData = useCallback(() => {
+    setGamesResponse(null);
+    setSportsengineCalendars([]);
+    setSportsengineScheduleResults([]);
+    setBlackoutRules([]);
+    setCalendarSubscriptions([]);
+    setCalendarBlocklist([]);
+    setGamesError("");
+    setIsUploading(false);
+    setUploadRefreshCountdownSec(null);
+    setBlackoutPrefs({
+      subWarnIfSameDayGame: false,
+      subWarnIfAdjacentGameDays: false
+    });
+    setTwinRinksSeason({ league: "", team: "" });
+  }, []);
 
   const loadBlackouts = useCallback(async () => {
-    const session = getSavedSession();
-    const email = String(userEmail || getSavedEmail() || "").trim();
-    if (!session || !email) {
+    if (!isLoggedIn) {
       setBlackoutRules([]);
       setCalendarSubscriptions([]);
       setCalendarBlocklist([]);
@@ -156,15 +126,9 @@ export default function App() {
       setTwinRinksSeason({ league: "", team: "" });
       return;
     }
-    const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     try {
-      const response = await fetch(`${API_BASE}/user/blackouts`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phpsessid: session, email })
-      });
-      const data = await response.json();
-      if (response.ok && data.ok && Array.isArray(data.rules)) {
+      const { data } = await apiFetch("/user/blackouts", { method: "POST", body: {} });
+      if (data.ok && Array.isArray(data.rules)) {
         setBlackoutRules(data.rules);
         setCalendarSubscriptions(
           Array.isArray(data.calendarSubscriptions) ? data.calendarSubscriptions : []
@@ -182,53 +146,31 @@ export default function App() {
         setBlackoutRules([]);
         setCalendarSubscriptions([]);
         setCalendarBlocklist([]);
-        setBlackoutPrefs({
-          subWarnIfSameDayGame: false,
-          subWarnIfAdjacentGameDays: false
-        });
-        setTwinRinksSeason({ league: "", team: "" });
       }
     } catch {
       setBlackoutRules([]);
       setCalendarSubscriptions([]);
       setCalendarBlocklist([]);
-      setBlackoutPrefs({
-        subWarnIfSameDayGame: false,
-        subWarnIfAdjacentGameDays: false
-      });
-      setTwinRinksSeason({ league: "", team: "" });
     }
-  }, [userEmail]);
+  }, [isLoggedIn]);
 
   useEffect(() => {
-    if (!phpsessid || !String(userEmail || "").trim()) {
-      setBlackoutRules([]);
-      setCalendarSubscriptions([]);
-      setCalendarBlocklist([]);
-      setBlackoutPrefs({
-        subWarnIfSameDayGame: false,
-        subWarnIfAdjacentGameDays: false
-      });
-      setTwinRinksSeason({ league: "", team: "" });
+    if (!isLoggedIn) {
+      clearAppData();
       return;
     }
     loadBlackouts();
-  }, [phpsessid, userEmail, loadBlackouts]);
+  }, [isLoggedIn, loadBlackouts, clearAppData]);
 
   useEffect(() => {
-    if (!phpsessid || !String(userEmail || "").trim()) {
+    if (!isLoggedIn) {
       setSportsengineCalendars([]);
       return;
     }
     let cancelled = false;
-    const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     (async () => {
       try {
-        const calendars = await loadSportsengineCalendarsFromApi(
-          API_BASE,
-          phpsessid,
-          userEmail
-        );
+        const calendars = await loadSportsengineCalendarsFromApi(getApiBase());
         if (!cancelled) {
           setSportsengineCalendars(calendars);
         }
@@ -247,16 +189,14 @@ export default function App() {
     return () => {
       cancelled = true;
     };
-  }, [phpsessid, userEmail]);
+  }, [isLoggedIn]);
 
-  /** Demo mode: Profile submit does not call the API; sync calendar draft into app state here. */
   const syncDemoSportsengineCalendars = useCallback((calendars) => {
     if (demoMode) {
       setSportsengineCalendars(calendars);
     }
   }, [demoMode]);
 
-  /** After successful POST /update-profile, apply returned calendar rows from our DB. */
   const applyProfileSaveResponse = useCallback((data) => {
     if (data?.sportsengineCalendars && Array.isArray(data.sportsengineCalendars)) {
       setSportsengineCalendars(normalizeCalendarsPayload(data));
@@ -264,31 +204,22 @@ export default function App() {
   }, []);
 
   const fetchSportsengineSchedules = useCallback(async () => {
-    const session = getSavedSession();
-    const email = String(userEmail || getSavedEmail() || "").trim();
     const list = sportsengineCalendars.filter(
       (c) => String(c?.url || "").trim() && isScheduleId(c?.scheduleId)
     );
-    if (list.length === 0 || !session || !email) {
+    if (list.length === 0 || !isLoggedIn) {
       setSportsengineScheduleResults([]);
       return;
     }
-    const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     const results = await Promise.all(
       list.map(async (cal) => {
         const requestedScheduleId = cal.scheduleId;
         const requestedUrl = cal.url;
         try {
-          const response = await fetch(`${API_BASE}/sportsengine/team-schedule`, {
+          const { data } = await apiFetch("/sportsengine/team-schedule", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              scheduleId: requestedScheduleId,
-              phpsessid: session,
-              email
-            })
+            body: { scheduleId: requestedScheduleId }
           });
-          const data = await response.json();
           return {
             ...data,
             requestedScheduleId: data.requestedScheduleId ?? requestedScheduleId,
@@ -307,7 +238,7 @@ export default function App() {
       })
     );
     setSportsengineScheduleResults(results);
-  }, [sportsengineCalendars, userEmail]);
+  }, [sportsengineCalendars, isLoggedIn]);
 
   const combinedSportsengineGames = useMemo(() => {
     const merged = [];
@@ -365,50 +296,13 @@ export default function App() {
     return gamesResponse;
   }, [gamesResponse, combinedSportsengineGames, twinRinksSeasonMerged]);
 
-  const clearSession = (preserveEmail = false) => {
-    const savedEmail = preserveEmail ? userEmail || getSavedEmail() : "";
-    setPhpsessid("");
-    setGamesResponse(null);
-    setSportsengineCalendars([]);
-    setSportsengineScheduleResults([]);
-    setBlackoutRules([]);
-    setCalendarSubscriptions([]);
-    setCalendarBlocklist([]);
-    setGamesError("");
-    setIsUploading(false);
-    setUploadRefreshCountdownSec(null);
-    setBlackoutPrefs({
-      subWarnIfSameDayGame: false,
-      subWarnIfAdjacentGameDays: false
-    });
-    setTwinRinksSeason({ league: "", team: "" });
-    setUserEmail(savedEmail);
-
-    try {
-      localStorage.removeItem(SAVED_SESSION_KEY);
-      sessionStorage.removeItem(SAVED_SESSION_KEY);
-      if (preserveEmail && savedEmail) {
-        localStorage.setItem(SAVED_EMAIL_KEY, savedEmail);
-        sessionStorage.removeItem(SAVED_EMAIL_KEY);
-      } else {
-        localStorage.removeItem(SAVED_EMAIL_KEY);
-        sessionStorage.removeItem(SAVED_EMAIL_KEY);
-      }
-    } catch {
-      // Ignore localStorage/sessionStorage failures
+  const fetchGames = useCallback(async (isBackground = false) => {
+    if (!hasTwinRinksLink) {
+      setGamesResponse(null);
+      setGamesLoading(false);
+      setIsUploading(false);
+      return;
     }
-  };
-
-  const promptReauth = (message) => {
-    const emailForRelogin = userEmail || getSavedEmail();
-    clearSession(true);
-    setLoginUsername(emailForRelogin);
-    setLoginPassword("");
-    setLoginError(message || "Your session expired. Please sign in again.");
-    setLoginModalOpen(true);
-  };
-
-  const fetchGames = async (sessionId, isBackground = false) => {
     if (!isBackground) {
       setGamesError("");
       setGamesLoading(true);
@@ -426,20 +320,13 @@ export default function App() {
         throw new Error(next.message || "Simulated get-games failure");
       }
 
-      const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-      const response = await fetch(`${API_BASE}/get-games`, {
+      const { data } = await apiFetch("/get-games", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phpsessid: sessionId })
+        body: {}
       });
-      const data = await response.json();
-      if (!response.ok || !data.ok) {
+      if (!data.ok) {
         if (data.error === "uploading") {
           throw new Error("uploading");
-        }
-        if (isLegacySessionExpiredResponse(response, data)) {
-          promptReauth("Session expired on Twin Rinks. Please sign in again.");
-          return;
         }
         throw new Error(data.error || "Unable to load games");
       }
@@ -447,13 +334,26 @@ export default function App() {
       setIsUploading(false);
       if (isBackground) setGamesError("");
     } catch (err) {
-      if (err.message === "uploading") {
+      if (err.message === "uploading" || err.data?.error === "uploading") {
         setIsUploading(true);
         setUploadRefreshCountdownSec(GAMES_UPLOAD_POLL_SEC);
         const pollUnit = GAMES_UPLOAD_POLL_SEC === 1 ? "second" : "seconds";
         setGamesError(
           `Twin Rinks games in process of being uploaded, we'll keep refreshing in the background and update games when they're ready. Next refresh in ${GAMES_UPLOAD_POLL_SEC} ${pollUnit}.`
         );
+      } else if (err.code === "twin_rinks_not_linked") {
+        setGamesResponse(null);
+        setGamesError("");
+        setIsUploading(false);
+      } else if (
+        err.code === "session_expired" ||
+        err.status === 401 ||
+        String(err.message || "").toLowerCase().includes("session")
+      ) {
+        setGamesError(
+          "Twin Rinks session expired. Reconnect your Twin Rinks account in Profile."
+        );
+        setIsUploading(false);
       } else {
         setGamesResponse(null);
         setGamesError(err.message || "Unable to load games");
@@ -464,31 +364,46 @@ export default function App() {
         setGamesLoading(false);
       }
     }
-  };
+  }, [hasTwinRinksLink]);
 
   useEffect(() => {
-    if (phpsessid && !gamesResponse && !gamesLoading && !gamesError && !isUploading) {
-      fetchGames(phpsessid);
+    if (
+      isLoggedIn &&
+      hasTwinRinksLink &&
+      !gamesResponse &&
+      !gamesLoading &&
+      !gamesError &&
+      !isUploading
+    ) {
+      fetchGames(false);
     }
-  }, [phpsessid, gamesResponse, gamesLoading, gamesError, isUploading]);
+  }, [
+    isLoggedIn,
+    hasTwinRinksLink,
+    gamesResponse,
+    gamesLoading,
+    gamesError,
+    isUploading,
+    fetchGames
+  ]);
 
   useEffect(() => {
-    if (!phpsessid) {
+    if (!isLoggedIn) {
       setSportsengineScheduleResults([]);
       return;
     }
     fetchSportsengineSchedules();
-  }, [phpsessid, fetchSportsengineSchedules]);
+  }, [isLoggedIn, fetchSportsengineSchedules]);
 
   useEffect(() => {
     let interval;
-    if (isUploading && phpsessid) {
+    if (isUploading && hasTwinRinksLink) {
       interval = setInterval(() => {
-        fetchGames(phpsessid, true);
+        fetchGames(true);
       }, GAMES_UPLOAD_POLL_MS);
     }
     return () => clearInterval(interval);
-  }, [isUploading, phpsessid]);
+  }, [isUploading, hasTwinRinksLink, fetchGames]);
 
   useEffect(() => {
     if (!isUploading) {
@@ -515,88 +430,31 @@ export default function App() {
   const submitGames = async (profile, updates) => {
     setIsSubmitting(true);
     try {
-      const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-      const response = await fetch(`${API_BASE}/update-games`, {
+      await apiFetch("/update-games", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          phpsessid,
+        body: {
           profile,
           games: updates
-        })
-      });
-      const data = await response.json();
-      if (!response.ok || !data.ok) {
-        if (isLegacySessionExpiredResponse(response, data)) {
-          promptReauth("Session expired before submit. Please sign in again.");
-          return { success: false, error: "Session expired. Please sign in again." };
         }
-        throw new Error(data.error || "Failed to submit games");
-      }
-      // Refresh games to get the latest state from the server
-      await fetchGames(phpsessid);
+      });
+      await fetchGames(false);
       return { success: true };
     } catch (err) {
+      if (err.code === "session_expired" || err.status === 401) {
+        return {
+          success: false,
+          error: "Twin Rinks session expired. Reconnect in Profile settings."
+        };
+      }
       return { success: false, error: err.message || "Failed to submit games" };
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleLoginSubmit = async (event) => {
-    event.preventDefault();
-    setLoginError("");
-    setLoginLoading(true);
-    try {
-      const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-      const response = await fetch(`${API_BASE}/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: loginUsername.trim(), password: loginPassword })
-      });
-      const data = await response.json();
-      if (!response.ok || !data.ok || !data.phpsessid) {
-        throw new Error(data.error || "Login failed");
-      }
-      
-      const normalizedEmail = loginUsername.trim();
-      setPhpsessid(data.phpsessid);
-      setUserEmail(normalizedEmail);
-      setGamesResponse(null);
-      setGamesError("");
-      setIsUploading(false);
-      
-      if (loginRemember) {
-        try {
-          localStorage.setItem(SAVED_SESSION_KEY, data.phpsessid);
-          localStorage.setItem(SAVED_EMAIL_KEY, normalizedEmail);
-          sessionStorage.removeItem(SAVED_SESSION_KEY);
-          sessionStorage.removeItem(SAVED_EMAIL_KEY);
-        } catch {
-          // Ignore localStorage failures
-        }
-      } else {
-        try {
-          localStorage.removeItem(SAVED_SESSION_KEY);
-          localStorage.removeItem(SAVED_EMAIL_KEY);
-          sessionStorage.setItem(SAVED_SESSION_KEY, data.phpsessid);
-          sessionStorage.setItem(SAVED_EMAIL_KEY, normalizedEmail);
-        } catch {
-          // Ignore localStorage failures
-        }
-      }
-      
-      setLoginModalOpen(false);
-      setLoginPassword("");
-    } catch (err) {
-      setLoginError(err.message || "Unable to login");
-    } finally {
-      setLoginLoading(false);
-    }
-  };
-
-  const handleLogout = () => {
-    clearSession(false);
+  const handleLogout = async () => {
+    await logout();
+    clearAppData();
   };
 
   const handleUnlock = () => {
@@ -608,9 +466,26 @@ export default function App() {
     }
   };
 
+  const handleTwinRinksLinkChanged = async () => {
+    await checkAuth();
+    setGamesResponse(null);
+    setGamesError("");
+    setIsUploading(false);
+  };
+
   if (!siteUnlocked) {
     return <SiteBlocker onUnlock={handleUnlock} />;
   }
+
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 text-sm text-slate-600">
+        Loading…
+      </div>
+    );
+  }
+
+  const needsEmailVerification = Boolean(user && !user.emailVerified);
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900">
@@ -621,6 +496,25 @@ export default function App() {
         onOpenLogin={() => setLoginModalOpen(true)}
       />
 
+      {needsEmailVerification ? (
+        <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-center text-sm text-amber-950">
+          Verify your email to use calendars and settings. Check your inbox (or the API console in development), then refresh.{" "}
+          <button
+            type="button"
+            className="font-semibold text-indigo-700 underline"
+            onClick={async () => {
+              try {
+                await authApi.resendVerification();
+                setToastMessage({ type: "success", text: "Verification email sent." });
+              } catch (e) {
+                setToastMessage({ type: "error", text: e.message || "Could not resend" });
+              }
+            }}
+          >
+            Resend link
+          </button>
+        </div>
+      ) : null}
       <div className="flex w-full flex-1 flex-col">
         <Routes>
           <Route
@@ -628,14 +522,14 @@ export default function App() {
             element={
               isLoggedIn ? (
                 <SubsPage
-                  phpsessid={phpsessid}
+                  hasTwinRinksLink={hasTwinRinksLink}
                   gamesResponse={combinedGamesResponse}
                   loading={gamesLoading}
                   error={gamesError}
                   isUploading={isUploading}
                   isSubmitting={isSubmitting}
                   onRefresh={() => {
-                    fetchGames(phpsessid);
+                    fetchGames(false);
                     fetchSportsengineSchedules();
                     loadBlackouts();
                   }}
@@ -654,13 +548,16 @@ export default function App() {
             }
           />
           <Route path="/schedule" element={<SchedulePage />} />
-          <Route 
-            path="/profile" 
+          <Route path="/auth/verify" element={<VerifyMagicLinkPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route
+            path="/profile"
             element={
               isLoggedIn ? (
-                <ProfilePage 
-                  userEmail={userEmail} 
-                  profilePath={gamesResponse?.profilePath} 
+                <ProfilePage
+                  userEmail={userEmail}
+                  profilePath={gamesResponse?.profilePath}
                   demoMode={demoMode}
                   setDemoMode={setDemoMode}
                   showToast={setToastMessage}
@@ -682,34 +579,24 @@ export default function App() {
                   onTwinRinksSeasonUpdated={(patch) =>
                     setTwinRinksSeason((prev) => ({ ...prev, ...patch }))
                   }
+                  hasTwinRinksLink={hasTwinRinksLink}
+                  onTwinRinksLinkChanged={handleTwinRinksLinkChanged}
                 />
               ) : (
                 <Navigate to="/" replace />
               )
-            } 
+            }
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
 
-      <LoginModal
-        open={loginModalOpen}
-        onClose={() => setLoginModalOpen(false)}
-        username={loginUsername}
-        password={loginPassword}
-        remember={loginRemember}
-        loading={loginLoading}
-        error={loginError}
-        onUsernameChange={setLoginUsername}
-        onPasswordChange={setLoginPassword}
-        onRememberChange={setLoginRemember}
-        onSubmit={handleLoginSubmit}
-      />
+      <LoginModal open={loginModalOpen} onClose={() => setLoginModalOpen(false)} />
 
-      <Toast 
-        message={toastMessage?.text} 
-        type={toastMessage?.type} 
-        onClose={() => setToastMessage(null)} 
+      <Toast
+        message={toastMessage?.text}
+        type={toastMessage?.type}
+        onClose={() => setToastMessage(null)}
       />
     </div>
   );

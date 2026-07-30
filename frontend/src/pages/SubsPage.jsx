@@ -183,7 +183,7 @@ function getChangeSummary(before, after) {
 }
 
 export default function SubsPage({
-  phpsessid,
+  hasTwinRinksLink = false,
   gamesResponse,
   loading,
   error,
@@ -802,6 +802,15 @@ export default function SubsPage({
 
   return (
     <div className={`mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 ${hasPendingSelectionChanges ? "pb-36 md:pb-44" : ""}`}>
+      {!hasTwinRinksLink ? (
+        <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Twin Rinks is not connected. SportsEngine and imported calendars still show here.{" "}
+          <a href="/profile" className="font-semibold text-indigo-700 hover:underline">
+            Connect in Profile → Twin Rinks settings
+          </a>
+          .
+        </div>
+      ) : null}
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">
