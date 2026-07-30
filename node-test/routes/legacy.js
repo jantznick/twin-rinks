@@ -5,8 +5,7 @@ const {
   LEGACY_BASE_URL,
   LEGACY_GAMES_PATH,
   LEGACY_SUBMIT_PATH,
-  LOG_SENSITIVE,
-  SITE_ACCESS_PASSWORD
+  LOG_SENSITIVE
 } = require("../config");
 const { parseSubsHtml, parseProfileHtml } = require("../subs-parser");
 const { logInfo } = require("../utils/logger");
@@ -32,20 +31,6 @@ const { requireTwinRinksLink, requireAuth } = require("../middleware/auth");
 const { getValidPhpsessid } = require("../utils/twin-rinks-session");
 
 const router = express.Router();
-
-router.post("/verify-access", (req, res) => {
-  const { password } = req.body || {};
-
-  if (!SITE_ACCESS_PASSWORD) {
-    return res.json({ ok: true, message: "No password configured" });
-  }
-
-  if (password === SITE_ACCESS_PASSWORD) {
-    return res.json({ ok: true });
-  }
-
-  return res.status(401).json({ ok: false, error: "Invalid password" });
-});
 
 async function resolveLegacySession(req, res) {
   const result = await getValidPhpsessid(req.user);

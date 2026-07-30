@@ -15,7 +15,6 @@ const LEGACY_SUBMIT_PATH =
 const LOG_PREFIX = "[legacy-middleware]";
 const BODY_PREVIEW_LIMIT = Number(process.env.BODY_PREVIEW_LIMIT || 4000);
 const LOG_SENSITIVE = process.env.LOG_SENSITIVE === "1";
-const SITE_ACCESS_PASSWORD = process.env.SITE_ACCESS_PASSWORD || "";
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 const APP_URL = process.env.APP_URL || FRONTEND_URL;
 const SESSION_SECRET =
@@ -37,7 +36,6 @@ module.exports = {
   LOG_PREFIX,
   BODY_PREVIEW_LIMIT,
   LOG_SENSITIVE,
-  SITE_ACCESS_PASSWORD,
   FRONTEND_URL,
   APP_URL,
   SESSION_SECRET,

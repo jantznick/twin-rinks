@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
 import TopNav from "./components/TopNav";
 import LoginModal from "./components/LoginModal";
-import SiteBlocker from "./components/SiteBlocker";
 import LandingPage from "./pages/LandingPage";
 import SubsPage from "./pages/SubsPage";
 import SchedulePage from "./pages/SchedulePage";
@@ -63,13 +62,6 @@ export default function App() {
     checkAuth
   } = useAuth();
 
-  const [siteUnlocked, setSiteUnlocked] = useState(() => {
-    try {
-      return localStorage.getItem("site-unlocked") === "true";
-    } catch {
-      return false;
-    }
-  });
   const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   const [gamesResponse, setGamesResponse] = useState(null);
@@ -457,25 +449,12 @@ export default function App() {
     clearAppData();
   };
 
-  const handleUnlock = () => {
-    setSiteUnlocked(true);
-    try {
-      localStorage.setItem("site-unlocked", "true");
-    } catch {
-      // Ignore localStorage failures
-    }
-  };
-
   const handleTwinRinksLinkChanged = async () => {
     await checkAuth();
     setGamesResponse(null);
     setGamesError("");
     setIsUploading(false);
   };
-
-  if (!siteUnlocked) {
-    return <SiteBlocker onUnlock={handleUnlock} />;
-  }
 
   if (authLoading) {
     return (
