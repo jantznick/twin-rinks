@@ -20,6 +20,25 @@ function formatRosemontMatchupLine(isAway, opponentName, rosterTeamName) {
   return isAway ? `${us} @ ${opp}` : `${opp} @ ${us}`;
 }
 
+/** Parses the server-resolved `dateIso` (YYYY-MM-DD) as a local calendar day. */
+function parseIsoDateOnly(dateIso) {
+  const m = String(dateIso || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) {
+    return null;
+  }
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+/**
+ * SportsEngine rows carry `dateIso` with a year recovered from the schedule page.
+ * `dateRaw` ("Thu Apr 9") has no year, so it is only a fallback for older payloads.
+ */
+function parseSportsengineGameDay(row) {
+  return parseIsoDateOnly(row?.dateIso) || parseRosemontDateRawToDate(row?.dateRaw);
+}
+
+/** @deprecated Year is guessed from today's date; prefer `dateIso` from the API. */
 function parseRosemontDateRawToDate(dateRaw) {
   const cleaned = String(dateRaw || "").replace(/\s+/g, " ").trim();
   const m = cleaned.match(/\b([A-Za-z]{3})\s+([A-Za-z]{3})\s+(\d{1,2})\b/);
@@ -90,7 +109,7 @@ export function normalizeSportsengineScheduleGames(apiGames, meta = {}) {
   const metaScheduleId = String(meta.scheduleId || "").trim();
 
   return apiGames.map((row) => {
-    const parsedDate = parseRosemontDateRawToDate(row.dateRaw);
+    const parsedDate = parseSportsengineGameDay(row);
     const legacyTime = rosemontStatusTimeToLegacyTime(row.statusTime);
     const dateStr = parsedDate ? formatLegacyScheduleDateFromDate(parsedDate) : "";
     const dayAbbrev = parsedDate
@@ -114,6 +133,7 @@ export function normalizeSportsengineScheduleGames(apiGames, meta = {}) {
       rosterTeamName: myTeam,
       leagueLabel,
       dateRaw: row.dateRaw,
+      dateIso: row.dateIso || "",
       statusTime: row.statusTime,
       statusTimeDisplay: timeForDisplay,
       resultRaw: row.resultRaw,
@@ -857,7 +877,10 @@ function formatDateLabel(game) {
     const dayName = d.toLocaleDateString(undefined, { weekday: "short" });
     const mon = d.toLocaleDateString(undefined, { month: "short" });
     const dom = d.getDate();
-    return `${dayName} ${mon} ${dom}`;
+    // Seasons run across new year, so spell out the year when it isn't this one.
+    const year = d.getFullYear();
+    const yearSuffix = year === new Date().getFullYear() ? "" : `, ${year}`;
+    return `${dayName} ${mon} ${dom}${yearSuffix}`;
   }
   const date = game?.schedule?.date;
   const day = game?.schedule?.day;
@@ -1054,7 +1077,7 @@ function parseGameDate(game) {
           return parsed;
         }
       }
-      const fromRaw = parseRosemontDateRawToDate(game.dateRaw);
+      const fromRaw = parseSportsengineGameDay(game);
       if (fromRaw) {
         const dp = formatLegacyScheduleDateFromDate(fromRaw);
         parsed = parseDateAndTimeParts(dp, altTime);
@@ -1077,7 +1100,7 @@ function parseGameDate(game) {
 
   if (!datePart || !timePart) {
     if (game?.source === "sportsengine") {
-      return parseRosemontDateRawToDate(game.dateRaw);
+      return parseSportsengineGameDay(game);
     }
     return null;
   }

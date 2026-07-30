@@ -1,5 +1,11 @@
 "use strict";
 
+const {
+  parseSliderDateAnchors,
+  parseSeasonYears,
+  resolveScheduleGameDates
+} = require("./sportsengine-date-resolver");
+
 function stripTags(html) {
   return html
     .replace(/<[^>]+>/g, " ")
@@ -96,11 +102,19 @@ function parseSportsengineTeamScheduleHtml(html) {
     rowMatch = rowRegex.exec(scope);
   }
 
+  // Table cells omit the year; recover it from the slider ids and season label.
+  const seasonYears = parseSeasonYears(fullHtml);
+  const datedGames = resolveScheduleGameDates(games, {
+    sliderAnchors: parseSliderDateAnchors(fullHtml),
+    seasonYears
+  });
+
   return {
     teamName: parseScheduleTitleTeamName(fullHtml),
-    gameCount: games.length,
-    games,
-    parserVersion: "sportsengine-team-schedule-v2"
+    seasonYears,
+    gameCount: datedGames.length,
+    games: datedGames,
+    parserVersion: "sportsengine-team-schedule-v3"
   };
 }
 

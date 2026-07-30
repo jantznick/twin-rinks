@@ -21,27 +21,13 @@ const { isUuid } = require("../utils/sportsengine-calendars-storage");
 
 const router = express.Router();
 
-/** SportsEngine cells only give strings like "Thu Apr 9" — resolve to a calendar day in server local time. */
-function gameDayFromDateRaw(dateRaw) {
-  const cleaned = String(dateRaw || "").replace(/\s+/g, " ").trim();
-  const m = cleaned.match(/\b([A-Za-z]{3})\s+([A-Za-z]{3})\s+(\d{1,2})\b/);
+/** Parses the resolved `dateIso` (YYYY-MM-DD) into a local calendar day. */
+function gameDayFromIso(dateIso) {
+  const m = String(dateIso || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (!m) {
     return null;
   }
-  const mon = m[2];
-  const dayNum = Number(m[3]);
-  const now = new Date();
-  let year = now.getFullYear();
-  let d = new Date(`${mon} ${dayNum}, ${year}`);
-  if (Number.isNaN(d.getTime())) {
-    return null;
-  }
-  if (d.getTime() < now.getTime() - 14 * 86400000) {
-    year += 1;
-    d = new Date(`${mon} ${dayNum}, ${year}`);
-  }
-  d.setHours(0, 0, 0, 0);
-  return d;
+  return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
 }
 
 async function fetchScheduleForStoredUrl(scheduleUrl, res, requestedScheduleId) {
@@ -86,7 +72,7 @@ async function fetchScheduleForStoredUrl(scheduleUrl, res, requestedScheduleId) 
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     const games = parsed.games.filter((g) => {
-      const day = gameDayFromDateRaw(g.dateRaw);
+      const day = gameDayFromIso(g.dateIso);
       if (!day) {
         return true;
       }
@@ -105,6 +91,7 @@ async function fetchScheduleForStoredUrl(scheduleUrl, res, requestedScheduleId) 
       sourceUrl: scheduleUrl,
       requestedScheduleId: requestedScheduleId || undefined,
       teamName: parsed.teamName || null,
+      seasonYears: parsed.seasonYears || [],
       gameCount: games.length,
       parserVersion: parsed.parserVersion,
       games
